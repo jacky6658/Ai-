@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 留學顧問智能體</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // 內嵌配置
+        window.__CONFIG__ = {
+            API_BASE: 'http://localhost:8080/api/v1'
+        };
+    </script>
+    <style>
+        /* 自定義樣式 */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .chip {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-all duration-200;
+        }
+        
+        .chip-unselected {
+            @apply bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer;
+        }
+        
+        .chip-selected {
+            @apply bg-yellow-500 text-white hover:bg-yellow-600;
+        }
+        
+        .message-bubble {
+            @apply max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl;
+        }
+        
+        .message-user {
+            @apply bg-yellow-500 text-white ml-auto;
+        }
+        
+        .message-ai {
+            @apply bg-yellow-50 text-gray-800 mr-auto border border-yellow-200;
+        }
+        
+        .typing-indicator {
+            @apply flex space-x-1;
+        }
+        
+        .typing-dot {
+            @apply w-2 h-2 bg-gray-400 rounded-full animate-bounce;
+        }
+        
+        .chat-container {
+            height: calc(100vh - 120px);
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 100px);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .chat-container {
+                height: calc(100vh - 80px);
+            }
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        
+        .floating-animation {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-yellow-50 to-orange-50 min-h-screen">
+    <!-- 首頁 -->
+    <div id="homepage" class="min-h-screen">
+        <!-- Hero Section -->
+        <div class="gradient-bg min-h-screen flex items-center justify-center px-4 py-8">
+            <div class="text-center text-white max-w-4xl mx-auto">
+                <div class="floating-animation mb-6 sm:mb-8">
+                    <div class="text-4xl sm:text-5xl md:text-6xl mb-4">🎓</div>
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 fade-in leading-tight">
+                    AI 留學顧問智能體
+                </h1>
+                <p class="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-yellow-100 fade-in px-4">
+                    智能分析您的留學需求，提供個性化建議與專業諮詢
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center fade-in px-4">
+                    <button id="start-consultation-btn" 
+                            class="w-full sm:w-auto bg-white text-yellow-600 px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:bg-yellow-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        🚀 開始智能諮詢
+                    </button>
+                    <button id="learn-more-btn" 
+                            class="w-full sm:w-auto border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:bg-white hover:text-yellow-600 transition-all duration-300">
+                        📚 了解更多
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div id="features-section" class="py-12 sm:py-16 lg:py-20 px-4 hidden">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12 lg:mb-16">
+                    為什麼選擇我們的AI留學顧問？
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                    <div class="text-center p-4 sm:p-6 lg:p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">🤖</div>
+                        <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800">AI智能分析</h3>
+                        <p class="text-sm sm:text-base text-gray-600">基於您的背景和需求，提供精準的留學建議和學校推薦</p>
+                    </div>
+                    <div class="text-center p-4 sm:p-6 lg:p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">💬</div>
+                        <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800">對話式諮詢</h3>
+                        <p class="text-sm sm:text-base text-gray-600">透過自然對話，深入了解您的需求，提供個性化建議</p>
+                    </div>
+                    <div class="text-center p-4 sm:p-6 lg:p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 sm:col-span-2 lg:col-span-1">
+                        <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">👥</div>
+                        <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800">專業顧問銜接</h3>
+                        <p class="text-sm sm:text-base text-gray-600">AI初步分析後，可轉接給專業人工顧問進行深度諮詢</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定頁面 -->
+    <div id="setup-page" class="min-h-screen hidden">
+        <div class="max-w-2xl mx-auto bg-white min-h-screen">
+            <!-- Header -->
+            <header class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-4 sm:p-6 text-center relative">
+                <button id="back-to-home" class="absolute left-2 sm:left-4 top-4 sm:top-6 text-white hover:text-yellow-200 transition-colors text-sm sm:text-base">
+                    ← 返回首頁
+                </button>
+                <h1 class="text-lg sm:text-xl lg:text-2xl font-bold mb-1 sm:mb-2">設定您的留學需求</h1>
+                <p class="text-yellow-100 text-sm sm:text-base">讓我們先了解您的基本資訊</p>
+            </header>
+
+            <!-- Setup Form -->
+            <main class="p-6">
+                <form id="setup-form" class="space-y-6">
+                    <!-- 個人基本資訊 -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">1</span>
+                            個人基本資訊
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">學生姓名 *</label>
+                                <input type="text" id="student_name" name="student_name" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：Alex Chen">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">學生電子郵件 *</label>
+                                <input type="email" id="student_email" name="student_email" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：student@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">學生電話號碼</label>
+                                <input type="tel" id="student_phone" name="student_phone" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：09XXXXXXXX">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">國籍 *</label>
+                                <input type="text" id="citizenship" name="citizenship" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：Taiwan">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 家長聯繫資訊 -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">2</span>
+                            家長聯繫資訊 (選填)
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">家長電子郵件</label>
+                                <input type="email" id="parent_email" name="parent_email" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：parent@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">家長電話號碼</label>
+                                <input type="tel" id="parent_phone" name="parent_phone" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：09XXXXXXXX">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 學術背景 -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
+                            學術背景
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">就讀高中 *</label>
+                                <input type="text" id="high_school" name="high_school" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：台北美國學校 (TAS)">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">預計高中畢業年份 *</label>
+                                <input type="number" id="graduation_year" name="graduation_year" required min="1900" max="2100" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：2028">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">GPA (滿分4.0) *</label>
+                                <input type="number" id="gpa" name="gpa" step="0.1" min="0" max="4" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：4.0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">AP 課程 (選填，請列出)</label>
+                                <input type="text" id="ap_courses" name="ap_courses" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：AP Bio, World History">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 考試成績 -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">4</span>
+                            考試成績
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">PSAT 成績 (選填)</label>
+                                <input type="text" id="psat_score" name="psat_score" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：1280 (M760/E720)">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">SAT 成績 (選填)</label>
+                                <input type="text" id="sat_score" name="sat_score" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：1500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ACT 成績 (選填)</label>
+                                <input type="text" id="act_score" name="act_score" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：32">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">英語能力考試類型</label>
+                                <select id="english_exam_type" name="english_exam_type" 
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                    <option value="none">尚未考取</option>
+                                    <option value="ielts">IELTS</option>
+                                    <option value="toefl">TOEFL</option>
+                                    <option value="duolingo">Duolingo</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">英語考試分數 (若尚未考取請留空)</label>
+                                <input type="text" id="english_exam_score" name="english_exam_score" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：IELTS 7.0 或 TOEFL 100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 留學偏好 -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">5</span>
+                            留學偏好
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">目標學位 *</label>
+                                <select id="degree" name="degree" required 
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                    <option value="">請選擇學位</option>
+                                    <option value="bachelor">學士</option>
+                                    <option value="master">碩士</option>
+                                    <option value="phd">博士</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">目標國家 * (可多選)</label>
+                                <div class="flex flex-wrap gap-2" id="countries-container">
+                                    <span class="chip chip-unselected" data-value="us">🇺🇸 美國</span>
+                                    <span class="chip chip-unselected" data-value="uk">🇬🇧 英國</span>
+                                    <span class="chip chip-unselected" data-value="ca">🇨🇦 加拿大</span>
+                                    <span class="chip chip-unselected" data-value="au">🇦🇺 澳洲</span>
+                                    <span class="chip chip-unselected" data-value="de">🇩🇪 德國</span>
+                                    <span class="chip chip-unselected" data-value="sg">🇸🇬 新加坡</span>
+                                    <span class="chip chip-unselected" data-value="jp">🇯🇵 日本</span>
+                                    <span class="chip chip-unselected" data-value="other">🌍 其他</span>
+                                </div>
+                                <input type="hidden" id="countries" name="countries" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">想申請的學校 (請列出，可多個)</label>
+                                <textarea id="intended_schools" name="intended_schools" rows="3" 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                          placeholder="例如：Johns Hopkins University, University of California - Berkeley"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">未來偏好申請方向 (主修) *</label>
+                                <input type="text" id="intended_major" name="intended_major" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       placeholder="例如：Biomedical sciences">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">為什麼對此主修感興趣？ *</label>
+                                <textarea id="major_reason" name="major_reason" rows="3" required 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                          placeholder="例如：Biology fascinates me, and I want to contribute to medical research."></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">預算 (每年學費+生活費，單位：美元) *</label>
+                                    <input type="number" id="budget" name="budget" min="0" required 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                           placeholder="例如：30000">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">目標入學時間 *</label>
+                                    <input type="month" id="target_intake" name="target_intake" required 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 課外活動 -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">6</span>
+                            課外活動 (請列出3項以上最深刻的活動) *
+                        </h3>
+                        <div>
+                            <textarea id="extracurriculars" name="extracurriculars" rows="5" required 
+                                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                      placeholder="例如：&#10;- School Orchestra for 5 years (currently the president)&#10;- Swimming for 7 years&#10;- Experiences of community service in school interact and key club"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 如何得知 PANO -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">7</span>
+                            如何得知我們？ *
+                        </h3>
+                        <div>
+                            <input type="text" id="how_did_you_know_pano" name="how_did_you_know_pano" required 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                   placeholder="例如：親友介紹 / Friends">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="start-chat-btn" 
+                            class="w-full bg-yellow-600 text-white py-4 px-6 rounded-lg font-medium hover:bg-yellow-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-lg">
+                        💬 開始與AI顧問對話
+                    </button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <!-- 對話頁面 -->
+    <div id="chat-page" class="min-h-screen hidden">
+        <div class="max-w-4xl mx-auto bg-white min-h-screen flex flex-col">
+            <!-- Chat Header -->
+            <header class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button id="back-to-setup" class="mr-4 text-white hover:text-yellow-200 transition-colors">
+                        ← 重新設定
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold">AI 留學顧問</h1>
+                        <p class="text-yellow-100 text-sm">正在為您提供專業建議</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm">在線</span>
+                </div>
+            </header>
+
+            <!-- Chat Container -->
+            <div id="chat-container" class="chat-container flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- Welcome Message -->
+                <div class="flex justify-start">
+                    <div class="message-bubble message-ai">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2">
+                                AI
+                            </div>
+                            <span class="text-sm text-gray-500">AI顧問</span>
+                        </div>
+                        <p>您好！我是您的AI留學顧問。我已經了解了您的基本資訊，現在讓我們深入討論您的留學計劃吧！</p>
+                        <p class="mt-2">您可以問我任何關於留學的問題，比如：</p>
+                        <ul class="mt-2 text-sm">
+                            <li>• 推薦適合的學校和專業</li>
+                            <li>• 申請流程和時間規劃</li>
+                            <li>• 獎學金申請建議</li>
+                            <li>• 簽證和住宿資訊</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t p-4 bg-gray-50">
+                <div class="flex space-x-2">
+                    <input type="text" id="chat-input" 
+                           class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                           placeholder="請輸入您的問題..."
+                           maxlength="500">
+                    <button id="send-message-btn" 
+                            class="bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-yellow-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        發送
+                    </button>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-xs text-gray-500">按 Enter 發送</span>
+                    <button id="connect-human-btn" 
+                            class="text-sm text-yellow-600 hover:text-yellow-800 transition-colors">
+                        聯繫人工顧問 →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
