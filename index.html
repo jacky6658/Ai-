@@ -595,15 +595,32 @@
         
         for (const marker of requiredMarkers) {
           const hasMarker = marker.patterns.some(pattern => pattern.test(aiText));
-          foundMarkers.push({ name: marker.name, found: hasMarker });
+          foundMarkers.push({ name: marker.name, found: hasMarker, patterns: marker.patterns });
           if (!hasMarker) {
             hasAllRequiredMarkers = false;
           }
         }
         
         // 調試：記錄找到的標記
+        console.log('AI回應文字:', aiText.substring(0, 200) + '...');
         console.log('找到的標記:', foundMarkers);
         console.log('是否包含所有必要標記:', hasAllRequiredMarkers);
+        
+        // 測試簡化的匹配模式
+        const simplePatterns = [
+          { name: '主題標題', pattern: /主題標題/ },
+          { name: '腳本內容', pattern: /腳本內容/ },
+          { name: '畫面感', pattern: /畫面感/ },
+          { name: '發佈文案', pattern: /發佈文案/ }
+        ];
+        
+        const simpleResults = simplePatterns.map(item => ({
+          name: item.name,
+          found: item.pattern.test(aiText)
+        }));
+        
+        console.log('簡化匹配結果:', simpleResults);
+        console.log('完整AI回應:', aiText);
         
         // 只有當包含所有必要的標記時才顯示結果區塊
         if (hasAllRequiredMarkers) {
