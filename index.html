@@ -655,10 +655,10 @@
       function checkAndUpdateResults(aiText) {
         // 檢查是否包含所有必要的腳本結構標記
         const requiredMarkers = [
-          { name: '主題標題', patterns: [/主題標題\s*[：:]/] },
-          { name: '腳本內容', patterns: [/腳本內容\s*[：:]/] },
-          { name: '畫面感', patterns: [/畫面感\s*[：:]/] },
-          { name: '發佈文案', patterns: [/發佈文案\s*[：:]/] }
+          { name: '主題標題', patterns: [/1\.\s*主題標題\s*[：:]/, /主題標題\s*[：:]/] },
+          { name: '腳本內容', patterns: [/2\.\s*腳本內容\s*[：:]/, /腳本內容\s*[：:]/] },
+          { name: '畫面感', patterns: [/3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/, /畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/] },
+          { name: '發佈文案', patterns: [/4\.\s*發佈文案\s*[：:]/, /發佈文案\s*[：:]/] }
         ];
         
         // 檢查是否包含所有必要的標記
@@ -706,8 +706,11 @@
         
         console.log('簡化匹配結果:', simpleResults);
         console.log('完整AI回應:', aiText);
+        console.log('AI回應長度:', aiText.length);
+        console.log('AI回應前500字符:', aiText.substring(0, 500));
         
         // 只有當包含所有必要的標記時才顯示結果區塊
+        
         if (hasAllRequiredMarkers) {
           resultsEl.style.display = 'block';
           
@@ -716,7 +719,8 @@
             // 提取主題標題 - 對應到 "🎯 主題" 欄位
             let title = '';
             const titlePatterns = [
-              /主題標題\s*[：:]\s*(.+?)(?:\n|$)/im
+              /1\.\s*主題標題\s*[：:]\s*(.+?)(?=\n\s*2\.|$)/im,
+              /主題標題\s*[：:]\s*(.+?)(?=\n\s*2\.|$)/im
             ];
             
             for (const pattern of titlePatterns) {
@@ -731,12 +735,16 @@
               // 清理 Markdown 格式並顯示到 "🎯 主題" 欄位
               const cleanTitle = cleanMarkdownFormat(title);
               resultTitleEl.innerHTML = cleanTitle;
+              console.log('成功提取主題標題:', cleanTitle);
+            } else {
+              console.log('未找到主題標題');
             }
             
             // 提取腳本內容 - 對應到 "📜 腳本內容" 欄位
             let scriptContent = '';
             const scriptPatterns = [
-              /腳本內容\s*[：:]\s*([\s\S]+?)(?=(?:畫面感|$))/im
+              /2\.\s*腳本內容\s*[：:]\s*([\s\S]+?)(?=\n\s*3\.|$)/im,
+              /腳本內容\s*[：:]\s*([\s\S]+?)(?=\n\s*3\.|$)/im
             ];
             
             for (const pattern of scriptPatterns) {
@@ -751,36 +759,57 @@
               // 清理 Markdown 格式並顯示到 "📜 腳本內容" 欄位
               const cleanScriptContent = cleanMarkdownFormat(scriptContent);
               resultScriptEl.innerHTML = cleanScriptContent;
+              console.log('成功提取腳本內容:', cleanScriptContent.substring(0, 100) + '...');
+            } else {
+              console.log('未找到腳本內容');
             }
             
             // 提取畫面感 - 對應到 "🎬 畫面感" 欄位
+            let visualContent = '';
             const visualPatterns = [
-              /畫面感\s*[：:]\s*([\s\S]+?)(?=(?:發佈文案|$))/im
+              /3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=\n\s*4\.|$)/im,
+              /畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=\n\s*4\.|$)/im
             ];
             
             for (const pattern of visualPatterns) {
               const match = aiText.match(pattern);
               if (match && match[1] && match[1].trim().length > 5) {
-                // 清理 Markdown 格式並顯示到 "🎬 畫面感" 欄位
-                const cleanVisual = cleanMarkdownFormat(match[1].trim());
-                resultVisualEl.innerHTML = cleanVisual;
+                visualContent = match[1].trim();
                 break;
               }
             }
             
+            if (visualContent) {
+              // 清理 Markdown 格式並顯示到 "🎬 畫面感" 欄位
+              const cleanVisual = cleanMarkdownFormat(visualContent);
+              resultVisualEl.innerHTML = cleanVisual;
+              console.log('成功提取畫面感:', cleanVisual.substring(0, 100) + '...');
+            } else {
+              console.log('未找到畫面感');
+            }
+            
             // 提取發佈文案 - 對應到 "📱 文案" 欄位
+            let copyContent = '';
             const copyPatterns = [
+              /4\.\s*發佈文案\s*[：:]\s*([\s\S]+?)$/im,
               /發佈文案\s*[：:]\s*([\s\S]+?)$/im
             ];
             
             for (const pattern of copyPatterns) {
               const match = aiText.match(pattern);
               if (match && match[1] && match[1].trim().length > 5) {
-                // 清理 Markdown 格式並顯示到 "📱 文案" 欄位
-                const cleanCopy = cleanMarkdownFormat(match[1].trim());
-                resultCopyEl.innerHTML = cleanCopy;
+                copyContent = match[1].trim();
                 break;
               }
+            }
+            
+            if (copyContent) {
+              // 清理 Markdown 格式並顯示到 "📱 文案" 欄位
+              const cleanCopy = cleanMarkdownFormat(copyContent);
+              resultCopyEl.innerHTML = cleanCopy;
+              console.log('成功提取發佈文案:', cleanCopy.substring(0, 100) + '...');
+            } else {
+              console.log('未找到發佈文案');
             }
             
           } catch (e) {
