@@ -97,6 +97,49 @@
       
       /* 防止 iOS Safari 縮放 */
       input[type="text"], input[type="email"], input[type="password"], textarea, select { font-size: 16px; }
+      
+      /* 快速按鈕樣式 */
+      .quick-buttons { 
+        display: flex; 
+        gap: 8px; 
+        margin-bottom: 12px; 
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .quick-btn { 
+        padding: 8px 16px; 
+        border-radius: 20px; 
+        border: 1px solid #3b82f6; 
+        background: #ffffff; 
+        color: #3b82f6; 
+        cursor: pointer; 
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+      .quick-btn:hover { 
+        background: #3b82f6; 
+        color: #ffffff; 
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+      }
+      .quick-btn:active { 
+        transform: translateY(0); 
+        box-shadow: 0 1px 4px rgba(59, 130, 246, 0.2);
+      }
+      
+      /* 手機版快速按鈕優化 */
+      @media (max-width: 768px) {
+        .quick-buttons { 
+          gap: 6px; 
+          margin-bottom: 10px;
+        }
+        .quick-btn { 
+          padding: 6px 12px; 
+          font-size: 13px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -144,6 +187,13 @@
       </div>
 
       <div id="chat" class="chat"></div>
+
+      <!-- 快速按鈕區域 -->
+      <div class="quick-buttons">
+        <button class="quick-btn" data-text="請幫我生成一個完整的短影音腳本，包含主題標題、腳本內容、畫面感和發佈文案">生成腳本</button>
+        <button class="quick-btn" data-text="請幫我推薦一些熱門的短影音選題和話題方向">腳本選題</button>
+        <button class="quick-btn" data-text="請幫我分析並建議適合的帳號定位策略，包括內容方向和目標受眾">帳號定位</button>
+      </div>
 
       <div class="controls">
         <textarea id="input" placeholder="輸入訊息…（Ctrl+Enter 送出、Enter 換行）"></textarea>
@@ -579,6 +629,28 @@
 
       // 綁定測試連線按鈕
       testConnectionBtn.addEventListener('click', testConnection);
+
+      // 快速按鈕功能
+      document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const text = btn.getAttribute('data-text');
+          if (text) {
+            inputEl.value = text;
+            inputEl.focus();
+            
+            // 添加視覺反饋
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              btn.style.transform = '';
+            }, 150);
+            
+            // 可選：自動發送（如果需要可以取消註釋）
+            // if (text.trim()) {
+            //   send(text);
+            // }
+          }
+        });
+      });
 
       function checkAndUpdateResults(aiText) {
         // 檢查是否包含所有必要的腳本結構標記
