@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AIJob短影音智能體</title>
+    <style>
+      :root { color-scheme: light; }
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; background:#ffffff; color:#1a1a1a; }
+      .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+      
+      /* 手機版優化 */
+      @media (max-width: 768px) {
+        .container { padding: 12px; }
+        h1 { font-size: 16px; margin-bottom: 12px; }
+        .chat { height: 50vh; padding: 12px; }
+        .msg-bubble { max-width: 85%; padding: 10px 14px; font-size: 14px; }
+        .settings-block { padding: 16px; margin-bottom: 12px; }
+        .settings-block h3 { font-size: 14px; margin-bottom: 12px; }
+        .settings-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+        .setting-item input, .setting-item select { padding: 10px 12px; font-size: 16px; }
+        .apply-btn { padding: 12px 16px; font-size: 14px; }
+        .controls { flex-direction: column; gap: 10px; }
+        .controls .row { flex-direction: row !important; justify-content: space-between; }
+        .controls .row button { flex: 1; margin: 0 4px; }
+        textarea { min-height: 50px; font-size: 16px; }
+        button { padding: 12px 16px; font-size: 14px; }
+        .results-block { padding: 16px; }
+        .results-block h3 { font-size: 14px; }
+        .result-item h4 { font-size: 13px; }
+        .result-item .content { padding: 10px; font-size: 14px; }
+        .toast { top: 10px; right: 10px; left: 10px; max-width: none; font-size: 13px; }
+      }
+      h1 { font-size: 18px; font-weight: 600; color:#2563eb; margin: 0 0 16px; }
+      .chat { border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 12px; height: 60vh; overflow: auto; padding: 16px; }
+      .msg { margin: 12px 0; line-height: 1.6; display: flex; }
+      .msg.user { justify-content: flex-end; }
+      .msg.assistant { justify-content: flex-start; }
+      .msg-bubble { max-width: 70%; padding: 12px 16px; border-radius: 18px; white-space: pre-wrap; word-wrap: break-word; }
+      .msg.user .msg-bubble { background: #3b82f6; color: #ffffff; border-bottom-right-radius: 4px; }
+      .msg.assistant .msg-bubble { background: #f3f4f6; color: #374151; border-bottom-left-radius: 4px; }
+      .msg-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+      .msg.user .msg-label { text-align: right; }
+      .msg.assistant .msg-label { text-align: left; }
+      
+      /* 載入動畫 */
+      .loading { display: flex; align-items: center; gap: 8px; }
+      .spinner { width: 16px; height: 16px; border: 2px solid #e5e7eb; border-top: 2px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .controls { display: flex; gap: 8px; margin-top: 12px; align-items:center; }
+      textarea { flex: 1; min-height: 44px; max-height: 140px; resize: vertical; border-radius: 10px; border:1px solid #d1d5db; background:#ffffff; color:#374151; padding: 10px 12px; line-height: 1.4; -webkit-appearance: none; }
+      button { padding: 10px 14px; border-radius: 10px; border:1px solid #d1d5db; background:#f9fafb; color:#374151; cursor:pointer; -webkit-appearance: none; }
+      button:disabled { opacity: .6; cursor:not-allowed; }
+      .row { display:flex; gap:8px; flex-direction:column; }
+      .meta { display:flex; gap:8px; margin-bottom:8px; align-items:center; flex-wrap:wrap; }
+      .meta input, .meta select { flex:1; min-width: 200px; border-radius: 8px; border:1px solid #d1d5db; background:#ffffff; color:#374151; padding:8px 10px; }
+      .small { font-size:12px; color:#6b7280; }
+      .tag { display:inline-block; padding:4px 8px; border:1px solid #d1d5db; border-radius:999px; font-size:12px; color:#6b7280; background:#f3f4f6; }
+      
+      /* 設定區塊樣式 */
+      .settings-block { background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px; margin-bottom:16px; }
+      .settings-block h3 { margin:0 0 16px; color:#2563eb; font-size:16px; cursor:pointer; user-select:none; display:flex; align-items:center; gap:8px; }
+      .settings-block h3:hover { color:#1d4ed8; }
+      .settings-toggle { font-size:12px; transition:transform 0.2s ease; }
+      .settings-content { transition:all 0.3s ease; overflow:hidden; }
+      .settings-content.collapsed { max-height:0; margin:0; padding:0; }
+      .settings-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px; }
+      .setting-item { display:flex; flex-direction:column; gap:6px; }
+      .setting-item label { font-size:12px; color:#6b7280; font-weight:500; }
+      .setting-item input, .setting-item select { padding:8px 12px; border-radius:8px; border:1px solid #d1d5db; background:#ffffff; color:#374151; -webkit-appearance: none; }
+      .apply-btn { background:#3b82f6; border:1px solid #2563eb; color:#ffffff; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:500; }
+      .apply-btn:hover { background:#2563eb; }
+      .applied-tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+      
+      /* 結果區塊樣式 */
+      .results-block { background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px; margin-top:16px; display:none; }
+      .results-block h3 { margin:0 0 16px; color:#2563eb; font-size:16px; }
+      .result-item { margin-bottom:16px; }
+      .result-item h4 { margin:0 0 8px; color:#374151; font-size:14px; font-weight:500; }
+      .result-item .content { background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:12px; color:#374151; white-space:pre-wrap; line-height:1.6; }
+      
+      /* 彈出框樣式 */
+      .toast { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; font-size: 14px; max-width: 300px; word-wrap: break-word; }
+      .toast.show { animation: slideIn 0.3s ease-out; }
+      .toast.hide { animation: slideOut 0.3s ease-in; }
+      @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+      
+      /* iOS Safari 特定優化 */
+      @supports (-webkit-touch-callout: none) {
+        .chat { -webkit-overflow-scrolling: touch; }
+        textarea { -webkit-user-select: text; }
+        input, select { -webkit-user-select: text; }
+        .msg-bubble { -webkit-user-select: text; }
+        .result-item .content { -webkit-user-select: text; }
+      }
+      
+      /* 防止 iOS Safari 縮放 */
+      input[type="text"], input[type="email"], input[type="password"], textarea, select { font-size: 16px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>AIJob短影音智能體</h1>
+
+      <!-- 設定區塊 -->
+      <div class="settings-block">
+        <h3 id="settingsToggle">📋 短影音設定 <span class="settings-toggle">▼</span></h3>
+        <div class="settings-content" id="settingsContent">
+          <div class="settings-grid">
+          <div class="setting-item">
+            <label>平台</label>
+            <select id="platform">
+              <option value="">選擇平台</option>
+              <option value="Reels">IG Reels</option>
+              <option value="TikTok">TikTok</option>
+              <option value="小紅書">小紅書</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>主題</label>
+            <input id="topic" placeholder="例如：夏季變白挑戰 / 美白保養" />
+          </div>
+          <div class="setting-item">
+            <label>腳本秒數</label>
+            <select id="duration">
+              <option value="30">30秒</option>
+              <option value="60">60秒</option>
+              <option value="90">90秒</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>帳號定位</label>
+            <input id="profile" placeholder="如：健康×加密，輕鬆幽默" />
+          </div>
+        </div>
+        <button id="apply" class="apply-btn">套用設定</button>
+          <div class="applied-tags">
+            <span id="platformBadge" class="tag" style="display:none;"></span>
+            <span id="topicBadge" class="tag" style="display:none;"></span>
+            <span id="durationBadge" class="tag" style="display:none;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="chat" class="chat"></div>
+
+      <div class="controls">
+        <textarea id="input" placeholder="輸入訊息…（Ctrl+Enter 送出、Enter 換行）"></textarea>
+        <div class="row">
+          <button id="send">送出</button>
+          <button id="showResults">顯示結果區塊</button>
+        </div>
+      </div>
+      <div id="status" class="small"></div>
+      
+      <!-- 結果區塊 -->
+      <div id="results" class="results-block">
+        <h3>📝 短影音腳本結果</h3>
+        <div class="result-item">
+          <h4>🎯 主題</h4>
+          <div id="result-title" class="content">尚未生成</div>
+        </div>
+        <div class="result-item">
+          <h4>📜 腳本內容</h4>
+          <div id="result-script" class="content">尚未生成</div>
+        </div>
+        <div class="result-item">
+          <h4>🎬 畫面感</h4>
+          <div id="result-visual" class="content">尚未生成</div>
+        </div>
+        <div class="result-item">
+          <h4>📱 文案</h4>
+          <div id="result-copy" class="content">尚未生成</div>
+        </div>
+      </div>
+      
+      <div class="small">前端不保存任何金鑰；後端請設定 .env</div>
+    </div>
+
+    <!-- 彈出提示框 -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <script>
+      const chatEl = document.getElementById('chat');
+      const inputEl = document.getElementById('input');
+      const sendBtn = document.getElementById('send');
+      const showResultsBtn = document.getElementById('showResults');
+      const applyBtn = document.getElementById('apply');
+      const platformEl = document.getElementById('platform');
+      const topicEl = document.getElementById('topic');
+      const durationEl = document.getElementById('duration');
+      const profileEl = document.getElementById('profile');
+      const platformBadge = document.getElementById('platformBadge');
+      const topicBadge = document.getElementById('topicBadge');
+      const durationBadge = document.getElementById('durationBadge');
+      const statusEl = document.getElementById('status');
+      const resultsEl = document.getElementById('results');
+      const resultTitleEl = document.getElementById('result-title');
+      const resultScriptEl = document.getElementById('result-script');
+      const resultVisualEl = document.getElementById('result-visual');
+      const resultCopyEl = document.getElementById('result-copy');
+      const toastEl = document.getElementById('toast');
+      const settingsToggleEl = document.getElementById('settingsToggle');
+      const settingsContentEl = document.getElementById('settingsContent');
+
+      let history = [];
+      let lastMessage = '';
+      let isSending = false;
+      let lastSubmitAt = 0;
+      let platformCurrent = '';
+      let topicCurrent = '';
+      let durationCurrent = '30';
+      const styleInstruction = '格式要求：分段清楚，短句，每段換行，適度加入表情符號（如：✅✨🔥📌），避免口頭禪。';
+
+      // 彈出提示框函數
+      function showToast(message, duration = 3000) {
+        toastEl.textContent = message;
+        toastEl.style.display = 'block';
+        toastEl.className = 'toast show';
+        
+        setTimeout(() => {
+          toastEl.className = 'toast hide';
+          setTimeout(() => {
+            toastEl.style.display = 'none';
+          }, 300);
+        }, duration);
+      }
+
+      // 首次載入顯示引導訊息
+      document.addEventListener('DOMContentLoaded', () => {
+        append('assistant', [
+          '嗨～先幫我設定：',
+          '1) 選擇平台、輸入主題與帳號定位，按「套用」✅',
+          '2) 在下方輸入你想聊的內容（我會用段落＋emoji 回覆）✨',
+          '3) 任何時候都可重新「套用」調整設定 🔄'
+        ].join('\n'));
+      });
+
+      function append(role, text) {
+        const div = document.createElement('div');
+        div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
+        
+        const label = document.createElement('div');
+        label.className = 'msg-label';
+        label.textContent = role === 'user' ? '你' : 'AI';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.textContent = text;
+        
+        div.appendChild(label);
+        div.appendChild(bubble);
+        chatEl.appendChild(div);
+        chatEl.scrollTop = chatEl.scrollHeight;
+        return { container: div, bubble: bubble };
+      }
+
+      function updateAssistantNode(nodeObj, text) {
+        if (nodeObj.bubble) {
+          nodeObj.bubble.textContent = text;
+        } else {
+          nodeObj.textContent = text;
+        }
+        chatEl.scrollTop = chatEl.scrollHeight;
+      }
+
+      function canSubmit() {
+        if (isSending) return false;
+        const now = Date.now();
+        if (now - lastSubmitAt < 600) return false; // 600ms 節流
+        lastSubmitAt = now;
+        return true;
+      }
+
+      async function send(message) {
+        if (!message) return;
+        if (!canSubmit()) return;
+        lastMessage = message;
+        const userNode = append('user', message);
+        const assistantNode = append('assistant', '');
+
+        // 顯示 AI 回覆中的載入狀態
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading';
+        loadingDiv.innerHTML = '<div class="spinner"></div><span>AI回覆中...</span>';
+        assistantNode.bubble.appendChild(loadingDiv);
+
+        sendBtn.disabled = true;
+        isSending = true;
+        statusEl.textContent = '正在送出…';
+
+        try {
+          const endpoint = 'http://127.0.0.1:8000/api/chat/stream';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message,
+              platform: (platformCurrent || platformEl?.value || '') || null,
+              topic: (topicCurrent || topicEl?.value || '') || null,
+              duration: (durationCurrent || durationEl?.value || '30'),
+              style: styleInstruction,
+              profile: (profileEl?.value || '') || null,
+              history
+            })
+          });
+
+          if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            updateAssistantNode(assistantNode, `[請求失敗 ${res.status}] ${text || '無回應內容'}`);
+            return;
+          }
+
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let aiText = '';
+          let buffer = '';
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            let idx;
+            while ((idx = buffer.indexOf('\n\n')) !== -1) {
+              const frame = buffer.slice(0, idx).trim();
+              buffer = buffer.slice(idx + 2);
+              if (!frame.startsWith('data:')) continue;
+              try {
+                const jsonStr = frame.slice(5).trim();
+                const evt = JSON.parse(jsonStr);
+                if (evt.type === 'token') {
+                  // 移除載入動畫，開始顯示 AI 回覆
+                  const loadingDiv = assistantNode.bubble.querySelector('.loading');
+                  if (loadingDiv) {
+                    loadingDiv.remove();
+                  }
+                  aiText += evt.content;
+                  updateAssistantNode(assistantNode, aiText);
+                } else if (evt.type === 'end') {
+                  history.push({ role: 'user', content: message });
+                  history.push({ role: 'assistant', content: aiText });
+                  
+                  // 檢查是否包含腳本結果，自動顯示結果區塊
+                  checkAndUpdateResults(aiText);
+                }
+              } catch (e) { /* ignore parse errors */ }
+            }
+          }
+        } catch (e) {
+          // 移除載入動畫，顯示錯誤訊息
+          const loadingDiv = assistantNode.bubble.querySelector('.loading');
+          if (loadingDiv) {
+            loadingDiv.remove();
+          }
+          updateAssistantNode(assistantNode, `[錯誤] ${e?.message || e}`);
+        } finally {
+          sendBtn.disabled = false;
+          isSending = false;
+          statusEl.textContent = '';
+        }
+      }
+
+      sendBtn.addEventListener('click', () => {
+        if (sendBtn.disabled || isSending) return;
+        const text = inputEl.value.trim();
+        if (!text) return;
+        inputEl.value = '';
+        send(text);
+      });
+
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+          if (sendBtn.disabled || isSending) return;
+          e.preventDefault();
+          const text = inputEl.value.trim();
+          if (!text) return;
+          inputEl.value = '';
+          send(text);
+        }
+      });
+
+      showResultsBtn.addEventListener('click', () => {
+        resultsEl.style.display = resultsEl.style.display === 'none' ? 'block' : 'none';
+        showResultsBtn.textContent = resultsEl.style.display === 'none' ? '顯示結果區塊' : '隱藏結果區塊';
+      });
+
+      // 設定區塊摺疊/展開功能
+      settingsToggleEl.addEventListener('click', () => {
+        const isCollapsed = settingsContentEl.classList.contains('collapsed');
+        const toggleIcon = settingsToggleEl.querySelector('.settings-toggle');
+        
+        if (isCollapsed) {
+          settingsContentEl.classList.remove('collapsed');
+          toggleIcon.textContent = '▼';
+        } else {
+          settingsContentEl.classList.add('collapsed');
+          toggleIcon.textContent = '▶';
+        }
+      });
+
+      applyBtn.addEventListener('click', () => {
+        platformCurrent = (platformEl?.value || '');
+        topicCurrent = (topicEl?.value || '');
+        durationCurrent = (durationEl?.value || '30');
+        
+        // 更新徽章顯示
+        updateBadge(platformBadge, '平台', platformCurrent);
+        updateBadge(topicBadge, '主題', topicCurrent);
+        updateBadge(durationBadge, '秒數', durationCurrent + '秒');
+
+        // 套用後顯示彈出提示框
+        const message = `設定已套用！\n平台：${platformCurrent || '未選擇'}\n主題：${topicCurrent || '未輸入'}\n秒數：${durationCurrent}秒`;
+        showToast(message);
+      });
+
+      function updateBadge(badgeEl, label, value) {
+        if (value) {
+          badgeEl.style.display = 'inline-block';
+          badgeEl.textContent = label + '：' + value;
+        } else {
+          badgeEl.style.display = 'none';
+          badgeEl.textContent = '';
+        }
+      }
+
+      function checkAndUpdateResults(aiText) {
+        // 檢查是否為腳本生成請求（更嚴格的條件）
+        const scriptRequestKeywords = [
+          '生成腳本', '製作腳本', '寫腳本', '腳本內容', '完整腳本',
+          'Hook', 'Value', 'CTA', '台詞', '逐字稿',
+          '畫面感', '鏡頭建議', '音效建議', '發佈文案'
+        ];
+        
+        const hasScriptRequest = scriptRequestKeywords.some(keyword => aiText.includes(keyword));
+        
+        if (hasScriptRequest) {
+          resultsEl.style.display = 'block';
+          
+          // 嘗試解析並更新結果區塊
+          try {
+            // 提取主題 - 更靈活的匹配
+            let title = '';
+            const titlePatterns = [
+              /(?:主題|標題)[：:]\s*(.+?)(?:\n|$)/i,
+              /^(.+?)(?:\n|$)/,
+              /(?:短影音|影片).*?(?:關於|主題)[：:]?\s*(.+?)(?:\n|$)/i,
+              /(?:打造|製作).*?(?:腳本|影片).*?(?:關於|主題)[：:]?\s*(.+?)(?:\n|$)/i
+            ];
+            
+            for (const pattern of titlePatterns) {
+              const match = aiText.match(pattern);
+              if (match && match[1] && match[1].trim().length > 3) {
+                title = match[1].trim();
+                break;
+              }
+            }
+            
+            if (title) {
+              resultTitleEl.textContent = title;
+            }
+            
+            // 提取腳本內容 - 更全面的匹配
+            let scriptContent = '';
+            const scriptPatterns = [
+              /(?:腳本|台詞|內容)[：:]\s*([\s\S]+?)(?=(?:畫面|文案|$))/i,
+              /(?:Hook|開場)[：:]\s*([\s\S]+?)(?=(?:Value|畫面|$))/i,
+              /(?:Value|內容)[：:]\s*([\s\S]+?)(?=(?:CTA|畫面|$))/i,
+              /(?:CTA|行動呼籲)[：:]\s*([\s\S]+?)(?=(?:畫面|文案|$))/i
+            ];
+            
+            for (const pattern of scriptPatterns) {
+              const match = aiText.match(pattern);
+              if (match && match[1] && match[1].trim().length > 5) {
+                scriptContent += match[1].trim() + '\n\n';
+              }
+            }
+            
+            // 如果沒有找到明確的腳本標記，嘗試提取整個回覆作為腳本
+            if (!scriptContent && aiText.length > 20) {
+              scriptContent = aiText;
+            }
+            
+            if (scriptContent) {
+              resultScriptEl.textContent = scriptContent.trim();
+            }
+            
+            // 提取畫面感
+            const visualPatterns = [
+              /(?:畫面|鏡頭|音效|視覺)[：:]\s*([\s\S]+?)(?=(?:文案|$))/i,
+              /(?:拍攝|錄製).*?(?:建議|要點)[：:]\s*([\s\S]+?)(?=(?:文案|$))/i
+            ];
+            
+            for (const pattern of visualPatterns) {
+              const match = aiText.match(pattern);
+              if (match && match[1] && match[1].trim().length > 5) {
+                resultVisualEl.textContent = match[1].trim();
+                break;
+              }
+            }
+            
+            // 提取文案
+            const copyPatterns = [
+              /(?:文案|發佈|標題)[：:]\s*([\s\S]+?)$/i,
+              /(?:IG|Instagram|TikTok|小紅書).*?(?:文案|標題)[：:]\s*([\s\S]+?)$/i
+            ];
+            
+            for (const pattern of copyPatterns) {
+              const match = aiText.match(pattern);
+              if (match && match[1] && match[1].trim().length > 5) {
+                resultCopyEl.textContent = match[1].trim();
+                break;
+              }
+            }
+            
+          } catch (e) {
+            console.log('解析結果時出錯:', e);
+          }
+        }
+      }
+    </script>
+  </body>
+  </html>
+
+
