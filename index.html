@@ -181,6 +181,9 @@
     <!-- 彈出提示框 -->
     <div id="toast" class="toast" style="display: none;"></div>
 
+    <!-- 載入環境變數 -->
+    <script src="/env.js"></script>
+
     <script>
       const chatEl = document.getElementById('chat');
       const inputEl = document.getElementById('input');
@@ -323,15 +326,16 @@
         statusEl.textContent = '正在送出…';
 
         try {
-          // 自動偵測環境，開發時使用 localhost，部署時使用後端網域
+          // 自動偵測環境，開發時使用 localhost，部署時使用環境變數或預設後端網域
           const isDevelopment = window.location.hostname === 'localhost' || 
                                 window.location.hostname === '127.0.0.1' ||
                                 window.location.hostname === '0.0.0.0';
           
-          // 如果是開發環境，使用 localhost:8000；部署環境使用後端網域
+          // 如果是開發環境，使用 localhost:8000；部署環境使用環境變數
+          const backendUrl = window.BACKEND_URL;
           const endpoint = isDevelopment ? 
             'http://127.0.0.1:8000/api/chat/stream' : 
-            'https://aivideobackend.zeabur.app/api/chat/stream';
+            `${backendUrl}/api/chat/stream`;
           // 添加調試信息
           console.log('API 端點:', endpoint);
           console.log('當前位置:', window.location.href);
