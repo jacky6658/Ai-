@@ -175,7 +175,7 @@
         </div>
       </div>
       
-      <div class="small">前端不保存任何金鑰；後端請設定 .env</div>
+      <div class="small">2025 AIJob學院版權所有</div>
     </div>
 
     <!-- 彈出提示框 -->
@@ -211,7 +211,7 @@
       let platformCurrent = '';
       let topicCurrent = '';
       let durationCurrent = '30';
-      const styleInstruction = '格式要求：分段清楚，短句，每段換行，適度加入表情符號（如：✅✨🔥📌），避免口頭禪。';
+      const styleInstruction = '格式要求：分段清楚，短句，每段換行，適度加入表情符號（如：✅✨🔥📌），避免口頭禪。絕對不要使用 ** 或任何 Markdown 格式符號，所有內容必須是純文字格式。';
 
       // 彈出提示框函數
       function showToast(message, duration = 3000) {
@@ -247,7 +247,14 @@
         
         const bubble = document.createElement('div');
         bubble.className = 'msg-bubble';
-        bubble.textContent = text;
+        
+        // 如果是 AI 回覆，清理 Markdown 格式
+        if (role === 'assistant') {
+          const cleanText = cleanMarkdownFormat(text);
+          bubble.innerHTML = cleanText;
+        } else {
+          bubble.textContent = text;
+        }
         
         div.appendChild(label);
         div.appendChild(bubble);
@@ -256,11 +263,36 @@
         return { container: div, bubble: bubble };
       }
 
+      // 清理 Markdown 格式並轉換為 HTML
+      function cleanMarkdownFormat(text) {
+        // 處理 Markdown 標題格式
+        text = text.replace(/^###\s*(.+)$/gm, '<strong>$1</strong>'); // ### 標題 → **標題**
+        text = text.replace(/^##\s*(.+)$/gm, '<strong>$1</strong>');  // ## 標題 → **標題**
+        text = text.replace(/^#\s*(.+)$/gm, '<strong>$1</strong>');   // # 標題 → **標題**
+        
+        // 將 **文字** 轉換為 <strong>文字</strong>
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // 處理其他常見的 Markdown 格式
+        text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');           // *斜體* → 斜體
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');         // `代碼` → 代碼
+        
+        // 移除單獨的 Markdown 符號
+        text = text.replace(/\*\*/g, '');                             // 移除單獨的 **
+        text = text.replace(/^#{1,6}\s*/gm, '');                      // 移除行首的 # 符號
+        
+        return text;
+      }
+
       function updateAssistantNode(nodeObj, text) {
+        // 清理 Markdown 格式
+        const cleanText = cleanMarkdownFormat(text);
+        
         if (nodeObj.bubble) {
-          nodeObj.bubble.textContent = text;
+          // 使用 innerHTML 來支援 HTML 標籤（如 <strong>）
+          nodeObj.bubble.innerHTML = cleanText;
         } else {
-          nodeObj.textContent = text;
+          nodeObj.innerHTML = cleanText;
         }
         chatEl.scrollTop = chatEl.scrollHeight;
       }
@@ -291,7 +323,21 @@
         statusEl.textContent = '正在送出…';
 
         try {
-          const endpoint = 'http://127.0.0.1:8000/api/chat/stream';
+          // 自動偵測環境，開發時使用 localhost，部署時使用後端網域
+          const isDevelopment = window.location.hostname === 'localhost' || 
+                                window.location.hostname === '127.0.0.1' ||
+                                window.location.hostname === '0.0.0.0';
+          
+          // 如果是開發環境，使用 localhost:8000；部署環境使用後端網域
+          const endpoint = isDevelopment ? 
+            'http://127.0.0.1:8000/api/chat/stream' : 
+            'https://aivideobackend.zeabur.app/api/chat/stream';
+          // 添加調試信息
+          console.log('API 端點:', endpoint);
+          console.log('當前位置:', window.location.href);
+          console.log('Hostname:', window.location.hostname);
+          console.log('Port:', window.location.port);
+          
           const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -308,6 +354,7 @@
 
           if (!res.ok) {
             const text = await res.text().catch(() => '');
+            console.error('API 請求失敗:', res.status, text);
             updateAssistantNode(assistantNode, `[請求失敗 ${res.status}] ${text || '無回應內容'}`);
             return;
           }
@@ -354,7 +401,28 @@
           if (loadingDiv) {
             loadingDiv.remove();
           }
-          updateAssistantNode(assistantNode, `[錯誤] ${e?.message || e}`);
+          console.error('請求錯誤:', e);
+          console.error('錯誤詳情:', {
+            message: e?.message,
+            name: e?.name,
+            stack: e?.stack,
+            endpoint: endpoint,
+            location: window.location.href
+          });
+          
+          // 提供更詳細的錯誤訊息
+          let errorMsg = `[錯誤] ${e?.message || e}`;
+          if (e?.name === 'TypeError' && e?.message.includes('fetch')) {
+            errorMsg = '[連線錯誤] 無法連接到伺服器，請檢查網路連線或稍後再試';
+          } else if (e?.name === 'TypeError' && e?.message.includes('Failed to fetch')) {
+            errorMsg = '[網路錯誤] 請檢查網路連線或重新整理頁面';
+          } else if (e?.message?.includes('CORS')) {
+            errorMsg = '[跨域錯誤] 請嘗試重新整理頁面';
+          }
+          
+          // 添加更多調試信息
+          errorMsg += `\n\n調試信息：\n端點: ${endpoint}\n位置: ${window.location.href}`;
+          updateAssistantNode(assistantNode, errorMsg);
         } finally {
           sendBtn.disabled = false;
           isSending = false;
@@ -428,21 +496,43 @@
       function checkAndUpdateResults(aiText) {
         // 檢查是否為腳本生成請求（更嚴格的條件）
         const scriptRequestKeywords = [
-          '生成腳本', '製作腳本', '寫腳本', '腳本內容', '完整腳本',
-          'Hook', 'Value', 'CTA', '台詞', '逐字稿',
-          '畫面感', '鏡頭建議', '音效建議', '發佈文案'
+          '生成腳本', '製作腳本', '寫腳本', '完整腳本'
         ];
         
-        const hasScriptRequest = scriptRequestKeywords.some(keyword => aiText.includes(keyword));
+        // 檢查是否有明確的腳本結構標記（必須是完整的標題格式）
+        const scriptStructureMarkers = [
+          /◎主題\s*[：:]/,
+          /^1\.\s*主題標題\s*[：:]/m,
+          /^2\.\s*腳本內容\s*[：:]/m,
+          /^3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/m,
+          /^4\.\s*發佈文案\s*[：:]/m,
+          /^###\s*主題標題\s*[：:]/,
+          /^###\s*腳本內容\s*[：:]/,
+          /^###\s*畫面感\s*[：:]/,
+          /^###\s*發佈文案\s*[：:]/,
+          /\*\*主題標題\*\*\s*[：:]/,
+          /\*\*腳本內容\*\*\s*[：:]/,
+          /\*\*畫面感\*\*\s*[：:]/,
+          /\*\*發佈文案\*\*\s*[：:]/
+        ];
+        
+        const hasScriptRequest = scriptRequestKeywords.some(keyword => aiText.includes(keyword)) ||
+                                scriptStructureMarkers.some(pattern => pattern.test(aiText));
         
         if (hasScriptRequest) {
           resultsEl.style.display = 'block';
           
           // 嘗試解析並更新結果區塊
           try {
-            // 提取主題 - 更靈活的匹配
+            // 提取主題 - 專門匹配 AI 的輸出格式
             let title = '';
             const titlePatterns = [
+              /^◎主題\s*[：:]\s*(.+?)(?:\n|$)/im,
+              /^1\.\s*主題標題\s*[：:]\s*(.+?)(?:\n|$)/im,
+              /^###\s*主題標題\s*[：:]\s*(.+?)(?:\n|$)/im,
+              /^###\s*主題\s*[：:]\s*(.+?)(?:\n|$)/im,
+              /\*\*主題標題\*\*[：:]\s*(.+?)(?:\n|$)/i,
+              /\*\*主題\*\*[：:]\s*(.+?)(?:\n|$)/i,
               /(?:主題|標題)[：:]\s*(.+?)(?:\n|$)/i,
               /^(.+?)(?:\n|$)/,
               /(?:短影音|影片).*?(?:關於|主題)[：:]?\s*(.+?)(?:\n|$)/i,
@@ -458,16 +548,19 @@
             }
             
             if (title) {
-              resultTitleEl.textContent = title;
+              // 清理 Markdown 格式並顯示
+              const cleanTitle = cleanMarkdownFormat(title);
+              resultTitleEl.innerHTML = cleanTitle;
             }
             
-            // 提取腳本內容 - 更全面的匹配
+            // 提取腳本內容 - 專門匹配 AI 的輸出格式，只提取台詞部分
             let scriptContent = '';
             const scriptPatterns = [
-              /(?:腳本|台詞|內容)[：:]\s*([\s\S]+?)(?=(?:畫面|文案|$))/i,
-              /(?:Hook|開場)[：:]\s*([\s\S]+?)(?=(?:Value|畫面|$))/i,
-              /(?:Value|內容)[：:]\s*([\s\S]+?)(?=(?:CTA|畫面|$))/i,
-              /(?:CTA|行動呼籲)[：:]\s*([\s\S]+?)(?=(?:畫面|文案|$))/i
+              /^2\.\s*腳本內容\s*[：:]\s*([\s\S]+?)(?=(?:3\.|畫面感|文案|發佈|$))/im,
+              /^腳本內容\s*[：:]\s*([\s\S]+?)(?=(?:畫面感|文案|發佈|$))/im,
+              /^###\s*腳本內容\s*[：:]\s*([\s\S]+?)(?=(?:###|畫面感|文案|發佈|$))/im,
+              /\*\*腳本內容\*\*[：:]\s*([\s\S]+?)(?=(?:畫面感|文案|發佈|$))/i,
+              /(?:腳本|台詞|內容)[：:]\s*([\s\S]+?)(?=(?:畫面感|文案|$))/i
             ];
             
             for (const pattern of scriptPatterns) {
@@ -483,11 +576,22 @@
             }
             
             if (scriptContent) {
-              resultScriptEl.textContent = scriptContent.trim();
+              // 清理 Markdown 格式並顯示
+              const cleanScriptContent = cleanMarkdownFormat(scriptContent.trim());
+              resultScriptEl.innerHTML = cleanScriptContent;
             }
             
-            // 提取畫面感
+            // 提取畫面感 - 專門匹配 AI 的輸出格式
             const visualPatterns = [
+              /^3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=(?:4\.|文案|發佈|$))/im,
+              /^畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=(?:文案|發佈|$))/im,
+              /^畫面感\s*[：:]\s*([\s\S]+?)(?=(?:文案|發佈|$))/im,
+              /^###\s*畫面感\s*[：:]\s*([\s\S]+?)(?=(?:###|文案|發佈|$))/im,
+              /^###\s*畫面\s*[：:]\s*([\s\S]+?)(?=(?:###|文案|發佈|$))/im,
+              /^###\s*鏡頭\s*[：:]\s*([\s\S]+?)(?=(?:###|文案|發佈|$))/im,
+              /\*\*畫面感\*\*[：:]\s*([\s\S]+?)(?=(?:文案|發佈|$))/i,
+              /\*\*畫面\*\*[：:]\s*([\s\S]+?)(?=(?:文案|發佈|$))/i,
+              /\*\*鏡頭\*\*[：:]\s*([\s\S]+?)(?=(?:文案|發佈|$))/i,
               /(?:畫面|鏡頭|音效|視覺)[：:]\s*([\s\S]+?)(?=(?:文案|$))/i,
               /(?:拍攝|錄製).*?(?:建議|要點)[：:]\s*([\s\S]+?)(?=(?:文案|$))/i
             ];
@@ -495,13 +599,22 @@
             for (const pattern of visualPatterns) {
               const match = aiText.match(pattern);
               if (match && match[1] && match[1].trim().length > 5) {
-                resultVisualEl.textContent = match[1].trim();
+                // 清理 Markdown 格式並顯示
+                const cleanVisual = cleanMarkdownFormat(match[1].trim());
+                resultVisualEl.innerHTML = cleanVisual;
                 break;
               }
             }
             
-            // 提取文案
+            // 提取文案 - 專門匹配 AI 的輸出格式
             const copyPatterns = [
+              /^4\.\s*發佈文案\s*[：:]\s*([\s\S]+?)$/im,
+              /^■文案\s*[：:]\s*([\s\S]+?)$/im,
+              /^發佈文案\s*[：:]\s*([\s\S]+?)$/im,
+              /^###\s*發佈文案\s*[：:]\s*([\s\S]+?)$/im,
+              /^###\s*文案\s*[：:]\s*([\s\S]+?)$/im,
+              /\*\*發佈文案\*\*[：:]\s*([\s\S]+?)$/i,
+              /\*\*文案\*\*[：:]\s*([\s\S]+?)$/i,
               /(?:文案|發佈|標題)[：:]\s*([\s\S]+?)$/i,
               /(?:IG|Instagram|TikTok|小紅書).*?(?:文案|標題)[：:]\s*([\s\S]+?)$/i
             ];
@@ -509,7 +622,9 @@
             for (const pattern of copyPatterns) {
               const match = aiText.match(pattern);
               if (match && match[1] && match[1].trim().length > 5) {
-                resultCopyEl.textContent = match[1].trim();
+                // 清理 Markdown 格式並顯示
+                const cleanCopy = cleanMarkdownFormat(match[1].trim());
+                resultCopyEl.innerHTML = cleanCopy;
                 break;
               }
             }
