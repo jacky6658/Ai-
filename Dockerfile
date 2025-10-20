@@ -1,13 +1,13 @@
-FROM nginx:alpine
+FROM python:3.11-slim
+
+# 設定工作目錄
+WORKDIR /app
 
 # 複製前端檔案
-COPY . /usr/share/nginx/html
-
-# 複製 nginx 配置
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY . .
 
 # 暴露端口
 EXPOSE 8080
 
-# 啟動 nginx
-CMD ["nginx", "-g", "daemon off;"]
+# 啟動 Python HTTP 伺服器
+CMD ["python", "-m", "http.server", "8080"]
