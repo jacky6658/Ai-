@@ -1,13 +1,21 @@
 FROM python:3.11-slim
 
-# 設定工作目錄
 WORKDIR /app
 
-# 複製前端檔案
+# 複製需求檔案
+COPY requirements.txt .
+
+# 安裝依賴
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 複製應用程式檔案
 COPY . .
 
-# 暴露端口
-EXPOSE 8080
+# 建立 data 目錄並複製知識庫（如果存在的話）
+RUN mkdir -p /app/data
 
-# 啟動 Python HTTP 伺服器
-CMD ["python", "-m", "http.server", "8080"]
+# 暴露端口
+EXPOSE 3000
+
+# 啟動命令 - 使用環境變數 PORT，預設為 3000
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT:-3000} --log-level info"]
