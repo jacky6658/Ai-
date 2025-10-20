@@ -630,6 +630,32 @@
       // 綁定測試連線按鈕
       testConnectionBtn.addEventListener('click', testConnection);
 
+      // 添加全局測試函數（用於調試）
+      window.testDOM = function() {
+        console.log('=== DOM元素測試 ===');
+        console.log('resultTitleEl:', resultTitleEl);
+        console.log('resultScriptEl:', resultScriptEl);
+        console.log('resultVisualEl:', resultVisualEl);
+        console.log('resultCopyEl:', resultCopyEl);
+        
+        if (resultTitleEl) {
+          resultTitleEl.innerHTML = '測試標題';
+          console.log('測試標題設置成功');
+        }
+        if (resultScriptEl) {
+          resultScriptEl.innerHTML = '測試腳本內容';
+          console.log('測試腳本內容設置成功');
+        }
+        if (resultVisualEl) {
+          resultVisualEl.innerHTML = '測試畫面感';
+          console.log('測試畫面感設置成功');
+        }
+        if (resultCopyEl) {
+          resultCopyEl.innerHTML = '測試發佈文案';
+          console.log('測試發佈文案設置成功');
+        }
+      };
+
       // 快速按鈕功能
       document.querySelectorAll('.quick-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -713,6 +739,11 @@
         
         if (hasAllRequiredMarkers) {
           resultsEl.style.display = 'block';
+          console.log('結果區塊已顯示，開始解析內容...');
+          console.log('DOM元素檢查 - resultTitleEl:', resultTitleEl);
+          console.log('DOM元素檢查 - resultScriptEl:', resultScriptEl);
+          console.log('DOM元素檢查 - resultVisualEl:', resultVisualEl);
+          console.log('DOM元素檢查 - resultCopyEl:', resultCopyEl);
           
           // 嘗試解析並更新結果區塊
           try {
@@ -734,8 +765,14 @@
             if (title) {
               // 清理 Markdown 格式並顯示到 "🎯 主題" 欄位
               const cleanTitle = cleanMarkdownFormat(title);
-              resultTitleEl.innerHTML = cleanTitle;
-              console.log('成功提取主題標題:', cleanTitle);
+              console.log('準備設置主題標題到DOM元素:', resultTitleEl);
+              console.log('DOM元素是否為null:', resultTitleEl === null);
+              if (resultTitleEl) {
+                resultTitleEl.innerHTML = cleanTitle;
+                console.log('成功設置主題標題到DOM:', cleanTitle);
+              } else {
+                console.error('resultTitleEl為null，無法設置內容');
+              }
             } else {
               console.log('未找到主題標題');
             }
@@ -758,8 +795,12 @@
             if (scriptContent) {
               // 清理 Markdown 格式並顯示到 "📜 腳本內容" 欄位
               const cleanScriptContent = cleanMarkdownFormat(scriptContent);
-              resultScriptEl.innerHTML = cleanScriptContent;
-              console.log('成功提取腳本內容:', cleanScriptContent.substring(0, 100) + '...');
+              if (resultScriptEl) {
+                resultScriptEl.innerHTML = cleanScriptContent;
+                console.log('成功設置腳本內容到DOM:', cleanScriptContent.substring(0, 100) + '...');
+              } else {
+                console.error('resultScriptEl為null，無法設置內容');
+              }
             } else {
               console.log('未找到腳本內容');
             }
@@ -782,8 +823,12 @@
             if (visualContent) {
               // 清理 Markdown 格式並顯示到 "🎬 畫面感" 欄位
               const cleanVisual = cleanMarkdownFormat(visualContent);
-              resultVisualEl.innerHTML = cleanVisual;
-              console.log('成功提取畫面感:', cleanVisual.substring(0, 100) + '...');
+              if (resultVisualEl) {
+                resultVisualEl.innerHTML = cleanVisual;
+                console.log('成功設置畫面感到DOM:', cleanVisual.substring(0, 100) + '...');
+              } else {
+                console.error('resultVisualEl為null，無法設置內容');
+              }
             } else {
               console.log('未找到畫面感');
             }
@@ -806,8 +851,12 @@
             if (copyContent) {
               // 清理 Markdown 格式並顯示到 "📱 文案" 欄位
               const cleanCopy = cleanMarkdownFormat(copyContent);
-              resultCopyEl.innerHTML = cleanCopy;
-              console.log('成功提取發佈文案:', cleanCopy.substring(0, 100) + '...');
+              if (resultCopyEl) {
+                resultCopyEl.innerHTML = cleanCopy;
+                console.log('成功設置發佈文案到DOM:', cleanCopy.substring(0, 100) + '...');
+              } else {
+                console.error('resultCopyEl為null，無法設置內容');
+              }
             } else {
               console.log('未找到發佈文案');
             }
