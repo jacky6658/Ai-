@@ -42,6 +42,336 @@ fronted/
 
 ## 更新日誌
 
+### 2025-10-21 - 雙層記憶系統整合與智能結果顯示
+
+#### 🚀 新增功能
+- **雙層記憶系統整合**：前端整合STM（短期記憶）和LTM（長期記憶）
+- **一鍵生成功能**：帳號定位、腳本選題、短影音腳本三階段生成
+- **智能結果顯示**：AI對話自動識別並顯示到對應結果區塊
+- **階段性驗證**：確保按照正確順序完成帳號定位 → 選題 → 腳本
+- **用戶歷史記錄**：個人資料、我的腳本、帳號定位、選題記錄
+- **結果管理**：儲存和再生成功能
+- **Google OAuth整合**：完整的用戶認證和授權系統
+- **左右兩欄佈局**：專業的彈出式用戶資訊視窗
+
+#### 🛠️ 技術修改
+
+**檔案：index.html**
+
+**1. 頁面佈局重構**：
+- 將整體佈局改為左右兩欄（5:5比例）
+- 左欄：用戶需求設定 + AI對話框 + 快速按鈕 + 輸入框
+- 右欄：結果顯示區（帳號定位、腳本選題、短影音腳本）
+- 移除底部舊控制面板，功能整合到新佈局
+
+**2. 用戶需求設定**：
+- 標題從"短影音設定"改為"用戶需求設定"
+- 新增可摺疊功能：手動切換 + 自動摺疊（套用設定後）
+- 主題和帳號定位改為選填欄位
+- 新增 `settingsApplied` 布林值和 `appliedSettings` 物件追蹤用戶是否明確套用設定
+
+**3. 一鍵生成功能**：
+- **三個一鍵生成按鈕**：
+  - `generatePositioning()`：一鍵生成帳號定位
+  - `generateTopics()`：一鍵生成腳本選題
+  - `generateScript()`：一鍵生成短影音腳本
+- **階段性驗證**：
+  - 選題生成前檢查是否完成帳號定位
+  - 腳本生成前檢查是否完成選題
+  - 驗證邏輯只檢查明確的預設占位文字，避免過度嚴格
+- **結果管理**：
+  - `saveResult()`：儲存生成結果
+  - `regenerateResult()`：重新生成不同結果
+  - 儲存後可供下一階段使用（帳號定位 → 選題 → 腳本）
+
+**4. 智能結果顯示**：
+- **`detectAndDisplayResult()` 函數**：
+  - 自動識別AI回應類型（帳號定位、選題、腳本）
+  - 只顯示明確的摘要/結果（如"📌 你的帳號定位建議："）
+  - 一般討論內容保留在對話框
+- **`updateResultBlock()` 函數**：
+  - 統一處理結果區塊更新
+  - 顯示生成內容 + 儲存/再生成按鈕
+  - 自動切換到對應的結果標籤
+
+**5. 快速按鈕更新**：
+- 從原本的"帳號定位"、"選題推薦"、"腳本生成"
+- 改為"我要如何開始？"、"我要怎麼帳號定位"、"什麼是腳本選題"
+- 按鈕功能：自動發送對應問題到AI對話
+
+**6. 結果區塊標籤順序**：
+- 重新排序為：🎯 帳號定位 → 💡 腳本選題 → 📝 短影音腳本
+- 預設顯示帳號定位標籤
+- 前端重新整理後保持固定位置
+
+**7. AI對話優化**：
+- AI標籤從"AI"改為"AIJob短影音顧問"
+- 調整標籤字體大小（11px）和粗細（500）
+- 增加聊天框高度（400-600px）
+- 增加輸入框高度（60-200px）
+
+**8. 載入動畫修復**：
+- 正確顯示"AI回覆中..."載入動畫
+- 使用聊天氣泡樣式，包含尾巴效果
+- 動畫消失時機：收到第一個AI token時
+
+**9. Markdown格式移除**：
+- `cleanMarkdownFormat()` 函數強化
+- 移除所有Markdown符號（`**`、`###`等）
+- 正確處理換行：`\n\n` → `<p>`，`\n` → `<br>`
+
+**10. 用戶認證整合**：
+- Google OAuth登入/登出
+- 自動生成用戶ID：`generateUserId()`
+- 用戶資訊顯示：頭像 + 姓名，靠右對齊
+
+**11. 用戶歷史記錄**：
+- **左右兩欄彈出式視窗設計**：
+  - 左欄：導航選單（個人資料、我的腳本、帳號定位、選題記錄）
+  - 右欄：對應內容詳細顯示
+  - 關閉按鈕
+- **歷史資料載入**：
+  - `loadUserHistory()`：載入所有用戶歷史資料
+  - `updatePersonalInfo()`：顯示個人資料（姓名、信箱、用戶ID）
+  - `updateConversationsDisplay()`：顯示對話摘要
+  - `updateGenerationsDisplay()`：顯示生成記錄
+  - `updateMemoryDisplay()`：顯示記憶資訊
+- **內容切換**：
+  - `switchDrawerContent()`：點擊選單項目切換顯示內容
+  - 高亮當前選中項目
+
+**12. API整合**：
+- 所有API調用使用完整後端地址：`http://127.0.0.1:8000`
+- 對話API：`/api/chat/stream`
+- 一鍵生成API：`/api/generate/positioning`、`/api/generate/topics`、`/api/generate/script`
+- 用戶歷史API：`/api/user/profile/{user_id}`、`/api/user/conversations/{user_id}`、`/api/user/generations/{user_id}`
+
+**檔案：CSS樣式**
+
+**1. 整體佈局**：
+- `.main-container`：Flexbox左右兩欄佈局
+- `.left-panel`：佔50%，包含設定和對話
+- `.right-panel`：佔50%，顯示結果區塊
+- 響應式設計：小螢幕改為上下堆疊
+
+**2. 用戶需求設定**：
+- `.settings-block`：可摺疊區塊樣式
+- `.settings-header`：標題 + 展開/摺疊按鈕
+- `.settings-content`：設定表單內容
+- 摺疊時使用 `max-height: 0` 和 `overflow: hidden`
+
+**3. 聊天對話**：
+- `.chat-section`：最小高度600px
+- `.chat-messages`：400-600px高度，flex佈局
+- `.input-row textarea`：60-200px高度
+- `.msg`：聊天氣泡樣式
+- `.loading`：載入動畫樣式，包含氣泡尾巴
+
+**4. 結果區塊**：
+- `.result-section`：右側結果顯示區
+- `.result-tabs`：標籤切換按鈕
+- `.result-content`：結果內容區域
+- `.result-header`：結果標題
+- `.result-body`：結果主體內容
+- `.result-actions`：儲存/再生成按鈕區域
+
+**5. 一鍵生成按鈕**：
+- `.generate-btn`：綠色按鈕，懸停變深綠
+- `.save-btn`：藍色按鈕
+- `.regenerate-btn`：橘色按鈕
+
+**6. 用戶抽屜**：
+- `.user-drawer-overlay`：全螢幕遮罩
+- `.user-drawer`：置中彈出視窗（800x600px）
+- `.user-drawer-sidebar`：左側導航（200px）
+- `.user-drawer-content`：右側內容區域
+- `.user-drawer-menu`：選單項目樣式
+- `.content-section`：各類內容顯示區域
+
+**7. 字體大小調整**：
+- `.settings-block h3`：20px
+- `.apply-btn`：18px
+- `.quick-btn`：16px
+- `.send-btn`：18px
+- `.result-tab`：16px
+- `.msg-label`：11px（AIJob短影音顧問）
+
+#### 🎯 測試結果
+
+所有功能已驗證正常：
+- ✅ **雙層記憶系統**：STM和LTM整合完成
+- ✅ **一鍵生成帳號定位**：基於設定生成專業建議
+- ✅ **一鍵生成選題**：根據定位推薦具體選題
+- ✅ **一鍵生成腳本**：完整的短影音腳本輸出
+- ✅ **階段性驗證**：確保按正確順序生成
+- ✅ **智能結果顯示**：AI對話自動識別並顯示到對應區塊
+- ✅ **結果管理**：儲存和再生成功能正常
+- ✅ **用戶歷史記錄**：個人資料、腳本、定位、選題全部顯示
+- ✅ **用戶認證**：Google OAuth登入/登出正常
+- ✅ **用戶ID生成**：自動生成並顯示
+- ✅ **載入動畫**：AI回覆中...正確顯示
+- ✅ **Markdown移除**：輸出為純文字格式
+- ✅ **API整合**：所有端點正常響應
+
+#### 🔧 問題修復
+
+1. **一鍵生成驗證邏輯過嚴**：
+   - **症狀**：即使完成定位，選題生成仍然被阻擋
+   - **原因**：驗證邏輯匹配了一般關鍵字，而非明確的預設文字
+   - **解決**：只檢查明確的預設占位文字（如"點擊「一鍵生成帳號定位」按鈕開始分析"）
+
+2. **API請求缺少必要欄位**：
+   - **症狀**：422錯誤，`Field required: message`
+   - **原因**：一鍵生成函數未傳遞 `message` 欄位
+   - **解決**：在 `generatePositioning()`、`generateTopics()`、`generateScript()` 中新增 `message` 欄位
+
+3. **結果標籤切換失效**：
+   - **症狀**：點擊標籤後內容未切換
+   - **原因**：`switchTab()` 函數的 `data-tab` 值與 `result-content` ID 不匹配
+   - **解決**：修正ID映射邏輯（`positioning` → `positioningResult`）
+
+4. **用戶ID未顯示**：
+   - **症狀**：個人資料中用戶ID欄位空白
+   - **原因**：`updatePersonalInfo()` 未正確讀取 `user_id`
+   - **解決**：修正為 `currentUser.user_id`
+
+5. **姓名欄位空白**：
+   - **症狀**：個人資料中姓名顯示為 `-`
+   - **原因**：未正確讀取用戶姓名
+   - **解決**：使用 `currentUser.name || currentUser.displayName || '未設定'`
+
+6. **載入動畫未顯示**：
+   - **症狀**：AI回覆時未出現"AI回覆中..."
+   - **原因**：載入動畫被過早移除
+   - **解決**：改為在收到第一個AI token時才移除載入動畫
+
+7. **AI輸出包含Markdown**：
+   - **症狀**：輸出包含 `**` 等符號
+   - **原因**：`cleanMarkdownFormat()` 未移除所有Markdown
+   - **解決**：強化函數，移除所有Markdown符號並正確處理換行
+
+8. **抽屜內容顯示在底部**：
+   - **症狀**：點擊選單項目後內容顯示在抽屜底部
+   - **原因**：抽屜設計為滑動側邊欄，而非彈出視窗
+   - **解決**：重新設計為置中彈出視窗，左右兩欄佈局
+
+#### 📝 經驗總結
+
+1. **佈局重構**：
+   - 左右兩欄佈局比上下堆疊更專業
+   - 固定比例（5:5）確保視覺平衡
+   - 響應式設計對行動裝置支援很重要
+
+2. **階段性驗證**：
+   - 驗證邏輯要精確，避免過度嚴格
+   - 只檢查明確的預設文字，而非一般關鍵字
+   - 提供清晰的錯誤提示
+
+3. **智能結果顯示**：
+   - 不是所有AI回應都要顯示到結果區塊
+   - 只顯示明確的摘要/結果
+   - 一般討論保留在對話框，保持對話流暢
+
+4. **API整合**：
+   - 本地開發使用完整URL（`http://127.0.0.1:8000`）
+   - 確保所有必要欄位都傳遞到後端
+   - 錯誤處理和載入狀態很重要
+
+5. **用戶體驗**：
+   - 載入動畫提升用戶體驗
+   - 彈出視窗比側邊欄更直觀
+   - 左右兩欄佈局方便資訊瀏覽
+
+#### 🚀 本地開發啟動指令
+
+**前端啟動（推薦使用 VS Code Live Server）**：
+```bash
+# 方法 1：使用 VS Code Live Server
+# 1. 在 VS Code 中打開 frontend/index.html
+# 2. 右鍵選擇 "Open with Live Server"
+
+# 方法 2：使用 Python HTTP Server
+cd /Users/user/Downloads/ai_web_app/對話式/chatbot/frontend
+python3 -m http.server 5173
+# 打開瀏覽器訪問：http://localhost:5173
+```
+
+**搭配後端使用**：
+```bash
+# 確保後端在 http://127.0.0.1:8000 運行
+# 前端會自動連接後端API
+```
+
+#### 📊 功能架構
+
+```
+前端頁面結構
+├── Header（頂部）
+│   ├── 標題：AI 短影音智能體
+│   └── 用戶資訊：頭像 + 姓名 + 登入/登出
+│
+├── Main Container（主容器）
+│   ├── Left Panel（左欄 50%）
+│   │   ├── 用戶需求設定（可摺疊）
+│   │   ├── AI對話框
+│   │   ├── 快速按鈕
+│   │   └── 輸入框
+│   │
+│   └── Right Panel（右欄 50%）
+│       ├── 結果標籤（帳號定位、選題、腳本）
+│       └── 結果內容
+│           ├── 生成按鈕
+│           ├── 結果顯示
+│           └── 儲存/再生成按鈕
+│
+└── User Drawer（用戶抽屜）
+    ├── Left Sidebar（左側導航）
+    │   ├── 個人資料
+    │   ├── 我的腳本
+    │   ├── 帳號定位
+    │   └── 選題記錄
+    │
+    └── Right Content（右側內容）
+        └── 對應詳細資訊
+```
+
+#### 🎯 一鍵生成流程
+
+```
+用戶操作流程
+
+1. 設定基本需求
+   ├── 選擇平台（必填）
+   ├── 輸入主題（選填）
+   ├── 選擇時長（預設30秒）
+   ├── 選擇風格（選填）
+   └── 點擊「套用設定」
+
+2. 帳號定位
+   ├── 點擊「一鍵生成 帳號定位」
+   ├── AI分析目標受眾、內容方向、風格調性
+   ├── 結果顯示在「帳號定位」標籤
+   └── 選擇「儲存」或「再換一個」
+
+3. 腳本選題
+   ├── 前置：必須先完成帳號定位
+   ├── 點擊「一鍵生成 腳本選題」
+   ├── AI推薦3-5個選題方向
+   ├── 結果顯示在「腳本選題」標籤
+   └── 選擇「儲存」或「再換一個」
+
+4. 短影音腳本
+   ├── 前置：必須先完成選題
+   ├── 點擊「一鍵生成 短影音腳本」
+   ├── AI生成完整腳本（主題、內容、畫面感、文案）
+   ├── 結果顯示在「短影音腳本」標籤
+   └── 選擇「儲存」或「再換一個」
+```
+
+---
+
+## 📝 歷史更新日誌
+
 ### 2025-10-20 - AI輸出解析功能開發與問題追蹤
 
 #### 🚨 問題描述
@@ -556,6 +886,168 @@ fronted/
 2. **結構理解**：需要理解AI回應的完整結構
 3. **精確提取**：基於正確範圍的解析才能得到準確結果
 4. **防禦性編程**：預設AI回應可能包含多個部分
+
+---
+
+---
+
+## 🎬 腳本拍攝表格功能（待開發）
+
+### 功能規劃
+
+**目標**：讓用戶能夠在「我的腳本」中匯出腳本拍攝表格，支援 Excel 和 PDF 格式。
+
+### 腳本拍攝表格結構
+
+#### Part A | 優化後完整腳本（Hook、Value、CTA）
+- **保留原台詞語氣**
+- **補入缺少的元素與節奏調整**
+
+#### Part B | 拍攝腳本表格
+
+| 秒數 | 段落 | 鏡頭／畫面 | 台詞（口白） | 字幕重點 | 音效與背景建議 |
+|------|------|------------|--------------|----------|----------------|
+| 0-3s | Hook | - | - | - | - |
+| 3-7s | Pain Point | - | - | - | - |
+| 7-15s | Value 1 | - | - | - | - |
+| 15-25s | Value 2 | - | - | - | - |
+| 25-30s | CTA | - | - | - | - |
+
+### 待實現功能
+
+#### 1. 資料結構設計
+- [ ] 擴充 `positioning_records` 表或新增 `script_details` 表
+- [ ] 儲存完整的腳本分段資訊（秒數、段落、鏡頭、台詞、字幕、音效）
+- [ ] 關聯到 `generations` 表
+
+#### 2. 後端 API
+- [ ] `POST /api/script/parse` - 解析 AI 生成的腳本，自動分段
+- [ ] `GET /api/script/{script_id}/export/excel` - 匯出 Excel 格式
+- [ ] `GET /api/script/{script_id}/export/pdf` - 匯出 PDF 格式
+- [ ] `PUT /api/script/{script_id}/segments` - 更新腳本分段（支援用戶手動調整）
+
+#### 3. 前端介面
+- [ ] 在「我的腳本」列表中，每個腳本增加「匯出」按鈕
+- [ ] 彈出視窗顯示匯出選項：Excel 或 PDF
+- [ ] 預覽腳本拍攝表格（在匯出前）
+- [ ] 支援腳本分段的編輯功能（可選）
+
+#### 4. 匯出功能實現
+
+**Excel 匯出**：
+```python
+# 需要安裝
+pip install openpyxl  # Excel 處理
+pip install pandas    # 資料處理
+```
+
+**PDF 匯出**：
+```python
+# 需要安裝
+pip install reportlab  # PDF 生成
+pip install weasyprint # HTML to PDF（更美觀）
+```
+
+#### 5. 前端下載邏輯
+```javascript
+async function exportScript(scriptId, format) {
+    const response = await fetch(`http://127.0.0.1:8000/api/script/${scriptId}/export/${format}`);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `腳本_${scriptId}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+    a.click();
+}
+```
+
+### 資料庫表格設計（建議）
+
+```sql
+CREATE TABLE IF NOT EXISTS script_segments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    script_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    
+    -- 時間段
+    start_time INTEGER NOT NULL,  -- 開始秒數
+    end_time INTEGER NOT NULL,    -- 結束秒數
+    
+    -- 段落資訊
+    segment_type TEXT NOT NULL,   -- Hook, Pain Point, Value 1, Value 2, CTA
+    
+    -- 內容
+    camera_scene TEXT,            -- 鏡頭／畫面
+    dialogue TEXT,                -- 台詞（口白）
+    subtitle_focus TEXT,          -- 字幕重點
+    audio_suggestion TEXT,        -- 音效與背景建議
+    
+    -- 元數據
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES user_profiles (user_id)
+);
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_script_segments_script_id ON script_segments(script_id);
+CREATE INDEX IF NOT EXISTS idx_script_segments_user_id ON script_segments(user_id);
+```
+
+### AI 自動分段提示詞（建議）
+
+```
+請根據以下腳本，生成詳細的拍攝表格：
+
+【原始腳本】
+{user_script}
+
+【要求】
+1. 按照 Hook (0-3s) → Pain Point (3-7s) → Value 1 (7-15s) → Value 2 (15-25s) → CTA (25-30s) 結構分段
+2. 為每個段落提供：
+   - 鏡頭／畫面建議（具體的視覺呈現）
+   - 台詞（口白）（完整的說話內容）
+   - 字幕重點（需要特別標註的關鍵字）
+   - 音效與背景建議（音樂類型、音效、背景聲）
+
+【輸出格式】
+JSON 格式，包含 segments 陣列，每個 segment 包含：
+- start_time: 開始秒數
+- end_time: 結束秒數
+- segment_type: 段落類型
+- camera_scene: 鏡頭畫面
+- dialogue: 台詞
+- subtitle_focus: 字幕重點
+- audio_suggestion: 音效建議
+```
+
+### 實現優先級
+- **P1（高優先級）**：基礎匯出功能（Excel 格式）
+- **P2（中優先級）**：PDF 格式匯出
+- **P3（低優先級）**：腳本分段編輯功能
+- **P4（未來功能）**：AI 智能優化建議（根據平台特性調整拍攝建議）
+
+### 用戶操作流程
+```
+用戶點擊「我的腳本」
+  ↓
+選擇特定腳本
+  ↓
+點擊「匯出拍攝表格」按鈕
+  ↓
+選擇格式（Excel / PDF）
+  ↓
+[可選] 預覽並編輯分段
+  ↓
+下載檔案
+```
+
+### 注意事項
+1. **版權保護**：匯出的檔案應包含水印或版權聲明
+2. **資料隱私**：確保只有腳本擁有者可以匯出
+3. **檔案命名**：使用有意義的檔案名（包含日期、主題等）
+4. **格式美化**：Excel 和 PDF 需要良好的視覺設計
+5. **效能考慮**：大量匯出請求需要使用背景任務（Celery）
 
 ---
 
