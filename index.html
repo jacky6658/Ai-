@@ -748,23 +748,31 @@
       
       // 新增：精確的腳本內容檢測函數
       function detectScriptContent(aiText) {
-        // 1. 檢查是否包含明確的腳本結構標記
-        const structureMarkers = [
-          /###\s*主題標題\s*[：:]/i,
-          /###\s*腳本內容\s*[：:]/i,
-          /###\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/i,
-          /###\s*發佈文案\s*[：:]/i,
-          /1\.\s*主題標題\s*[：:]/i,
-          /2\.\s*腳本內容\s*[：:]/i,
-          /3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/i,
-          /4\.\s*發佈文案\s*[：:]/i
+        console.log('=== 開始腳本內容檢測 ===');
+        console.log('檢測文本長度:', aiText.length);
+        console.log('檢測文本前200字符:', aiText.substring(0, 200));
+        
+        // 1. 必須包含明確的腳本結構標記（最高優先級）
+        const requiredStructureMarkers = [
+          /主題標題[：:]/i,
+          /腳本內容[：:]/i,
+          /畫面感[：:]/i,
+          /發佈文案[：:]/i
         ];
         
-        const hasStructureMarkers = structureMarkers.some(pattern => pattern.test(aiText));
+        const hasRequiredMarkers = requiredStructureMarkers.some(pattern => pattern.test(aiText));
+        console.log('是否包含必要結構標記:', hasRequiredMarkers);
+        
+        // 如果沒有必要的結構標記，直接返回 false
+        if (!hasRequiredMarkers) {
+          console.log('❌ 未包含必要的腳本結構標記，不顯示結果區塊');
+          return false;
+        }
         
         // 2. 檢查是否包含腳本相關的關鍵詞組合
         const scriptKeywords = ['主題標題', '腳本內容', '畫面感', '發佈文案', 'Hook', 'Value', 'CTA'];
         const keywordCount = scriptKeywords.filter(keyword => aiText.includes(keyword)).length;
+        console.log('腳本關鍵詞數量:', keywordCount);
         
         // 3. 檢查是否包含短影音相關的內容指示詞
         const videoIndicators = [
@@ -776,16 +784,21 @@
           'TikTok',
           '小紅書',
           '秒腳本',
-          '影音內容'
+          '影音內容',
+          '短影音',
+          '腳本'
         ];
         const hasVideoIndicators = videoIndicators.some(indicator => aiText.includes(indicator));
+        console.log('是否包含短影音指示詞:', hasVideoIndicators);
         
         // 4. 檢查文本長度（腳本內容通常較長）
-        const isLongEnough = aiText.length > 200;
+        const isLongEnough = aiText.length > 300; // 提高長度要求
+        console.log('文本是否足夠長:', isLongEnough);
         
         // 5. 檢查是否包含多個段落（腳本通常有多個部分）
         const paragraphCount = aiText.split('\n\n').filter(p => p.trim().length > 0).length;
-        const hasMultipleParagraphs = paragraphCount >= 3;
+        const hasMultipleParagraphs = paragraphCount >= 4; // 提高段落要求
+        console.log('段落數量:', paragraphCount, '是否多段落:', hasMultipleParagraphs);
         
         // 6. 排除明顯的非腳本內容
         const nonScriptIndicators = [
@@ -800,30 +813,69 @@
           '很高興為您',
           '歡迎',
           '再見',
-          '拜拜'
+          '拜拜',
+          '有什麼可以幫你',
+          '需要什麼幫助',
+          '請告訴我',
+          '請輸入',
+          '請選擇',
+          '請點擊',
+          '請查看',
+          '請注意',
+          '提醒',
+          '建議',
+          '推薦',
+          '介紹',
+          '說明',
+          '解釋',
+          '回答',
+          '回覆',
+          '回應'
         ];
         const hasNonScriptIndicators = nonScriptIndicators.some(indicator => 
           aiText.toLowerCase().includes(indicator.toLowerCase())
         );
+        console.log('是否包含非腳本指示詞:', hasNonScriptIndicators);
+        
+        // 7. 檢查是否包含完整的腳本結構（至少包含3個區塊）
+        const structureCount = requiredStructureMarkers.filter(pattern => pattern.test(aiText)).length;
+        const hasCompleteStructure = structureCount >= 3;
+        console.log('結構區塊數量:', structureCount, '是否完整結構:', hasCompleteStructure);
+        
+        // 8. 檢查是否包含時間標記（腳本通常有時間標記）
+        const timeMarkers = [
+          /\d+[-\s]*\d*\s*秒/i,
+          /\d+[-\s]*\d*\s*分鐘/i,
+          /0-\d+\s*秒/i,
+          /\d+-\d+\s*秒/i
+        ];
+        const hasTimeMarkers = timeMarkers.some(pattern => pattern.test(aiText));
+        console.log('是否包含時間標記:', hasTimeMarkers);
         
         // 綜合判斷
         const score = {
-          structureMarkers: hasStructureMarkers ? 3 : 0,
+          requiredMarkers: hasRequiredMarkers ? 5 : 0, // 最高權重
           keywordCount: Math.min(keywordCount, 3),
           videoIndicators: hasVideoIndicators ? 2 : 0,
           length: isLongEnough ? 1 : 0,
           paragraphs: hasMultipleParagraphs ? 1 : 0,
-          nonScript: hasNonScriptIndicators ? -2 : 0
+          completeStructure: hasCompleteStructure ? 2 : 0,
+          timeMarkers: hasTimeMarkers ? 1 : 0,
+          nonScript: hasNonScriptIndicators ? -5 : 0 // 高懲罰
         };
         
         const totalScore = Object.values(score).reduce((sum, val) => sum + val, 0);
         
         console.log('腳本檢測評分:', score);
         console.log('總分:', totalScore);
-        console.log('是否為腳本內容:', totalScore >= 3);
         
-        // 總分 >= 3 且不包含非腳本指示詞才認為是腳本內容
-        return totalScore >= 3 && !hasNonScriptIndicators;
+        // 更嚴格的判斷條件
+        const isScriptContent = totalScore >= 6 && !hasNonScriptIndicators && hasCompleteStructure;
+        
+        console.log('是否為腳本內容:', isScriptContent);
+        console.log('=== 腳本內容檢測結束 ===');
+        
+        return isScriptContent;
       }
       
       // 新增：更精確的AI內容解析函數
