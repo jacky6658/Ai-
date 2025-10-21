@@ -1058,10 +1058,70 @@
         });
       });
 
+      // 檢查用戶是否要求生成腳本
+      function checkIfScriptRequest(aiText) {
+        console.log('=== 檢查是否為腳本生成請求 ===');
+        
+        // 檢查AI回應中是否包含腳本生成相關的關鍵詞
+        const scriptRequestKeywords = [
+          '短影音腳本',
+          '生成腳本',
+          '腳本生成',
+          '腳本內容',
+          '主題標題',
+          '畫面感',
+          '發佈文案',
+          'Hook',
+          'Value',
+          'CTA',
+          '短影音',
+          '腳本',
+          'Reels',
+          'TikTok',
+          '小紅書'
+        ];
+        
+        const hasScriptKeywords = scriptRequestKeywords.some(keyword => 
+          aiText.toLowerCase().includes(keyword.toLowerCase())
+        );
+        
+        // 檢查是否包含腳本結構標記
+        const hasScriptStructure = [
+          /主題標題[：:]/i,
+          /腳本內容[：:]/i,
+          /畫面感[：:]/i,
+          /發佈文案[：:]/i,
+          /\d+\.\s*主題標題/i,
+          /\d+\.\s*腳本內容/i,
+          /\d+\.\s*畫面感/i,
+          /\d+\.\s*發佈文案/i,
+          /Hook\s*\(\d+-\d+秒\)/i,
+          /Value\s*\d+\s*\(\d+-\d+秒\)/i,
+          /CTA\s*\(\d+-\d+秒\)/i
+        ].some(pattern => pattern.test(aiText));
+        
+        const isScriptRequest = hasScriptKeywords || hasScriptStructure;
+        
+        console.log('包含腳本關鍵詞:', hasScriptKeywords);
+        console.log('包含腳本結構:', hasScriptStructure);
+        console.log('判斷為腳本請求:', isScriptRequest);
+        
+        return isScriptRequest;
+      }
+
       function checkAndUpdateResults(aiText) {
         console.log('=== 開始解析AI回應 ===');
         console.log('AI回應長度:', aiText.length);
         console.log('AI回應前300字符:', aiText.substring(0, 300));
+        
+        // 檢查用戶是否要求生成腳本（只有這種情況才顯示腳本結果區塊）
+        const isScriptRequest = checkIfScriptRequest(aiText);
+        console.log('是否為腳本生成請求:', isScriptRequest);
+        
+        if (!isScriptRequest) {
+          console.log('❌ 不是腳本生成請求，不顯示腳本結果區塊');
+          return;
+        }
         
         // 更精確的腳本內容檢測
         const isScriptContent = detectScriptContent(aiText);
@@ -1276,6 +1336,16 @@
         console.log('是否包含非腳本指示詞:', hasNonScriptIndicators);
         
         // 7. 檢查是否包含完整的腳本結構（至少包含3個區塊）
+        const requiredStructureMarkers = [
+          /主題標題[：:]/i,
+          /腳本內容[：:]/i,
+          /畫面感[：:]/i,
+          /發佈文案[：:]/i,
+          /\d+\.\s*主題標題/i,
+          /\d+\.\s*腳本內容/i,
+          /\d+\.\s*畫面感/i,
+          /\d+\.\s*發佈文案/i
+        ];
         const structureCount = requiredStructureMarkers.filter(pattern => pattern.test(aiText)).length;
         const hasCompleteStructure = structureCount >= 3;
         console.log('結構區塊數量:', structureCount, '是否完整結構:', hasCompleteStructure);
