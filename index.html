@@ -752,20 +752,38 @@
         console.log('檢測文本長度:', aiText.length);
         console.log('檢測文本前200字符:', aiText.substring(0, 200));
         
-        // 1. 必須包含明確的腳本結構標記（最高優先級）
-        const requiredStructureMarkers = [
+        // 1. 檢查是否包含腳本相關的結構標記（更靈活的檢測）
+        const structureMarkers = [
           /主題標題[：:]/i,
           /腳本內容[：:]/i,
           /畫面感[：:]/i,
-          /發佈文案[：:]/i
+          /發佈文案[：:]/i,
+          /Hook\s*\(\d+-\d+秒\)/i,
+          /Value\s*\d+\s*\(\d+-\d+秒\)/i,
+          /CTA\s*\(\d+-\d+秒\)/i
         ];
         
-        const hasRequiredMarkers = requiredStructureMarkers.some(pattern => pattern.test(aiText));
-        console.log('是否包含必要結構標記:', hasRequiredMarkers);
+        const hasStructureMarkers = structureMarkers.some(pattern => pattern.test(aiText));
+        console.log('是否包含腳本結構標記:', hasStructureMarkers);
         
-        // 如果沒有必要的結構標記，直接返回 false
-        if (!hasRequiredMarkers) {
-          console.log('❌ 未包含必要的腳本結構標記，不顯示結果區塊');
+        // 2. 檢查是否包含短影音腳本的關鍵元素
+        const scriptElements = [
+          /Hook\s*\(\d+-\d+秒\)/i,
+          /Value\s*\d+\s*\(\d+-\d+秒\)/i,
+          /CTA\s*\(\d+-\d+秒\)/i,
+          /畫面感[：:]/i,
+          /發佈文案[：:]/i,
+          /鏡頭[：:]/i,
+          /音效[：:]/i,
+          /字幕[：:]/i
+        ];
+        
+        const scriptElementCount = scriptElements.filter(pattern => pattern.test(aiText)).length;
+        console.log('腳本元素數量:', scriptElementCount);
+        
+        // 如果沒有腳本結構標記且腳本元素少於3個，直接返回 false
+        if (!hasStructureMarkers && scriptElementCount < 3) {
+          console.log('❌ 未包含足夠的腳本結構標記，不顯示結果區塊');
           return false;
         }
         
@@ -854,7 +872,8 @@
         
         // 綜合判斷
         const score = {
-          requiredMarkers: hasRequiredMarkers ? 5 : 0, // 最高權重
+          structureMarkers: hasStructureMarkers ? 3 : 0,
+          scriptElements: Math.min(scriptElementCount, 4), // 腳本元素數量
           keywordCount: Math.min(keywordCount, 3),
           videoIndicators: hasVideoIndicators ? 2 : 0,
           length: isLongEnough ? 1 : 0,
@@ -869,8 +888,8 @@
         console.log('腳本檢測評分:', score);
         console.log('總分:', totalScore);
         
-        // 更嚴格的判斷條件
-        const isScriptContent = totalScore >= 6 && !hasNonScriptIndicators && hasCompleteStructure;
+        // 更靈活的判斷條件
+        const isScriptContent = totalScore >= 4 && !hasNonScriptIndicators && (hasStructureMarkers || scriptElementCount >= 3);
         
         console.log('是否為腳本內容:', isScriptContent);
         console.log('=== 腳本內容檢測結束 ===');
@@ -908,6 +927,16 @@
             }
           }
           
+          // 如果沒有找到明確的主題標題，嘗試提取第一行作為標題
+          if (!sections.title) {
+            const lines = aiText.split('\n').filter(line => line.trim().length > 0);
+            const firstLine = lines[0];
+            if (firstLine && !firstLine.match(/^(Hook|Value|CTA|畫面感|發佈文案)/i)) {
+              sections.title = cleanMarkdownFormat(firstLine.trim());
+              console.log('使用第一行作為主題標題:', sections.title);
+            }
+          }
+          
           // 2. 提取腳本內容
           const scriptPatterns = [
             /腳本內容[：:]\s*([\s\S]*?)(?=\n\s*(?:畫面感|發佈文案|$))/i,
@@ -920,6 +949,27 @@
               sections.script = cleanMarkdownFormat(match[1].trim());
               console.log('找到腳本內容:', sections.script.substring(0, 100) + '...');
               break;
+            }
+          }
+          
+          // 如果沒有找到明確的腳本內容標記，嘗試提取 Hook、Value、CTA 部分
+          if (!sections.script) {
+            const hookPattern = /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|畫面感|發佈文案|$)/i;
+            const valuePattern = /Value\s*\d+\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i;
+            const ctaPattern = /CTA\s*\(\d+-\d+秒\)[\s\S]*?(?=畫面感|發佈文案|$)/i;
+            
+            const hookMatch = aiText.match(hookPattern);
+            const valueMatches = aiText.match(new RegExp(valuePattern.source, 'gi'));
+            const ctaMatch = aiText.match(ctaPattern);
+            
+            let scriptContent = '';
+            if (hookMatch) scriptContent += hookMatch[0] + '\n\n';
+            if (valueMatches) scriptContent += valueMatches.join('\n\n');
+            if (ctaMatch) scriptContent += '\n\n' + ctaMatch[0];
+            
+            if (scriptContent.trim()) {
+              sections.script = cleanMarkdownFormat(scriptContent.trim());
+              console.log('使用 Hook/Value/CTA 作為腳本內容:', sections.script.substring(0, 100) + '...');
             }
           }
           
