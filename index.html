@@ -2893,7 +2893,8 @@
             // 刷新腳本列表
             loadMyScripts();
           } else {
-            throw new Error('儲存失敗');
+            const errorData = await response.json();
+            throw new Error(errorData.error || '儲存失敗');
           }
         } catch (error) {
           console.error('Save script error:', error);
@@ -2925,23 +2926,26 @@
         }
         
         // 提取腳本內容的各個段落
-        const sections = doc.querySelectorAll('h5, .script-section');
+        const sections = doc.querySelectorAll('h5, .script-section, strong');
         sections.forEach(section => {
-          const sectionData = {
-            type: section.textContent.trim(),
-            content: []
-          };
-          
-          // 提取段落內容
-          let nextElement = section.nextElementSibling;
-          while (nextElement && !nextElement.matches('h5, .script-section')) {
-            if (nextElement.textContent.trim()) {
-              sectionData.content.push(nextElement.textContent.trim());
+          const sectionText = section.textContent.trim();
+          if (sectionText && (sectionText.includes('Value') || sectionText.includes('Hook') || sectionText.includes('CTA') || sectionText.includes('秒'))) {
+            const sectionData = {
+              type: sectionText,
+              content: []
+            };
+            
+            // 提取段落內容
+            let nextElement = section.nextElementSibling;
+            while (nextElement && !nextElement.matches('h5, .script-section, strong')) {
+              if (nextElement.textContent.trim()) {
+                sectionData.content.push(nextElement.textContent.trim());
+              }
+              nextElement = nextElement.nextElementSibling;
             }
-            nextElement = nextElement.nextElementSibling;
+            
+            scriptData.sections.push(sectionData);
           }
-          
-          scriptData.sections.push(sectionData);
         });
         
         return scriptData;
@@ -2965,11 +2969,12 @@
             const data = await response.json();
             displayScripts(data.scripts || []);
           } else {
-            throw new Error('載入失敗');
+            const errorData = await response.json();
+            throw new Error(errorData.error || '載入失敗');
           }
         } catch (error) {
           console.error('Load scripts error:', error);
-          document.getElementById('generationsList').innerHTML = '<div class="loading-text">載入失敗</div>';
+          document.getElementById('generationsList').innerHTML = '<div class="loading-text">載入失敗，請稍後再試</div>';
         }
       }
       
@@ -3031,21 +3036,30 @@
           return '<tr><td colspan="6">無數據</td></tr>';
         }
         
-        return scriptData.sections.map(section => {
-          const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
-          const sectionTypes = ['Hook', 'Pain Point', 'Value 1', 'Value 2', 'CTA'];
-          
-          return section.content.map((content, index) => `
-            <tr>
-              <td>${timeRanges[index] || '-'}</td>
-              <td>${sectionTypes[index] || section.type}</td>
-              <td>-</td>
-              <td>${content}</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-          `).join('');
-        }).join('');
+        let tableRows = '';
+        let timeIndex = 0;
+        const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
+        
+        scriptData.sections.forEach(section => {
+          section.content.forEach((content, contentIndex) => {
+            const timeRange = timeRanges[timeIndex] || '-';
+            const sectionType = section.type || '內容段落';
+            
+            tableRows += `
+              <tr>
+                <td>${timeRange}</td>
+                <td>${sectionType}</td>
+                <td>-</td>
+                <td>${content}</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            `;
+            timeIndex++;
+          });
+        });
+        
+        return tableRows || '<tr><td colspan="6">無數據</td></tr>';
       }
       
       // 切換腳本展開/收起
@@ -3093,7 +3107,8 @@
             showToast('腳本名稱更新成功！', 3000);
             loadMyScripts(); // 重新載入列表
           } else {
-            throw new Error('更新失敗');
+            const errorData = await response.json();
+            throw new Error(errorData.error || '更新失敗');
           }
         } catch (error) {
           console.error('Update script name error:', error);
@@ -3135,7 +3150,8 @@
             showToast('腳本刪除成功！', 3000);
             loadMyScripts(); // 重新載入列表
           } else {
-            throw new Error('刪除失敗');
+            const errorData = await response.json();
+            throw new Error(errorData.error || '刪除失敗');
           }
         } catch (error) {
           console.error('Delete script error:', error);
