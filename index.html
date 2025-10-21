@@ -826,7 +826,7 @@
         return totalScore >= 3 && !hasNonScriptIndicators;
       }
       
-      // 新增：更靈活的AI內容解析函數
+      // 新增：更精確的AI內容解析函數
       function parseAIContent(aiText) {
         const sections = {
           title: '',
@@ -835,97 +835,96 @@
           copy: ''
         };
         
-        // 按行分割文本
-        const lines = aiText.split('\n');
-        let currentSection = '';
-        let currentContent = [];
+        console.log('開始解析AI內容...');
+        console.log('原始AI文本:', aiText);
         
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
+        // 使用正則表達式精確提取每個區塊的內容
+        try {
+          // 1. 提取主題標題
+          const titlePatterns = [
+            /主題標題[：:]\s*([^\n]+)/i,
+            /主題[：:]\s*([^\n]+)/i,
+            /標題[：:]\s*([^\n]+)/i
+          ];
           
-          // 檢測標題
-          if (line.includes('主題標題') || line.includes('主題：') || line.includes('標題：')) {
-            if (currentSection === 'title' && currentContent.length > 0) {
-              sections.title = cleanMarkdownFormat(currentContent.join('\n'));
+          for (const pattern of titlePatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1] && match[1].trim()) {
+              sections.title = cleanMarkdownFormat(match[1].trim());
+              console.log('找到主題標題:', sections.title);
+              break;
             }
-            currentSection = 'title';
-            currentContent = [];
-            // 提取標題內容（可能在同一行或下一行）
-            const titleMatch = line.match(/(?:主題標題|主題|標題)[：:]\s*(.+)/);
-            if (titleMatch && titleMatch[1]) {
-              currentContent.push(titleMatch[1]);
-            }
-          }
-          // 檢測腳本內容
-          else if (line.includes('腳本內容') || line.includes('腳本：') || line.includes('Hook') || line.includes('Value')) {
-            if (currentSection === 'script' && currentContent.length > 0) {
-              sections.script = cleanMarkdownFormat(currentContent.join('\n'));
-            }
-            currentSection = 'script';
-            currentContent = [];
-            // 提取腳本內容
-            const scriptMatch = line.match(/(?:腳本內容|腳本)[：:]\s*(.+)/);
-            if (scriptMatch && scriptMatch[1]) {
-              currentContent.push(scriptMatch[1]);
-            }
-          }
-          // 檢測畫面感
-          else if (line.includes('畫面感') || line.includes('畫面：') || line.includes('鏡頭') || line.includes('音效')) {
-            if (currentSection === 'visual' && currentContent.length > 0) {
-              sections.visual = cleanMarkdownFormat(currentContent.join('\n'));
-            }
-            currentSection = 'visual';
-            currentContent = [];
-            // 提取畫面感內容
-            const visualMatch = line.match(/(?:畫面感|畫面)[：:]\s*(.+)/);
-            if (visualMatch && visualMatch[1]) {
-              currentContent.push(visualMatch[1]);
-            }
-          }
-          // 檢測發佈文案
-          else if (line.includes('發佈文案') || line.includes('文案：') || line.includes('CTA') || line.includes('Call to Action')) {
-            if (currentSection === 'copy' && currentContent.length > 0) {
-              sections.copy = cleanMarkdownFormat(currentContent.join('\n'));
-            }
-            currentSection = 'copy';
-            currentContent = [];
-            // 提取發佈文案內容
-            const copyMatch = line.match(/(?:發佈文案|文案)[：:]\s*(.+)/);
-            if (copyMatch && copyMatch[1]) {
-              currentContent.push(copyMatch[1]);
-            }
-          }
-          // 如果是內容行
-          else if (line.length > 0 && !line.match(/^[#\*\d\.\s]*$/)) {
-            currentContent.push(line);
-          }
-        }
-        
-        // 處理最後一個區塊
-        if (currentSection && currentContent.length > 0) {
-          const content = cleanMarkdownFormat(currentContent.join('\n'));
-          if (currentSection === 'title') sections.title = content;
-          else if (currentSection === 'script') sections.script = content;
-          else if (currentSection === 'visual') sections.visual = content;
-          else if (currentSection === 'copy') sections.copy = content;
-        }
-        
-        // 如果沒有找到明確的區塊，嘗試從整個文本中提取
-        if (!sections.title && !sections.script && !sections.visual && !sections.copy) {
-          // 嘗試提取第一行作為標題
-          const firstLine = lines.find(line => line.trim().length > 0 && !line.match(/^[#\*\d\.\s]*$/));
-          if (firstLine) {
-            sections.title = cleanMarkdownFormat(firstLine.trim());
           }
           
-          // 其餘內容作為腳本
-          const remainingLines = lines.filter(line => line.trim().length > 0 && !line.match(/^[#\*\d\.\s]*$/));
-          if (remainingLines.length > 1) {
-            sections.script = cleanMarkdownFormat(remainingLines.slice(1).join('\n'));
+          // 2. 提取腳本內容
+          const scriptPatterns = [
+            /腳本內容[：:]\s*([\s\S]*?)(?=\n\s*(?:畫面感|發佈文案|$))/i,
+            /腳本[：:]\s*([\s\S]*?)(?=\n\s*(?:畫面感|發佈文案|$))/i
+          ];
+          
+          for (const pattern of scriptPatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1] && match[1].trim()) {
+              sections.script = cleanMarkdownFormat(match[1].trim());
+              console.log('找到腳本內容:', sections.script.substring(0, 100) + '...');
+              break;
+            }
           }
+          
+          // 3. 提取畫面感
+          const visualPatterns = [
+            /畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
+            /畫面[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i
+          ];
+          
+          for (const pattern of visualPatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1] && match[1].trim()) {
+              sections.visual = cleanMarkdownFormat(match[1].trim());
+              console.log('找到畫面感:', sections.visual.substring(0, 100) + '...');
+              break;
+            }
+          }
+          
+          // 4. 提取發佈文案
+          const copyPatterns = [
+            /發佈文案[：:]\s*([\s\S]*?)$/i,
+            /文案[：:]\s*([\s\S]*?)$/i
+          ];
+          
+          for (const pattern of copyPatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1] && match[1].trim()) {
+              sections.copy = cleanMarkdownFormat(match[1].trim());
+              console.log('找到發佈文案:', sections.copy.substring(0, 100) + '...');
+              break;
+            }
+          }
+          
+          // 5. 如果沒有找到明確的標記，嘗試按段落分割
+          if (!sections.title && !sections.script && !sections.visual && !sections.copy) {
+            console.log('未找到明確標記，嘗試按段落分割...');
+            const paragraphs = aiText.split('\n\n').filter(p => p.trim().length > 0);
+            
+            if (paragraphs.length >= 1) {
+              sections.title = cleanMarkdownFormat(paragraphs[0].trim());
+            }
+            if (paragraphs.length >= 2) {
+              sections.script = cleanMarkdownFormat(paragraphs[1].trim());
+            }
+            if (paragraphs.length >= 3) {
+              sections.visual = cleanMarkdownFormat(paragraphs[2].trim());
+            }
+            if (paragraphs.length >= 4) {
+              sections.copy = cleanMarkdownFormat(paragraphs[3].trim());
+            }
+          }
+          
+        } catch (error) {
+          console.error('解析AI內容時出錯:', error);
         }
         
-        console.log('解析結果:', sections);
+        console.log('最終解析結果:', sections);
         return sections;
       }
     </script>
