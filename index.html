@@ -655,6 +655,42 @@
           console.log('測試發佈文案設置成功');
         }
       };
+      
+      // 添加AI內容測試函數
+      window.testAIContent = function(aiText) {
+        console.log('=== AI內容測試 ===');
+        console.log('測試文本:', aiText);
+        
+        const isScript = detectScriptContent(aiText);
+        console.log('是否為腳本內容:', isScript);
+        
+        if (isScript) {
+          const sections = parseAIContent(aiText);
+          console.log('解析結果:', sections);
+          
+          // 更新DOM元素
+          if (sections.title && resultTitleEl) {
+            resultTitleEl.innerHTML = sections.title;
+            console.log('✅ 主題標題已設置');
+          }
+          if (sections.script && resultScriptEl) {
+            resultScriptEl.innerHTML = sections.script;
+            console.log('✅ 腳本內容已設置');
+          }
+          if (sections.visual && resultVisualEl) {
+            resultVisualEl.innerHTML = sections.visual;
+            console.log('✅ 畫面感已設置');
+          }
+          if (sections.copy && resultCopyEl) {
+            resultCopyEl.innerHTML = sections.copy;
+            console.log('✅ 發佈文案已設置');
+          }
+          
+          // 顯示結果區塊
+          resultsEl.style.display = 'block';
+          console.log('✅ 結果區塊已顯示');
+        }
+      };
 
       // 快速按鈕功能
       document.querySelectorAll('.quick-btn').forEach(btn => {
@@ -813,8 +849,17 @@
         console.log('是否包含短影音內容:', hasVideoContent);
         
         // 更靈活的判斷條件
-        if (!hasStructureMarkers && scriptElementCount < 3 && !hasTimeMarkers && !hasVideoContent) {
+        const hasAnyScriptContent = hasStructureMarkers || scriptElementCount >= 3 || hasTimeMarkers || hasVideoContent;
+        console.log('是否有任何腳本內容:', hasAnyScriptContent);
+        
+        if (!hasAnyScriptContent) {
           console.log('❌ 未包含足夠的腳本內容標記，不顯示結果區塊');
+          console.log('檢測結果詳情:', {
+            hasStructureMarkers,
+            scriptElementCount,
+            hasTimeMarkers,
+            hasVideoContent
+          });
           return false;
         }
         
@@ -992,6 +1037,8 @@
           
           // 如果沒有找到明確的腳本內容標記，嘗試提取 Hook、Value、CTA 部分
           if (!sections.script) {
+            console.log('嘗試提取 Hook/Value/CTA 內容...');
+            
             // 支援多種時間標記格式
             const hookPatterns = [
               /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|畫面感|發佈文案|$)/i,
@@ -1012,6 +1059,7 @@
             for (const pattern of hookPatterns) {
               const match = aiText.match(pattern);
               if (match) {
+                console.log('找到 Hook:', match[0].substring(0, 100) + '...');
                 scriptContent += match[0] + '\n\n';
                 break;
               }
@@ -1021,6 +1069,7 @@
             for (const pattern of valuePatterns) {
               const matches = aiText.match(new RegExp(pattern.source, 'gi'));
               if (matches) {
+                console.log('找到 Value 數量:', matches.length);
                 scriptContent += matches.join('\n\n');
                 break;
               }
@@ -1030,6 +1079,7 @@
             for (const pattern of ctaPatterns) {
               const match = aiText.match(pattern);
               if (match) {
+                console.log('找到 CTA:', match[0].substring(0, 100) + '...');
                 scriptContent += '\n\n' + match[0];
                 break;
               }
@@ -1038,6 +1088,8 @@
             if (scriptContent.trim()) {
               sections.script = cleanMarkdownFormat(scriptContent.trim());
               console.log('使用 Hook/Value/CTA 作為腳本內容:', sections.script.substring(0, 100) + '...');
+            } else {
+              console.log('未找到 Hook/Value/CTA 內容');
             }
           }
           
