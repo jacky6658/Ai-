@@ -739,6 +739,61 @@
           console.log('❌ 未找到AI回應');
         }
       };
+      
+      // 添加簡單測試函數
+      window.testCurrentContent = function() {
+        console.log('=== 測試當前內容 ===');
+        
+        // 從聊天記錄中獲取最後一條AI回應
+        const chatMessages = document.querySelectorAll('.message.ai');
+        if (chatMessages.length > 0) {
+          const lastAIMessage = chatMessages[chatMessages.length - 1];
+          const aiText = lastAIMessage.textContent || lastAIMessage.innerText;
+          
+          console.log('AI文本長度:', aiText.length);
+          console.log('AI文本前500字符:', aiText.substring(0, 500));
+          
+          // 測試主題標題提取
+          const titleMatch = aiText.match(/主題標題[：:]\s*([^\n]+)/i);
+          console.log('主題標題匹配結果:', titleMatch);
+          
+          // 測試腳本內容提取
+          const scriptMatch = aiText.match(/腳本內容[：:]\s*([\s\S]*?)(?=\n\s*(?:畫面感|發佈文案|$))/i);
+          console.log('腳本內容匹配結果:', scriptMatch ? '匹配' : '無匹配');
+          
+          // 測試畫面感提取
+          const visualMatch = aiText.match(/畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i);
+          console.log('畫面感匹配結果:', visualMatch ? '匹配' : '無匹配');
+          
+          // 測試發佈文案提取
+          const copyMatch = aiText.match(/發佈文案[：:]\s*([\s\S]*?)$/i);
+          console.log('發佈文案匹配結果:', copyMatch ? '匹配' : '無匹配');
+          
+          // 直接更新結果區塊
+          if (titleMatch && titleMatch[1]) {
+            resultTitleEl.innerHTML = cleanMarkdownFormat(titleMatch[1].trim());
+            console.log('✅ 直接設置主題標題');
+          }
+          if (scriptMatch && scriptMatch[1]) {
+            resultScriptEl.innerHTML = cleanMarkdownFormat(scriptMatch[1].trim());
+            console.log('✅ 直接設置腳本內容');
+          }
+          if (visualMatch && visualMatch[1]) {
+            resultVisualEl.innerHTML = cleanMarkdownFormat(visualMatch[1].trim());
+            console.log('✅ 直接設置畫面感');
+          }
+          if (copyMatch && copyMatch[1]) {
+            resultCopyEl.innerHTML = cleanMarkdownFormat(copyMatch[1].trim());
+            console.log('✅ 直接設置發佈文案');
+          }
+          
+          // 顯示結果區塊
+          resultsEl.style.display = 'block';
+          console.log('✅ 結果區塊已顯示');
+        } else {
+          console.log('❌ 未找到AI回應');
+        }
+      };
 
       // 快速按鈕功能
       document.querySelectorAll('.quick-btn').forEach(btn => {
@@ -1088,15 +1143,31 @@
           }
         }
         
-        // 如果仍然沒有找到主題標題，嘗試從AI回應中提取
-        if (!sections.title) {
-          console.log('嘗試從AI回應中提取主題標題...');
-          const titleMatch = aiText.match(/主題標題[：:]\s*([^\n]+)/i);
-          if (titleMatch && titleMatch[1]) {
-            sections.title = cleanMarkdownFormat(titleMatch[1].trim());
-            console.log('從AI回應中提取主題標題:', sections.title);
+          // 如果仍然沒有找到主題標題，嘗試從AI回應中提取
+          if (!sections.title) {
+            console.log('嘗試從AI回應中提取主題標題...');
+            const titleMatch = aiText.match(/主題標題[：:]\s*([^\n]+)/i);
+            if (titleMatch && titleMatch[1]) {
+              sections.title = cleanMarkdownFormat(titleMatch[1].trim());
+              console.log('從AI回應中提取主題標題:', sections.title);
+            }
           }
-        }
+          
+          // 如果仍然沒有找到，嘗試提取第一行作為標題
+          if (!sections.title) {
+            console.log('嘗試提取第一行作為標題...');
+            const lines = aiText.split('\n').filter(line => line.trim().length > 0);
+            for (const line of lines) {
+              if (line.includes('主題標題') && line.includes('：')) {
+                const match = line.match(/主題標題[：:]\s*([^\n]+)/i);
+                if (match && match[1]) {
+                  sections.title = cleanMarkdownFormat(match[1].trim());
+                  console.log('從第一行提取主題標題:', sections.title);
+                  break;
+                }
+              }
+            }
+          }
           
           // 2. 提取腳本內容 - 支援所有可能的格式變化
           const scriptPatterns = [
