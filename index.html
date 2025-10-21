@@ -794,6 +794,247 @@
           console.log('❌ 未找到AI回應');
         }
       };
+      
+      // 添加超強力測試函數
+      window.forceExtractContent = function() {
+        console.log('=== 超強力內容提取 ===');
+        
+        // 從聊天記錄中獲取最後一條AI回應
+        const chatMessages = document.querySelectorAll('.message.ai');
+        if (chatMessages.length > 0) {
+          const lastAIMessage = chatMessages[chatMessages.length - 1];
+          const aiText = lastAIMessage.textContent || lastAIMessage.innerText;
+          
+          console.log('AI文本長度:', aiText.length);
+          console.log('AI文本前1000字符:', aiText.substring(0, 1000));
+          
+          // 強制提取主題標題
+          let title = '';
+          const titlePatterns = [
+            /\*\*主題標題\*\*[：:]\s*([^\n]+)/i,
+            /主題標題[：:]\s*([^\n]+)/i,
+            /\d+\.\s*\*\*主題標題\*\*[：:]\s*([^\n]+)/i,
+            /\d+\.\s*主題標題[：:]\s*([^\n]+)/i
+          ];
+          
+          for (const pattern of titlePatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1]) {
+              title = cleanMarkdownFormat(match[1].trim());
+              console.log('✅ 找到主題標題:', title);
+              break;
+            }
+          }
+          
+          // 強制提取腳本內容
+          let script = '';
+          const scriptPatterns = [
+            /\*\*腳本內容\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:畫面感|發佈文案|$))/i,
+            /腳本內容[：:]\s*([\s\S]*?)(?=\n\s*(?:畫面感|發佈文案|$))/i,
+            /\d+\.\s*\*\*腳本內容\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*畫面感|\d+\.\s*發佈文案|$))/i,
+            /\d+\.\s*腳本內容[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*畫面感|\d+\.\s*發佈文案|$))/i
+          ];
+          
+          for (const pattern of scriptPatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1]) {
+              script = cleanMarkdownFormat(match[1].trim());
+              console.log('✅ 找到腳本內容:', script.substring(0, 100) + '...');
+              break;
+            }
+          }
+          
+          // 強制提取畫面感
+          let visual = '';
+          const visualPatterns = [
+            /\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
+            /畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
+            /\d+\.\s*\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*發佈文案|$))/i,
+            /\d+\.\s*畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*發佈文案|$))/i
+          ];
+          
+          for (const pattern of visualPatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1]) {
+              visual = cleanMarkdownFormat(match[1].trim());
+              console.log('✅ 找到畫面感:', visual.substring(0, 100) + '...');
+              break;
+            }
+          }
+          
+          // 強制提取發佈文案
+          let copy = '';
+          const copyPatterns = [
+            /\*\*發佈文案\*\*[：:]\s*([\s\S]*?)$/i,
+            /發佈文案[：:]\s*([\s\S]*?)$/i,
+            /\d+\.\s*\*\*發佈文案\*\*[：:]\s*([\s\S]*?)$/i,
+            /\d+\.\s*發佈文案[：:]\s*([\s\S]*?)$/i
+          ];
+          
+          for (const pattern of copyPatterns) {
+            const match = aiText.match(pattern);
+            if (match && match[1]) {
+              copy = cleanMarkdownFormat(match[1].trim());
+              console.log('✅ 找到發佈文案:', copy.substring(0, 100) + '...');
+              break;
+            }
+          }
+          
+          // 強制更新結果區塊
+          if (title) {
+            resultTitleEl.innerHTML = title;
+            console.log('✅ 強制設置主題標題');
+          }
+          if (script) {
+            resultScriptEl.innerHTML = script;
+            console.log('✅ 強制設置腳本內容');
+          }
+          if (visual) {
+            resultVisualEl.innerHTML = visual;
+            console.log('✅ 強制設置畫面感');
+          }
+          if (copy) {
+            resultCopyEl.innerHTML = copy;
+            console.log('✅ 強制設置發佈文案');
+          }
+          
+          // 顯示結果區塊
+          resultsEl.style.display = 'block';
+          console.log('✅ 結果區塊已強制顯示');
+          
+          // 如果還是沒有內容，顯示原始文本
+          if (!title && !script && !visual && !copy) {
+            console.log('⚠️ 所有提取都失敗，顯示原始文本');
+            resultTitleEl.innerHTML = '原始AI回應';
+            resultScriptEl.innerHTML = aiText.substring(0, 500) + '...';
+            resultVisualEl.innerHTML = '請檢查控制台日誌';
+            resultCopyEl.innerHTML = '解析失敗';
+          }
+        } else {
+          console.log('❌ 未找到AI回應');
+        }
+      };
+      
+      // 添加終極解決方案：直接從頁面提取
+      window.extractFromPage = function() {
+        console.log('=== 終極解決方案：從頁面直接提取 ===');
+        
+        // 方法1：從聊天記錄中提取
+        const chatMessages = document.querySelectorAll('.message.ai');
+        if (chatMessages.length > 0) {
+          const lastAIMessage = chatMessages[chatMessages.length - 1];
+          const aiText = lastAIMessage.textContent || lastAIMessage.innerText;
+          
+          console.log('從聊天記錄提取，文本長度:', aiText.length);
+          
+          // 簡單粗暴的提取方法
+          const lines = aiText.split('\n').filter(line => line.trim().length > 0);
+          console.log('總行數:', lines.length);
+          
+          let title = '';
+          let script = '';
+          let visual = '';
+          let copy = '';
+          
+          // 逐行掃描，找到關鍵詞就提取
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // 提取主題標題
+            if (line.includes('主題標題') && line.includes('：')) {
+              const match = line.match(/主題標題[：:]\s*(.+)/i);
+              if (match && match[1]) {
+                title = cleanMarkdownFormat(match[1].trim());
+                console.log('✅ 找到主題標題:', title);
+              }
+            }
+            
+            // 提取腳本內容
+            if (line.includes('腳本內容') && line.includes('：')) {
+              let scriptLines = [];
+              for (let j = i + 1; j < lines.length; j++) {
+                const nextLine = lines[j].trim();
+                if (nextLine.includes('畫面感') || nextLine.includes('發佈文案') || nextLine.includes('3.') || nextLine.includes('4.')) {
+                  break;
+                }
+                if (nextLine.length > 0) {
+                  scriptLines.push(nextLine);
+                }
+              }
+              if (scriptLines.length > 0) {
+                script = cleanMarkdownFormat(scriptLines.join('\n'));
+                console.log('✅ 找到腳本內容:', script.substring(0, 100) + '...');
+              }
+            }
+            
+            // 提取畫面感
+            if (line.includes('畫面感') && line.includes('：')) {
+              let visualLines = [];
+              for (let j = i + 1; j < lines.length; j++) {
+                const nextLine = lines[j].trim();
+                if (nextLine.includes('發佈文案') || nextLine.includes('4.')) {
+                  break;
+                }
+                if (nextLine.length > 0) {
+                  visualLines.push(nextLine);
+                }
+              }
+              if (visualLines.length > 0) {
+                visual = cleanMarkdownFormat(visualLines.join('\n'));
+                console.log('✅ 找到畫面感:', visual.substring(0, 100) + '...');
+              }
+            }
+            
+            // 提取發佈文案
+            if (line.includes('發佈文案') && line.includes('：')) {
+              let copyLines = [];
+              for (let j = i + 1; j < lines.length; j++) {
+                const nextLine = lines[j].trim();
+                if (nextLine.length > 0) {
+                  copyLines.push(nextLine);
+                }
+              }
+              if (copyLines.length > 0) {
+                copy = cleanMarkdownFormat(copyLines.join('\n'));
+                console.log('✅ 找到發佈文案:', copy.substring(0, 100) + '...');
+              }
+            }
+          }
+          
+          // 更新結果區塊
+          if (title) {
+            resultTitleEl.innerHTML = title;
+            console.log('✅ 設置主題標題');
+          }
+          if (script) {
+            resultScriptEl.innerHTML = script;
+            console.log('✅ 設置腳本內容');
+          }
+          if (visual) {
+            resultVisualEl.innerHTML = visual;
+            console.log('✅ 設置畫面感');
+          }
+          if (copy) {
+            resultCopyEl.innerHTML = copy;
+            console.log('✅ 設置發佈文案');
+          }
+          
+          // 顯示結果區塊
+          resultsEl.style.display = 'block';
+          console.log('✅ 結果區塊已顯示');
+          
+          // 如果還是沒有內容，顯示原始文本
+          if (!title && !script && !visual && !copy) {
+            console.log('⚠️ 所有提取都失敗，顯示原始文本');
+            resultTitleEl.innerHTML = '原始AI回應';
+            resultScriptEl.innerHTML = aiText.substring(0, 500) + '...';
+            resultVisualEl.innerHTML = '請檢查控制台日誌';
+            resultCopyEl.innerHTML = '解析失敗';
+          }
+        } else {
+          console.log('❌ 未找到AI回應');
+        }
+      };
 
       // 快速按鈕功能
       document.querySelectorAll('.quick-btn').forEach(btn => {
@@ -1166,6 +1407,26 @@
                   break;
                 }
               }
+            }
+          }
+          
+          // 如果仍然沒有找到，嘗試提取粗體格式的主題標題
+          if (!sections.title) {
+            console.log('嘗試提取粗體格式的主題標題...');
+            const boldTitleMatch = aiText.match(/\*\*主題標題\*\*[：:]\s*([^\n]+)/i);
+            if (boldTitleMatch && boldTitleMatch[1]) {
+              sections.title = cleanMarkdownFormat(boldTitleMatch[1].trim());
+              console.log('從粗體格式提取主題標題:', sections.title);
+            }
+          }
+          
+          // 如果仍然沒有找到，嘗試提取編號格式的主題標題
+          if (!sections.title) {
+            console.log('嘗試提取編號格式的主題標題...');
+            const numberedTitleMatch = aiText.match(/\d+\.\s*\*\*主題標題\*\*[：:]\s*([^\n]+)/i);
+            if (numberedTitleMatch && numberedTitleMatch[1]) {
+              sections.title = cleanMarkdownFormat(numberedTitleMatch[1].trim());
+              console.log('從編號格式提取主題標題:', sections.title);
             }
           }
           
