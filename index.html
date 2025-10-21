@@ -788,9 +788,33 @@
         const scriptElementCount = scriptElements.filter(pattern => pattern.test(aiText)).length;
         console.log('腳本元素數量:', scriptElementCount);
         
-        // 如果沒有腳本結構標記且腳本元素少於3個，直接返回 false
-        if (!hasStructureMarkers && scriptElementCount < 3) {
-          console.log('❌ 未包含足夠的腳本結構標記，不顯示結果區塊');
+        // 檢查是否包含時間標記（Hook、Value、CTA格式）
+        const timeMarkersPatterns = [
+          /\(\d+-\d+秒\)\s*Hook/i,
+          /\(\d+-\d+秒\)\s*Value/i,
+          /\(\d+-\d+秒\)\s*CTA/i,
+          /Hook\s*\(\d+-\d+秒\)/i,
+          /Value\s*\d+\s*\(\d+-\d+秒\)/i,
+          /CTA\s*\(\d+-\d+秒\)/i
+        ];
+        const hasTimeMarkers = timeMarkersPatterns.some(pattern => pattern.test(aiText));
+        console.log('是否包含時間標記:', hasTimeMarkers);
+        
+        // 檢查是否包含短影音相關內容
+        const videoContent = [
+          /畫面感/i,
+          /發佈文案/i,
+          /台詞[：:]/i,
+          /鏡頭[：:]/i,
+          /音效[：:]/i,
+          /字幕[：:]/i
+        ];
+        const hasVideoContent = videoContent.some(pattern => pattern.test(aiText));
+        console.log('是否包含短影音內容:', hasVideoContent);
+        
+        // 更靈活的判斷條件
+        if (!hasStructureMarkers && scriptElementCount < 3 && !hasTimeMarkers && !hasVideoContent) {
+          console.log('❌ 未包含足夠的腳本內容標記，不顯示結果區塊');
           return false;
         }
         
@@ -868,14 +892,14 @@
         console.log('結構區塊數量:', structureCount, '是否完整結構:', hasCompleteStructure);
         
         // 8. 檢查是否包含時間標記（腳本通常有時間標記）
-        const timeMarkers = [
+        const timeMarkersGeneral = [
           /\d+[-\s]*\d*\s*秒/i,
           /\d+[-\s]*\d*\s*分鐘/i,
           /0-\d+\s*秒/i,
           /\d+-\d+\s*秒/i
         ];
-        const hasTimeMarkers = timeMarkers.some(pattern => pattern.test(aiText));
-        console.log('是否包含時間標記:', hasTimeMarkers);
+        const hasTimeMarkersGeneral = timeMarkersGeneral.some(pattern => pattern.test(aiText));
+        console.log('是否包含一般時間標記:', hasTimeMarkersGeneral);
         
         // 綜合判斷
         const score = {
@@ -887,6 +911,8 @@
           paragraphs: hasMultipleParagraphs ? 1 : 0,
           completeStructure: hasCompleteStructure ? 2 : 0,
           timeMarkers: hasTimeMarkers ? 1 : 0,
+          timeMarkersGeneral: hasTimeMarkersGeneral ? 1 : 0,
+          videoContent: hasVideoContent ? 1 : 0,
           nonScript: hasNonScriptIndicators ? -5 : 0 // 高懲罰
         };
         
@@ -941,7 +967,7 @@
           if (!sections.title) {
             const lines = aiText.split('\n').filter(line => line.trim().length > 0);
             const firstLine = lines[0];
-            if (firstLine && !firstLine.match(/^(Hook|Value|CTA|畫面感|發佈文案)/i)) {
+            if (firstLine && !firstLine.match(/^(Hook|Value|CTA|畫面感|發佈文案|\d+\.|\(|台詞|鏡頭|音效|字幕)/i)) {
               sections.title = cleanMarkdownFormat(firstLine.trim());
               console.log('使用第一行作為主題標題:', sections.title);
             }
@@ -966,18 +992,48 @@
           
           // 如果沒有找到明確的腳本內容標記，嘗試提取 Hook、Value、CTA 部分
           if (!sections.script) {
-            const hookPattern = /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|畫面感|發佈文案|$)/i;
-            const valuePattern = /Value\s*\d+\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i;
-            const ctaPattern = /CTA\s*\(\d+-\d+秒\)[\s\S]*?(?=畫面感|發佈文案|$)/i;
-            
-            const hookMatch = aiText.match(hookPattern);
-            const valueMatches = aiText.match(new RegExp(valuePattern.source, 'gi'));
-            const ctaMatch = aiText.match(ctaPattern);
+            // 支援多種時間標記格式
+            const hookPatterns = [
+              /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|畫面感|發佈文案|$)/i,
+              /\(\d+-\d+秒\)\s*Hook[\s\S]*?(?=Value|畫面感|發佈文案|$)/i
+            ];
+            const valuePatterns = [
+              /Value\s*\d+\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i,
+              /\(\d+-\d+秒\)\s*Value\s*\d+[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i
+            ];
+            const ctaPatterns = [
+              /CTA\s*\(\d+-\d+秒\)[\s\S]*?(?=畫面感|發佈文案|$)/i,
+              /\(\d+-\d+秒\)\s*CTA[\s\S]*?(?=畫面感|發佈文案|$)/i
+            ];
             
             let scriptContent = '';
-            if (hookMatch) scriptContent += hookMatch[0] + '\n\n';
-            if (valueMatches) scriptContent += valueMatches.join('\n\n');
-            if (ctaMatch) scriptContent += '\n\n' + ctaMatch[0];
+            
+            // 提取 Hook
+            for (const pattern of hookPatterns) {
+              const match = aiText.match(pattern);
+              if (match) {
+                scriptContent += match[0] + '\n\n';
+                break;
+              }
+            }
+            
+            // 提取 Value
+            for (const pattern of valuePatterns) {
+              const matches = aiText.match(new RegExp(pattern.source, 'gi'));
+              if (matches) {
+                scriptContent += matches.join('\n\n');
+                break;
+              }
+            }
+            
+            // 提取 CTA
+            for (const pattern of ctaPatterns) {
+              const match = aiText.match(pattern);
+              if (match) {
+                scriptContent += '\n\n' + match[0];
+                break;
+              }
+            }
             
             if (scriptContent.trim()) {
               sections.script = cleanMarkdownFormat(scriptContent.trim());
