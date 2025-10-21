@@ -990,7 +990,8 @@
         };
         
         console.log('開始解析AI內容...');
-        console.log('原始AI文本:', aiText);
+        console.log('原始AI文本長度:', aiText.length);
+        console.log('原始AI文本前500字符:', aiText.substring(0, 500));
         
         // 使用正則表達式精確提取每個區塊的內容
         try {
@@ -1006,9 +1007,10 @@
           
           for (const pattern of titlePatterns) {
             const match = aiText.match(pattern);
+            console.log('測試主題標題模式:', pattern, '結果:', match);
             if (match && match[1] && match[1].trim()) {
               sections.title = cleanMarkdownFormat(match[1].trim());
-              console.log('找到主題標題:', sections.title);
+              console.log('✅ 找到主題標題:', sections.title);
               break;
             }
           }
@@ -1033,9 +1035,10 @@
           
           for (const pattern of scriptPatterns) {
             const match = aiText.match(pattern);
+            console.log('測試腳本內容模式:', pattern, '結果:', match ? '匹配' : '無匹配');
             if (match && match[1] && match[1].trim()) {
               sections.script = cleanMarkdownFormat(match[1].trim());
-              console.log('找到腳本內容:', sections.script.substring(0, 100) + '...');
+              console.log('✅ 找到腳本內容:', sections.script.substring(0, 100) + '...');
               break;
             }
           }
@@ -1175,7 +1178,12 @@
           console.error('解析AI內容時出錯:', error);
         }
         
-        console.log('最終解析結果:', sections);
+        console.log('=== 最終解析結果 ===');
+        console.log('主題標題:', sections.title ? '✅ 有內容' : '❌ 無內容');
+        console.log('腳本內容:', sections.script ? '✅ 有內容' : '❌ 無內容');
+        console.log('畫面感:', sections.visual ? '✅ 有內容' : '❌ 無內容');
+        console.log('發佈文案:', sections.copy ? '✅ 有內容' : '❌ 無內容');
+        console.log('完整解析結果:', sections);
         return sections;
       }
     </script>
