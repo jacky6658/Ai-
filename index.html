@@ -2763,6 +2763,9 @@
         // 確保抽屜初始狀態為關閉
         closeUserDrawer();
         
+        // 檢查是否有認證回調
+        await handleAuthCallback();
+        
         // 檢查本地存儲的認證資訊
         accessToken = localStorage.getItem('accessToken');
         currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
@@ -3027,38 +3030,56 @@
 
       async function handleAuthCallback() {
         const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
+        const token = urlParams.get('token');
+        const userId = urlParams.get('user_id');
+        const email = urlParams.get('email');
+        const name = urlParams.get('name');
+        const picture = urlParams.get('picture');
+        const error = urlParams.get('error');
         
-        if (code) {
-          try {
-            const response = await fetch('https://aivideobackend.zeabur.app/api/auth/google/callback', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ code })
-            });
-            
-            if (response.ok) {
-              const authData = await response.json();
-              accessToken = authData.access_token;
-              currentUser = authData.user;
-              
-              // 保存到本地存儲
-              localStorage.setItem('accessToken', accessToken);
-              localStorage.setItem('currentUser', JSON.stringify(currentUser));
-              
-              updateAuthUI(true);
-              showToast('登入成功！', 3000);
-              
-              // 清除 URL 中的認證碼
-              window.history.replaceState({}, document.title, window.location.pathname);
-            } else {
-              throw new Error('Authentication failed');
-            }
-          } catch (error) {
-            console.error('Auth callback error:', error);
-            showToast('認證失敗，請重新登入', 5000);
-            updateAuthUI(false);
-          }
+        console.log('DEBUG: Checking auth callback parameters:', {
+          token: token ? 'present' : 'missing',
+          userId: userId ? 'present' : 'missing',
+          email: email ? 'present' : 'missing',
+          name: name ? 'present' : 'missing',
+          picture: picture ? 'present' : 'missing',
+          error: error || 'none'
+        });
+        
+        // 處理錯誤
+        if (error) {
+          console.error('DEBUG: Auth error received:', error);
+          showToast('認證失敗：' + decodeURIComponent(error), 5000);
+          updateAuthUI(false);
+          // 清除 URL 中的錯誤參數
+          window.history.replaceState({}, document.title, window.location.pathname);
+          return;
+        }
+        
+        // 處理成功認證
+        if (token && userId && email && name) {
+          console.log('DEBUG: Auth success parameters received');
+          
+          // 構建用戶物件
+          currentUser = {
+            id: userId,
+            email: email,
+            name: name,
+            picture: picture || ''
+          };
+          accessToken = token;
+          
+          // 保存到本地存儲
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          
+          updateAuthUI(true);
+          showToast('登入成功！', 3000);
+          
+          // 清除 URL 中的認證參數
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          console.log('DEBUG: Auth completed successfully');
         }
       }
 
