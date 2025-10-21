@@ -1409,6 +1409,19 @@
         
         // 使用正則表達式精確提取每個區塊的內容
         try {
+          // 首先提取兩個 --- 之間的腳本內容
+          const scriptContentMatch = aiText.match(/---\s*\n([\s\S]*?)\n\s*---/);
+          let scriptContent = aiText;
+          
+          if (scriptContentMatch && scriptContentMatch[1]) {
+            scriptContent = scriptContentMatch[1].trim();
+            console.log('✅ 找到腳本內容範圍（兩個---之間）');
+            console.log('腳本內容長度:', scriptContent.length);
+            console.log('腳本內容前200字符:', scriptContent.substring(0, 200));
+          } else {
+            console.log('⚠️ 未找到腳本內容範圍，使用完整AI回應');
+          }
+          
           // 1. 提取主題標題 - 支援所有可能的格式變化
           const titlePatterns = [
             // 表情符號格式
@@ -1443,7 +1456,7 @@
           ];
           
           for (const pattern of titlePatterns) {
-            const match = aiText.match(pattern);
+            const match = scriptContent.match(pattern);
             console.log('測試主題標題模式:', pattern, '結果:', match);
             if (match) {
               // 處理有捕獲組的情況
@@ -1538,7 +1551,7 @@
           ];
           
           for (const pattern of scriptPatterns) {
-            const match = aiText.match(pattern);
+            const match = scriptContent.match(pattern);
             console.log('測試腳本內容模式:', pattern, '結果:', match ? '匹配' : '無匹配');
             if (match && match[1] && match[1].trim()) {
               sections.script = cleanMarkdownFormat(match[1].trim());
@@ -1568,40 +1581,40 @@
               /\(\d+-\d+秒\)\s*CTA[\s\S]*?(?=畫面感|發佈文案|$)/i
             ];
             
-            let scriptContent = '';
+            let extractedScriptContent = '';
             
             // 提取 Hook
             for (const pattern of hookPatterns) {
-              const match = aiText.match(pattern);
+              const match = scriptContent.match(pattern);
               if (match) {
                 console.log('找到 Hook:', match[0].substring(0, 100) + '...');
-                scriptContent += match[0] + '\n\n';
+                extractedScriptContent += match[0] + '\n\n';
                 break;
               }
             }
             
             // 提取 Value
             for (const pattern of valuePatterns) {
-              const matches = aiText.match(new RegExp(pattern.source, 'gi'));
+              const matches = scriptContent.match(new RegExp(pattern.source, 'gi'));
               if (matches) {
                 console.log('找到 Value 數量:', matches.length);
-                scriptContent += matches.join('\n\n');
+                extractedScriptContent += matches.join('\n\n');
                 break;
               }
             }
             
             // 提取 CTA
             for (const pattern of ctaPatterns) {
-              const match = aiText.match(pattern);
+              const match = scriptContent.match(pattern);
               if (match) {
                 console.log('找到 CTA:', match[0].substring(0, 100) + '...');
-                scriptContent += '\n\n' + match[0];
+                extractedScriptContent += '\n\n' + match[0];
                 break;
               }
             }
             
-            if (scriptContent.trim()) {
-              sections.script = cleanMarkdownFormat(scriptContent.trim());
+            if (extractedScriptContent.trim()) {
+              sections.script = cleanMarkdownFormat(extractedScriptContent.trim());
               console.log('使用 Hook/Value/CTA 作為腳本內容:', sections.script.substring(0, 100) + '...');
             } else {
               console.log('未找到 Hook/Value/CTA 內容');
@@ -1652,7 +1665,7 @@
           ];
           
           for (const pattern of visualPatterns) {
-            const match = aiText.match(pattern);
+            const match = scriptContent.match(pattern);
             if (match && match[1] && match[1].trim()) {
               // 檢查是否為「尚未生成」
               if (match[1].trim() === '尚未生成' || match[1].trim().includes('尚未生成')) {
@@ -1691,7 +1704,7 @@
           ];
           
           for (const pattern of copyPatterns) {
-            const match = aiText.match(pattern);
+            const match = scriptContent.match(pattern);
             if (match && match[1] && match[1].trim()) {
               // 檢查是否為「尚未生成」
               if (match[1].trim() === '尚未生成' || match[1].trim().includes('尚未生成')) {
@@ -1708,7 +1721,7 @@
           // 5. 如果沒有找到明確的標記，嘗試按段落分割
           if (!sections.title && !sections.script && !sections.visual && !sections.copy) {
             console.log('未找到明確標記，嘗試按段落分割...');
-            const paragraphs = aiText.split('\n\n').filter(p => p.trim().length > 0);
+            const paragraphs = scriptContent.split('\n\n').filter(p => p.trim().length > 0);
             
             if (paragraphs.length >= 1) {
               sections.title = cleanMarkdownFormat(paragraphs[0].trim());
@@ -1730,7 +1743,7 @@
             
             // 嘗試提取主題標題（從開頭部分）
             if (!sections.title) {
-              const lines = aiText.split('\n').filter(line => line.trim().length > 0);
+              const lines = scriptContent.split('\n').filter(line => line.trim().length > 0);
               for (const line of lines) {
                 // 檢查是否有明確的主題標題標記
                 if (line.includes('主題標題') || line.includes('標題') || line.includes('主題')) {
@@ -1758,7 +1771,7 @@
             
             // 嘗試提取腳本內容（Hook、Value、CTA）
             if (!sections.script) {
-              const scriptMatch = aiText.match(/(?:Hook|Value|CTA)[\s\S]*?(?=畫面感|發佈文案|$)/i);
+              const scriptMatch = scriptContent.match(/(?:Hook|Value|CTA)[\s\S]*?(?=畫面感|發佈文案|$)/i);
               if (scriptMatch) {
                 sections.script = cleanMarkdownFormat(scriptMatch[0].trim());
                 console.log('強制提取腳本內容:', sections.script.substring(0, 100) + '...');
@@ -1767,7 +1780,7 @@
             
             // 嘗試提取畫面感
             if (!sections.visual) {
-              const visualMatch = aiText.match(/畫面感[：:]\s*([\s\S]*?)(?=發佈文案|$)/i);
+              const visualMatch = scriptContent.match(/畫面感[：:]\s*([\s\S]*?)(?=發佈文案|$)/i);
               if (visualMatch && visualMatch[1]) {
                 if (visualMatch[1].trim() === '尚未生成' || visualMatch[1].trim().includes('尚未生成')) {
                   sections.visual = 'AI 未生成畫面感內容';
@@ -1781,7 +1794,7 @@
             
             // 嘗試提取發佈文案
             if (!sections.copy) {
-              const copyMatch = aiText.match(/發佈文案[：:]\s*([\s\S]*?)$/i);
+              const copyMatch = scriptContent.match(/發佈文案[：:]\s*([\s\S]*?)$/i);
               if (copyMatch && copyMatch[1]) {
                 if (copyMatch[1].trim() === '尚未生成' || copyMatch[1].trim().includes('尚未生成')) {
                   sections.copy = 'AI 未生成發佈文案內容';
