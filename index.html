@@ -1435,16 +1435,29 @@
             // 特殊格式：### 主題標題: 內容
             /###\s*主題標題[：:]\s*([^\n]+)/i,
             /###\s*主題[：:]\s*([^\n]+)/i,
-            /###\s*標題[：:]\s*([^\n]+)/i
+            /###\s*標題[：:]\s*([^\n]+)/i,
+            // AI 狡猾格式：直接給標題，沒有前綴
+            /^你的.*來了.*小紅書.*都在.*用的.*AI智能體.*$/i,
+            /^.*AI智能體.*來了.*$/i,
+            /^.*小紅書.*博主.*都在.*用的.*$/i
           ];
           
           for (const pattern of titlePatterns) {
             const match = aiText.match(pattern);
             console.log('測試主題標題模式:', pattern, '結果:', match);
-            if (match && match[1] && match[1].trim()) {
-              sections.title = cleanMarkdownFormat(match[1].trim());
-              console.log('✅ 找到主題標題:', sections.title);
-              break;
+            if (match) {
+              // 處理有捕獲組的情況
+              if (match[1] && match[1].trim()) {
+                sections.title = cleanMarkdownFormat(match[1].trim());
+                console.log('✅ 找到主題標題(有前綴):', sections.title);
+                break;
+              }
+              // 處理沒有前綴，直接匹配整行的情況
+              else if (match[0] && match[0].trim()) {
+                sections.title = cleanMarkdownFormat(match[0].trim());
+                console.log('✅ 找到主題標題(無前綴):', sections.title);
+                break;
+              }
             }
           }
           
@@ -1641,8 +1654,14 @@
           for (const pattern of visualPatterns) {
             const match = aiText.match(pattern);
             if (match && match[1] && match[1].trim()) {
-              sections.visual = cleanMarkdownFormat(match[1].trim());
-              console.log('找到畫面感:', sections.visual.substring(0, 100) + '...');
+              // 檢查是否為「尚未生成」
+              if (match[1].trim() === '尚未生成' || match[1].trim().includes('尚未生成')) {
+                console.log('⚠️ 畫面感標記為「尚未生成」');
+                sections.visual = 'AI 未生成畫面感內容';
+              } else {
+                sections.visual = cleanMarkdownFormat(match[1].trim());
+                console.log('找到畫面感:', sections.visual.substring(0, 100) + '...');
+              }
               break;
             }
           }
@@ -1674,8 +1693,14 @@
           for (const pattern of copyPatterns) {
             const match = aiText.match(pattern);
             if (match && match[1] && match[1].trim()) {
-              sections.copy = cleanMarkdownFormat(match[1].trim());
-              console.log('找到發佈文案:', sections.copy.substring(0, 100) + '...');
+              // 檢查是否為「尚未生成」
+              if (match[1].trim() === '尚未生成' || match[1].trim().includes('尚未生成')) {
+                console.log('⚠️ 發佈文案標記為「尚未生成」');
+                sections.copy = 'AI 未生成發佈文案內容';
+              } else {
+                sections.copy = cleanMarkdownFormat(match[1].trim());
+                console.log('找到發佈文案:', sections.copy.substring(0, 100) + '...');
+              }
               break;
             }
           }
@@ -1707,6 +1732,7 @@
             if (!sections.title) {
               const lines = aiText.split('\n').filter(line => line.trim().length > 0);
               for (const line of lines) {
+                // 檢查是否有明確的主題標題標記
                 if (line.includes('主題標題') || line.includes('標題') || line.includes('主題')) {
                   const match = line.match(/(?:主題標題|標題|主題)[：:]\s*(.+)/i);
                   if (match && match[1]) {
@@ -1714,6 +1740,18 @@
                     console.log('強制提取主題標題:', sections.title);
                     break;
                   }
+                }
+                // 檢查是否為直接的主題標題（沒有前綴）
+                else if (line.includes('你的') && line.includes('來了') && line.includes('小紅書') && line.includes('AI智能體')) {
+                  sections.title = cleanMarkdownFormat(line.trim());
+                  console.log('強制提取主題標題(無前綴):', sections.title);
+                  break;
+                }
+                // 檢查其他可能的主題標題格式
+                else if (line.includes('AI智能體') && line.includes('來了') && line.length > 10 && line.length < 100) {
+                  sections.title = cleanMarkdownFormat(line.trim());
+                  console.log('強制提取主題標題(智能體):', sections.title);
+                  break;
                 }
               }
             }
@@ -1731,8 +1769,13 @@
             if (!sections.visual) {
               const visualMatch = aiText.match(/畫面感[：:]\s*([\s\S]*?)(?=發佈文案|$)/i);
               if (visualMatch && visualMatch[1]) {
-                sections.visual = cleanMarkdownFormat(visualMatch[1].trim());
-                console.log('強制提取畫面感:', sections.visual.substring(0, 100) + '...');
+                if (visualMatch[1].trim() === '尚未生成' || visualMatch[1].trim().includes('尚未生成')) {
+                  sections.visual = 'AI 未生成畫面感內容';
+                  console.log('⚠️ 畫面感標記為「尚未生成」');
+                } else {
+                  sections.visual = cleanMarkdownFormat(visualMatch[1].trim());
+                  console.log('強制提取畫面感:', sections.visual.substring(0, 100) + '...');
+                }
               }
             }
             
@@ -1740,8 +1783,13 @@
             if (!sections.copy) {
               const copyMatch = aiText.match(/發佈文案[：:]\s*([\s\S]*?)$/i);
               if (copyMatch && copyMatch[1]) {
-                sections.copy = cleanMarkdownFormat(copyMatch[1].trim());
-                console.log('強制提取發佈文案:', sections.copy.substring(0, 100) + '...');
+                if (copyMatch[1].trim() === '尚未生成' || copyMatch[1].trim().includes('尚未生成')) {
+                  sections.copy = 'AI 未生成發佈文案內容';
+                  console.log('⚠️ 發佈文案標記為「尚未生成」');
+                } else {
+                  sections.copy = cleanMarkdownFormat(copyMatch[1].trim());
+                  console.log('強制提取發佈文案:', sections.copy.substring(0, 100) + '...');
+                }
               }
             }
           }
