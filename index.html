@@ -679,211 +679,258 @@
       });
 
       function checkAndUpdateResults(aiText) {
-        // 檢查是否包含所有必要的腳本結構標記
-        const requiredMarkers = [
-          { name: '主題標題', patterns: [/###\s*主題標題\s*[：:]/, /1\.\s*主題標題\s*[：:]/, /主題標題\s*[：:]/] },
-          { name: '腳本內容', patterns: [/###\s*腳本內容\s*[：:]/, /2\.\s*腳本內容\s*[：:]/, /腳本內容\s*[：:]/, /\*\*\s*Hook\*\*/, /\*\*\s*Value\s*\d+\*\*/] },
-          { name: '畫面感', patterns: [/###\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/, /3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/, /畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/, /\*\*\s*Hook\*\*/, /\*\*\s*Value\s*\d+\*\*/] },
-          { name: '發佈文案', patterns: [/###\s*發佈文案\s*[：:]/, /4\.\s*發佈文案\s*[：:]/, /發佈文案\s*[：:]/, /\*\*\s*CTA\*\*/, /\*\*\s*Call\s*to\s*Action\*\*/] }
-        ];
-        
-        // 檢查是否包含所有必要的標記
-        let hasAllRequiredMarkers = true;
-        const foundMarkers = [];
-        
-        for (const marker of requiredMarkers) {
-          const hasMarker = marker.patterns.some(pattern => pattern.test(aiText));
-          foundMarkers.push({ name: marker.name, found: hasMarker, patterns: marker.patterns });
-          if (!hasMarker) {
-            hasAllRequiredMarkers = false;
-          }
-        }
-        
-        // 調試：記錄找到的標記
-        console.log('AI回應文字:', aiText.substring(0, 200) + '...');
-        console.log('找到的標記:', foundMarkers);
-        console.log('是否包含所有必要標記:', hasAllRequiredMarkers);
-        
-        // 詳細調試：檢查每個標記的匹配情況
-        requiredMarkers.forEach((marker, index) => {
-          console.log(`標記 ${index + 1}: ${marker.name}`);
-          marker.patterns.forEach((pattern, patternIndex) => {
-            const testResult = pattern.test(aiText);
-            console.log(`  模式 ${patternIndex + 1}: ${pattern} -> ${testResult}`);
-            if (testResult) {
-              const match = aiText.match(pattern);
-              console.log(`    匹配內容:`, match);
-            }
-          });
-        });
-        
-        // 測試簡化的匹配模式
-        const simplePatterns = [
-          { name: '主題標題', pattern: /主題標題/ },
-          { name: '腳本內容', pattern: /腳本內容/ },
-          { name: '畫面感', pattern: /畫面感/ },
-          { name: '發佈文案', pattern: /發佈文案/ }
-        ];
-        
-        const simpleResults = simplePatterns.map(item => ({
-          name: item.name,
-          found: item.pattern.test(aiText)
-        }));
-        
-        console.log('簡化匹配結果:', simpleResults);
-        console.log('完整AI回應:', aiText);
+        console.log('=== 開始解析AI回應 ===');
         console.log('AI回應長度:', aiText.length);
-        console.log('AI回應前500字符:', aiText.substring(0, 500));
+        console.log('AI回應前300字符:', aiText.substring(0, 300));
         
-        // 只有當包含所有必要的標記時才顯示結果區塊
+        // 更精確的腳本內容檢測
+        const isScriptContent = detectScriptContent(aiText);
         
-        if (hasAllRequiredMarkers) {
+        console.log('是否為腳本內容:', isScriptContent);
+        
+        if (isScriptContent) {
+          // 顯示結果區塊
           resultsEl.style.display = 'block';
           console.log('結果區塊已顯示，開始解析內容...');
-          console.log('DOM元素檢查 - resultTitleEl:', resultTitleEl);
-          console.log('DOM元素檢查 - resultScriptEl:', resultScriptEl);
-          console.log('DOM元素檢查 - resultVisualEl:', resultVisualEl);
-          console.log('DOM元素檢查 - resultCopyEl:', resultCopyEl);
           
-          // 嘗試解析並更新結果區塊
+          // 確保DOM元素存在
+          if (!resultTitleEl || !resultScriptEl || !resultVisualEl || !resultCopyEl) {
+            console.error('DOM元素不存在:', {
+              resultTitleEl: !!resultTitleEl,
+              resultScriptEl: !!resultScriptEl,
+              resultVisualEl: !!resultVisualEl,
+              resultCopyEl: !!resultCopyEl
+            });
+            return;
+          }
+          
           try {
-            // 提取主題標題 - 對應到 "🎯 主題" 欄位
-            let title = '';
-            const titlePatterns = [
-              /###\s*主題標題\s*[：:]\s*(.+?)(?=\n\s*###|$)/im,
-              /1\.\s*主題標題\s*[：:]\s*(.+?)(?=\n\s*2\.|$)/im,
-              /主題標題\s*[：:]\s*(.+?)(?=\n\s*2\.|$)/im
-            ];
+            // 使用更靈活的解析方法
+            const sections = parseAIContent(aiText);
             
-            for (const pattern of titlePatterns) {
-              const match = aiText.match(pattern);
-              if (match && match[1] && match[1].trim().length > 3) {
-                title = match[1].trim();
-                break;
-              }
+            // 更新DOM元素
+            if (sections.title) {
+              resultTitleEl.innerHTML = sections.title;
+              console.log('✅ 主題標題已設置:', sections.title);
             }
             
-            if (title) {
-              // 清理 Markdown 格式並顯示到 "🎯 主題" 欄位
-              const cleanTitle = cleanMarkdownFormat(title);
-              console.log('準備設置主題標題到DOM元素:', resultTitleEl);
-              console.log('DOM元素是否為null:', resultTitleEl === null);
-              if (resultTitleEl) {
-                resultTitleEl.innerHTML = cleanTitle;
-                console.log('成功設置主題標題到DOM:', cleanTitle);
-              } else {
-                console.error('resultTitleEl為null，無法設置內容');
-              }
-            } else {
-              console.log('未找到主題標題');
+            if (sections.script) {
+              resultScriptEl.innerHTML = sections.script;
+              console.log('✅ 腳本內容已設置:', sections.script.substring(0, 100) + '...');
             }
             
-            // 提取腳本內容 - 對應到 "📜 腳本內容" 欄位
-            let scriptContent = '';
-            const scriptPatterns = [
-              /###\s*腳本內容\s*[：:]\s*([\s\S]+?)(?=\n\s*###|$)/im,
-              /2\.\s*腳本內容\s*[：:]\s*([\s\S]+?)(?=\n\s*3\.|$)/im,
-              /腳本內容\s*[：:]\s*([\s\S]+?)(?=\n\s*3\.|$)/im,
-              /\*\*\s*Hook\*\*[\s\S]*?(?=\n\s*\*\*\s*Value|\n\s*###|$)/im
-            ];
-            
-            for (const pattern of scriptPatterns) {
-              const match = aiText.match(pattern);
-              if (match && match[1] && match[1].trim().length > 5) {
-                scriptContent = match[1].trim();
-                break;
-              }
+            if (sections.visual) {
+              resultVisualEl.innerHTML = sections.visual;
+              console.log('✅ 畫面感已設置:', sections.visual.substring(0, 100) + '...');
             }
             
-            if (scriptContent) {
-              // 清理 Markdown 格式並顯示到 "📜 腳本內容" 欄位
-              const cleanScriptContent = cleanMarkdownFormat(scriptContent);
-              if (resultScriptEl) {
-                resultScriptEl.innerHTML = cleanScriptContent;
-                console.log('成功設置腳本內容到DOM:', cleanScriptContent.substring(0, 100) + '...');
-              } else {
-                console.error('resultScriptEl為null，無法設置內容');
-              }
-            } else {
-              console.log('未找到腳本內容');
+            if (sections.copy) {
+              resultCopyEl.innerHTML = sections.copy;
+              console.log('✅ 發佈文案已設置:', sections.copy.substring(0, 100) + '...');
             }
             
-            // 提取畫面感 - 對應到 "🎬 畫面感" 欄位
-            let visualContent = '';
-            const visualPatterns = [
-              /###\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=\n\s*###|$)/im,
-              /3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=\n\s*4\.|$)/im,
-              /畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]\s*([\s\S]+?)(?=\n\s*4\.|$)/im,
-              /\*\*\s*Hook\*\*[\s\S]*?(?=\n\s*\*\*\s*CTA|\n\s*###|$)/im
-            ];
-            
-            for (const pattern of visualPatterns) {
-              const match = aiText.match(pattern);
-              if (match && match[1] && match[1].trim().length > 5) {
-                visualContent = match[1].trim();
-                break;
-              }
-            }
-            
-            if (visualContent) {
-              // 清理 Markdown 格式並顯示到 "🎬 畫面感" 欄位
-              const cleanVisual = cleanMarkdownFormat(visualContent);
-              if (resultVisualEl) {
-                resultVisualEl.innerHTML = cleanVisual;
-                console.log('成功設置畫面感到DOM:', cleanVisual.substring(0, 100) + '...');
-              } else {
-                console.error('resultVisualEl為null，無法設置內容');
-              }
-            } else {
-              console.log('未找到畫面感');
-            }
-            
-            // 提取發佈文案 - 對應到 "📱 文案" 欄位
-            let copyContent = '';
-            const copyPatterns = [
-              /###\s*發佈文案\s*[：:]\s*([\s\S]+?)$/im,
-              /4\.\s*發佈文案\s*[：:]\s*([\s\S]+?)$/im,
-              /發佈文案\s*[：:]\s*([\s\S]+?)$/im,
-              /\*\*\s*CTA\*\*[\s\S]*?$/im
-            ];
-            
-            for (const pattern of copyPatterns) {
-              const match = aiText.match(pattern);
-              if (match && match[1] && match[1].trim().length > 5) {
-                copyContent = match[1].trim();
-                break;
-              }
-            }
-            
-            if (copyContent) {
-              // 清理 Markdown 格式並顯示到 "📱 文案" 欄位
-              const cleanCopy = cleanMarkdownFormat(copyContent);
-              if (resultCopyEl) {
-                resultCopyEl.innerHTML = cleanCopy;
-                console.log('成功設置發佈文案到DOM:', cleanCopy.substring(0, 100) + '...');
-              } else {
-                console.error('resultCopyEl為null，無法設置內容');
-              }
-            } else {
-              console.log('未找到發佈文案');
-            }
-            
-            // 延遲檢查內容是否被重置
+            // 延遲檢查內容是否正確設置
             setTimeout(() => {
               console.log('=== 延遲檢查DOM內容 ===');
-              console.log('resultTitleEl內容:', resultTitleEl ? resultTitleEl.innerHTML : 'null');
-              console.log('resultScriptEl內容:', resultScriptEl ? resultScriptEl.innerHTML : 'null');
-              console.log('resultVisualEl內容:', resultVisualEl ? resultVisualEl.innerHTML : 'null');
-              console.log('resultCopyEl內容:', resultCopyEl ? resultCopyEl.innerHTML : 'null');
-            }, 1000);
+              console.log('主題標題:', resultTitleEl.innerHTML);
+              console.log('腳本內容:', resultScriptEl.innerHTML.substring(0, 100) + '...');
+              console.log('畫面感:', resultVisualEl.innerHTML.substring(0, 100) + '...');
+              console.log('發佈文案:', resultCopyEl.innerHTML.substring(0, 100) + '...');
+            }, 500);
             
           } catch (e) {
-            console.log('解析結果時出錯:', e);
+            console.error('解析結果時出錯:', e);
+          }
+        } else {
+          console.log('未檢測到腳本內容，不顯示結果區塊');
+        }
+      }
+      
+      // 新增：精確的腳本內容檢測函數
+      function detectScriptContent(aiText) {
+        // 1. 檢查是否包含明確的腳本結構標記
+        const structureMarkers = [
+          /###\s*主題標題\s*[：:]/i,
+          /###\s*腳本內容\s*[：:]/i,
+          /###\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/i,
+          /###\s*發佈文案\s*[：:]/i,
+          /1\.\s*主題標題\s*[：:]/i,
+          /2\.\s*腳本內容\s*[：:]/i,
+          /3\.\s*畫面感\s*[（(]鏡頭[、,]音效建議[）)]\s*[：:]/i,
+          /4\.\s*發佈文案\s*[：:]/i
+        ];
+        
+        const hasStructureMarkers = structureMarkers.some(pattern => pattern.test(aiText));
+        
+        // 2. 檢查是否包含腳本相關的關鍵詞組合
+        const scriptKeywords = ['主題標題', '腳本內容', '畫面感', '發佈文案', 'Hook', 'Value', 'CTA'];
+        const keywordCount = scriptKeywords.filter(keyword => aiText.includes(keyword)).length;
+        
+        // 3. 檢查是否包含短影音相關的內容指示詞
+        const videoIndicators = [
+          '短影音腳本',
+          '短影音腳本結果',
+          '生成腳本',
+          '腳本生成',
+          'Reels',
+          'TikTok',
+          '小紅書',
+          '秒腳本',
+          '影音內容'
+        ];
+        const hasVideoIndicators = videoIndicators.some(indicator => aiText.includes(indicator));
+        
+        // 4. 檢查文本長度（腳本內容通常較長）
+        const isLongEnough = aiText.length > 200;
+        
+        // 5. 檢查是否包含多個段落（腳本通常有多個部分）
+        const paragraphCount = aiText.split('\n\n').filter(p => p.trim().length > 0).length;
+        const hasMultipleParagraphs = paragraphCount >= 3;
+        
+        // 6. 排除明顯的非腳本內容
+        const nonScriptIndicators = [
+          '你好',
+          '謝謝',
+          '不客氣',
+          '請問',
+          '不好意思',
+          '抱歉',
+          '我來幫你',
+          '讓我為你',
+          '很高興為您',
+          '歡迎',
+          '再見',
+          '拜拜'
+        ];
+        const hasNonScriptIndicators = nonScriptIndicators.some(indicator => 
+          aiText.toLowerCase().includes(indicator.toLowerCase())
+        );
+        
+        // 綜合判斷
+        const score = {
+          structureMarkers: hasStructureMarkers ? 3 : 0,
+          keywordCount: Math.min(keywordCount, 3),
+          videoIndicators: hasVideoIndicators ? 2 : 0,
+          length: isLongEnough ? 1 : 0,
+          paragraphs: hasMultipleParagraphs ? 1 : 0,
+          nonScript: hasNonScriptIndicators ? -2 : 0
+        };
+        
+        const totalScore = Object.values(score).reduce((sum, val) => sum + val, 0);
+        
+        console.log('腳本檢測評分:', score);
+        console.log('總分:', totalScore);
+        console.log('是否為腳本內容:', totalScore >= 3);
+        
+        // 總分 >= 3 且不包含非腳本指示詞才認為是腳本內容
+        return totalScore >= 3 && !hasNonScriptIndicators;
+      }
+      
+      // 新增：更靈活的AI內容解析函數
+      function parseAIContent(aiText) {
+        const sections = {
+          title: '',
+          script: '',
+          visual: '',
+          copy: ''
+        };
+        
+        // 按行分割文本
+        const lines = aiText.split('\n');
+        let currentSection = '';
+        let currentContent = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          
+          // 檢測標題
+          if (line.includes('主題標題') || line.includes('主題：') || line.includes('標題：')) {
+            if (currentSection === 'title' && currentContent.length > 0) {
+              sections.title = cleanMarkdownFormat(currentContent.join('\n'));
+            }
+            currentSection = 'title';
+            currentContent = [];
+            // 提取標題內容（可能在同一行或下一行）
+            const titleMatch = line.match(/(?:主題標題|主題|標題)[：:]\s*(.+)/);
+            if (titleMatch && titleMatch[1]) {
+              currentContent.push(titleMatch[1]);
+            }
+          }
+          // 檢測腳本內容
+          else if (line.includes('腳本內容') || line.includes('腳本：') || line.includes('Hook') || line.includes('Value')) {
+            if (currentSection === 'script' && currentContent.length > 0) {
+              sections.script = cleanMarkdownFormat(currentContent.join('\n'));
+            }
+            currentSection = 'script';
+            currentContent = [];
+            // 提取腳本內容
+            const scriptMatch = line.match(/(?:腳本內容|腳本)[：:]\s*(.+)/);
+            if (scriptMatch && scriptMatch[1]) {
+              currentContent.push(scriptMatch[1]);
+            }
+          }
+          // 檢測畫面感
+          else if (line.includes('畫面感') || line.includes('畫面：') || line.includes('鏡頭') || line.includes('音效')) {
+            if (currentSection === 'visual' && currentContent.length > 0) {
+              sections.visual = cleanMarkdownFormat(currentContent.join('\n'));
+            }
+            currentSection = 'visual';
+            currentContent = [];
+            // 提取畫面感內容
+            const visualMatch = line.match(/(?:畫面感|畫面)[：:]\s*(.+)/);
+            if (visualMatch && visualMatch[1]) {
+              currentContent.push(visualMatch[1]);
+            }
+          }
+          // 檢測發佈文案
+          else if (line.includes('發佈文案') || line.includes('文案：') || line.includes('CTA') || line.includes('Call to Action')) {
+            if (currentSection === 'copy' && currentContent.length > 0) {
+              sections.copy = cleanMarkdownFormat(currentContent.join('\n'));
+            }
+            currentSection = 'copy';
+            currentContent = [];
+            // 提取發佈文案內容
+            const copyMatch = line.match(/(?:發佈文案|文案)[：:]\s*(.+)/);
+            if (copyMatch && copyMatch[1]) {
+              currentContent.push(copyMatch[1]);
+            }
+          }
+          // 如果是內容行
+          else if (line.length > 0 && !line.match(/^[#\*\d\.\s]*$/)) {
+            currentContent.push(line);
           }
         }
+        
+        // 處理最後一個區塊
+        if (currentSection && currentContent.length > 0) {
+          const content = cleanMarkdownFormat(currentContent.join('\n'));
+          if (currentSection === 'title') sections.title = content;
+          else if (currentSection === 'script') sections.script = content;
+          else if (currentSection === 'visual') sections.visual = content;
+          else if (currentSection === 'copy') sections.copy = content;
+        }
+        
+        // 如果沒有找到明確的區塊，嘗試從整個文本中提取
+        if (!sections.title && !sections.script && !sections.visual && !sections.copy) {
+          // 嘗試提取第一行作為標題
+          const firstLine = lines.find(line => line.trim().length > 0 && !line.match(/^[#\*\d\.\s]*$/));
+          if (firstLine) {
+            sections.title = cleanMarkdownFormat(firstLine.trim());
+          }
+          
+          // 其餘內容作為腳本
+          const remainingLines = lines.filter(line => line.trim().length > 0 && !line.match(/^[#\*\d\.\s]*$/));
+          if (remainingLines.length > 1) {
+            sections.script = cleanMarkdownFormat(remainingLines.slice(1).join('\n'));
+          }
+        }
+        
+        console.log('解析結果:', sections);
+        return sections;
       }
     </script>
   </body>
   </html>
+
 
 
