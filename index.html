@@ -2870,9 +2870,15 @@
           return;
         }
         
+        console.log('開始儲存腳本...', {
+          userId: currentUser.user_id,
+          contentLength: content.length
+        });
+        
         try {
           // 提取腳本內容的結構化數據
           const scriptData = extractScriptData(content);
+          console.log('提取的腳本數據:', scriptData);
           
           const response = await fetch('https://aivideobackend.zeabur.app/api/scripts/save', {
             method: 'POST',
@@ -2890,20 +2896,72 @@
             })
           });
           
+          console.log('腳本儲存響應狀態:', response.status);
+          
           if (response.ok) {
             const result = await response.json();
+            console.log('腳本儲存成功:', result);
+            
+            // 同時儲存到本地
+            const localScriptData = {
+              name: scriptData.title || '未命名腳本',
+              title: scriptData.title || '',
+              content: content,
+              script_data: scriptData,
+              platform: currentPlatform || '未設定',
+              topic: currentTopic || '未設定',
+              profile: currentProfile || '未設定'
+            };
+            saveScriptToLocal(localScriptData);
+            
             showToast('腳本儲存成功！', 3000);
-            // 刷新腳本列表
-            loadMyScripts();
+            // 延遲一下再載入腳本列表，確保後端處理完成
+            setTimeout(() => {
+              loadMyScripts();
+            }, 1000);
           } else if (response.status === 401) {
+            console.log('腳本儲存失敗: 認證錯誤');
             showToast('請先登入', 3000);
+          } else if (response.status === 404) {
+            console.log('腳本儲存失敗: API不存在，使用本地儲存');
+            // 後端API不存在時，使用本地儲存
+            const localScriptData = {
+              name: scriptData.title || '未命名腳本',
+              title: scriptData.title || '',
+              content: content,
+              script_data: scriptData,
+              platform: currentPlatform || '未設定',
+              topic: currentTopic || '未設定',
+              profile: currentProfile || '未設定'
+            };
+            saveScriptToLocal(localScriptData);
+            showToast('腳本已儲存到本地！', 3000);
+            setTimeout(() => {
+              loadMyScripts();
+            }, 500);
           } else {
             const errorData = await response.json();
+            console.log('腳本儲存失敗:', errorData);
             throw new Error(errorData.error || '儲存失敗');
           }
         } catch (error) {
           console.error('Save script error:', error);
-          showToast('儲存失敗，請稍後再試', 3000);
+          // 網路錯誤時，也使用本地儲存
+          console.log('網路錯誤，使用本地儲存');
+          const localScriptData = {
+            name: scriptData.title || '未命名腳本',
+            title: scriptData.title || '',
+            content: content,
+            script_data: scriptData,
+            platform: currentPlatform || '未設定',
+            topic: currentTopic || '未設定',
+            profile: currentProfile || '未設定'
+          };
+          saveScriptToLocal(localScriptData);
+          showToast('腳本已儲存到本地！', 3000);
+          setTimeout(() => {
+            loadMyScripts();
+          }, 500);
         }
       }
       
@@ -2963,6 +3021,19 @@
           return;
         }
         
+        console.log('正在載入腳本列表...', {
+          accessToken: accessToken ? 'present' : 'missing',
+          userId: currentUser.user_id
+        });
+        
+        // 先檢查本地儲存的腳本
+        const localScripts = getLocalScripts();
+        if (localScripts.length > 0) {
+          console.log('載入本地腳本:', localScripts);
+          displayScripts(localScripts);
+          return;
+        }
+        
         try {
           const response = await fetch('https://aivideobackend.zeabur.app/api/scripts/my', {
             headers: {
@@ -2971,18 +3042,54 @@
             }
           });
           
+          console.log('腳本列表響應狀態:', response.status);
+          
           if (response.ok) {
             const data = await response.json();
+            console.log('腳本列表數據:', data);
             displayScripts(data.scripts || []);
           } else if (response.status === 401) {
+            console.log('腳本載入失敗: 認證錯誤');
             document.getElementById('generationsList').innerHTML = '<div class="loading-text">請先登入</div>';
+          } else if (response.status === 404) {
+            console.log('腳本載入失敗: API不存在');
+            document.getElementById('generationsList').innerHTML = '<div class="loading-text">腳本功能即將上線，請稍後再試</div>';
           } else {
             const errorData = await response.json();
+            console.log('腳本載入失敗:', errorData);
             throw new Error(errorData.error || '載入失敗');
           }
         } catch (error) {
           console.error('Load scripts error:', error);
           document.getElementById('generationsList').innerHTML = '<div class="loading-text">載入失敗，請稍後再試</div>';
+        }
+      }
+      
+      // 獲取本地儲存的腳本
+      function getLocalScripts() {
+        try {
+          const scripts = localStorage.getItem('user_scripts');
+          return scripts ? JSON.parse(scripts) : [];
+        } catch (error) {
+          console.error('Error loading local scripts:', error);
+          return [];
+        }
+      }
+      
+      // 儲存腳本到本地
+      function saveScriptToLocal(scriptData) {
+        try {
+          const scripts = getLocalScripts();
+          const newScript = {
+            id: Date.now(),
+            ...scriptData,
+            created_at: new Date().toISOString()
+          };
+          scripts.unshift(newScript);
+          localStorage.setItem('user_scripts', JSON.stringify(scripts));
+          console.log('腳本已儲存到本地:', newScript);
+        } catch (error) {
+          console.error('Error saving script locally:', error);
         }
       }
       
