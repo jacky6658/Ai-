@@ -967,7 +967,12 @@
         console.log('總分:', totalScore);
         
         // 更靈活的判斷條件
-        const isScriptContent = totalScore >= 4 && !hasNonScriptIndicators && (hasStructureMarkers || scriptElementCount >= 3);
+        const isScriptContent = totalScore >= 4 && (hasStructureMarkers || scriptElementCount >= 3);
+        
+        // 如果包含非腳本指示詞，降低評分但不完全拒絕
+        if (hasNonScriptIndicators) {
+          console.log('⚠️ 包含非腳本指示詞，但內容結構完整，仍視為腳本內容');
+        }
         
         console.log('是否為腳本內容:', isScriptContent);
         console.log('=== 腳本內容檢測結束 ===');
@@ -1012,7 +1017,7 @@
           if (!sections.title) {
             const lines = aiText.split('\n').filter(line => line.trim().length > 0);
             const firstLine = lines[0];
-            if (firstLine && !firstLine.match(/^(Hook|Value|CTA|畫面感|發佈文案|\d+\.|\(|台詞|鏡頭|音效|字幕)/i)) {
+            if (firstLine && !firstLine.match(/^(Hook|Value|CTA|畫面感|發佈文案|\d+\.|\(|台詞|鏡頭|音效|字幕|主題建議|目標|切入點|內容方向)/i)) {
               sections.title = cleanMarkdownFormat(firstLine.trim());
               console.log('使用第一行作為主題標題:', sections.title);
             }
@@ -1090,6 +1095,26 @@
               console.log('使用 Hook/Value/CTA 作為腳本內容:', sections.script.substring(0, 100) + '...');
             } else {
               console.log('未找到 Hook/Value/CTA 內容');
+            }
+          }
+          
+          // 如果仍然沒有找到腳本內容，嘗試提取主題建議內容
+          if (!sections.script) {
+            console.log('嘗試提取主題建議內容...');
+            const suggestionPatterns = [
+              /主題建議和思路[\s\S]*?(?=畫面感|發佈文案|$)/i,
+              /目標[\s\S]*?(?=畫面感|發佈文案|$)/i,
+              /切入點[\s\S]*?(?=畫面感|發佈文案|$)/i,
+              /內容方向[\s\S]*?(?=畫面感|發佈文案|$)/i
+            ];
+            
+            for (const pattern of suggestionPatterns) {
+              const match = aiText.match(pattern);
+              if (match && match[0].trim()) {
+                sections.script = cleanMarkdownFormat(match[0].trim());
+                console.log('使用主題建議作為腳本內容:', sections.script.substring(0, 100) + '...');
+                break;
+              }
             }
           }
           
