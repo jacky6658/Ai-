@@ -1431,7 +1431,11 @@
             // 混合格式
             /\d+\.\s*\*\*主題標題\*\*[：:]\s*([^\n]+)/i,
             /\d+\.\s*\*\*主題\*\*[：:]\s*([^\n]+)/i,
-            /\d+\.\s*\*\*標題\*\*[：:]\s*([^\n]+)/i
+            /\d+\.\s*\*\*標題\*\*[：:]\s*([^\n]+)/i,
+            // 特殊格式：### 主題標題: 內容
+            /###\s*主題標題[：:]\s*([^\n]+)/i,
+            /###\s*主題[：:]\s*([^\n]+)/i,
+            /###\s*標題[：:]\s*([^\n]+)/i
           ];
           
           for (const pattern of titlePatterns) {
@@ -1537,11 +1541,14 @@
             // 支援多種時間標記格式
             const hookPatterns = [
               /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|畫面感|發佈文案|$)/i,
-              /\(\d+-\d+秒\)\s*Hook[\s\S]*?(?=Value|畫面感|發佈文案|$)/i
+              /\(\d+-\d+秒\)\s*Hook[\s\S]*?(?=Value|畫面感|發佈文案|$)/i,
+              /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i,
+              /Hook\s*\(\d+-\d+秒\)[\s\S]*?(?=Value\s*\d+|CTA|畫面感|發佈文案|$)/i
             ];
             const valuePatterns = [
               /Value\s*\d+\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i,
-              /\(\d+-\d+秒\)\s*Value\s*\d+[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i
+              /\(\d+-\d+秒\)\s*Value\s*\d+[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i,
+              /Value\s*\(\d+-\d+秒\)[\s\S]*?(?=Value|CTA|畫面感|發佈文案|$)/i
             ];
             const ctaPatterns = [
               /CTA\s*\(\d+-\d+秒\)[\s\S]*?(?=畫面感|發佈文案|$)/i,
@@ -1625,7 +1632,10 @@
             /\*\*畫面\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
             // 混合格式
             /\d+\.\s*\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*發佈文案|$))/i,
-            /\d+\.\s*\*\*畫面\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*發佈文案|$))/i
+            /\d+\.\s*\*\*畫面\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*發佈文案|$))/i,
+            // 特殊格式：### 畫面感: 內容
+            /###\s*畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:###\s*發佈文案|發佈文案|$))/i,
+            /###\s*畫面[：:]\s*([\s\S]*?)(?=\n\s*(?:###\s*發佈文案|發佈文案|$))/i
           ];
           
           for (const pattern of visualPatterns) {
@@ -1655,7 +1665,10 @@
             /\*\*文案\*\*[：:]\s*([\s\S]*?)$/i,
             // 混合格式
             /\d+\.\s*\*\*發佈文案\*\*[：:]\s*([\s\S]*?)$/i,
-            /\d+\.\s*\*\*文案\*\*[：:]\s*([\s\S]*?)$/i
+            /\d+\.\s*\*\*文案\*\*[：:]\s*([\s\S]*?)$/i,
+            // 特殊格式：### 發佈文案: 內容
+            /###\s*發佈文案[：:]\s*([\s\S]*?)$/i,
+            /###\s*文案[：:]\s*([\s\S]*?)$/i
           ];
           
           for (const pattern of copyPatterns) {
@@ -1683,6 +1696,53 @@
             }
             if (paragraphs.length >= 4) {
               sections.copy = cleanMarkdownFormat(paragraphs[3].trim());
+            }
+          }
+          
+          // 6. 強制提取機制 - 如果還是沒有內容，嘗試從 AI 回應中直接提取
+          if (!sections.title || !sections.script || !sections.visual || !sections.copy) {
+            console.log('強制提取機制啟動...');
+            
+            // 嘗試提取主題標題（從開頭部分）
+            if (!sections.title) {
+              const lines = aiText.split('\n').filter(line => line.trim().length > 0);
+              for (const line of lines) {
+                if (line.includes('主題標題') || line.includes('標題') || line.includes('主題')) {
+                  const match = line.match(/(?:主題標題|標題|主題)[：:]\s*(.+)/i);
+                  if (match && match[1]) {
+                    sections.title = cleanMarkdownFormat(match[1].trim());
+                    console.log('強制提取主題標題:', sections.title);
+                    break;
+                  }
+                }
+              }
+            }
+            
+            // 嘗試提取腳本內容（Hook、Value、CTA）
+            if (!sections.script) {
+              const scriptMatch = aiText.match(/(?:Hook|Value|CTA)[\s\S]*?(?=畫面感|發佈文案|$)/i);
+              if (scriptMatch) {
+                sections.script = cleanMarkdownFormat(scriptMatch[0].trim());
+                console.log('強制提取腳本內容:', sections.script.substring(0, 100) + '...');
+              }
+            }
+            
+            // 嘗試提取畫面感
+            if (!sections.visual) {
+              const visualMatch = aiText.match(/畫面感[：:]\s*([\s\S]*?)(?=發佈文案|$)/i);
+              if (visualMatch && visualMatch[1]) {
+                sections.visual = cleanMarkdownFormat(visualMatch[1].trim());
+                console.log('強制提取畫面感:', sections.visual.substring(0, 100) + '...');
+              }
+            }
+            
+            // 嘗試提取發佈文案
+            if (!sections.copy) {
+              const copyMatch = aiText.match(/發佈文案[：:]\s*([\s\S]*?)$/i);
+              if (copyMatch && copyMatch[1]) {
+                sections.copy = cleanMarkdownFormat(copyMatch[1].trim());
+                console.log('強制提取發佈文案:', sections.copy.substring(0, 100) + '...');
+              }
             }
           }
           
