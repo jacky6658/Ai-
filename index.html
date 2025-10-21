@@ -2981,10 +2981,16 @@
       }
       
       function handleAuthMessage(event) {
-        // 確保訊息來自我們的回調頁面
-        if (event.origin !== window.location.origin) return;
+        console.log('DEBUG: Received message from popup:', event.data);
+        
+        // 接受來自後端網域的訊息
+        if (event.origin !== 'https://aivideobackend.zeabur.app' && event.origin !== window.location.origin) {
+          console.log('DEBUG: Ignoring message from unknown origin:', event.origin);
+          return;
+        }
         
         if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+          console.log('DEBUG: Auth success message received');
           // 認證成功，更新 UI
           accessToken = event.data.accessToken;
           currentUser = event.data.user;
@@ -3000,6 +3006,7 @@
           // 移除事件監聽器
           window.removeEventListener('message', handleAuthMessage);
         } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+          console.log('DEBUG: Auth error message received:', event.data.error);
           hidePopupOverlay();
           showToast('認證失敗：' + event.data.error, 5000);
           window.removeEventListener('message', handleAuthMessage);
