@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>AIJob短影音智能體</title>
     <style>
       :root { 
@@ -69,6 +69,15 @@
         font-size: 20px;
         font-weight: 600;
         color: #1f2937;
+      }
+      
+      .clickable-title {
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+      
+      .clickable-title:hover {
+        color: #3b82f6;
       }
       
       .navbar-tabs {
@@ -643,6 +652,18 @@
           width: 100%;
           right: -100%;
         }
+        
+        .user-name { display: none !important; }
+        .navbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+        .user-info { padding: 6px 8px; }
+        .user-avatar { margin: 0; }
+        .logout-btn { margin: 0; }
+        .top-navbar { justify-content: space-between; }
+        .navbar-left { flex: 1; }
+        .navbar-title { margin-left: auto; }
+        /* 一鍵生成/AI顧問/IP人設卡片加寬 */
+        .mode-cards { grid-template-columns: 1fr; }
+        .mode-card { width: 100%; max-width: none; }
       }
       
       .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
@@ -788,7 +809,6 @@
       .msg.assistant {
         margin-right: auto;
       }
-      
       .msg-bubble {
         padding: 16px 20px;
         border-radius: 18px;
@@ -1589,7 +1609,6 @@
       .download-pdf-btn:hover {
         background: #b91c1c;
       }
-      
       .download-csv-btn {
         background: #059669;
         color: white;
@@ -2248,7 +2267,7 @@
       .user-info:hover {
         background: #f3f4f6;
       }
-      .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e5e7eb; }
+      .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e5ecef; }
       .user-name { font-size: 14px; font-weight: 500; color: #374151; }
       .auth-buttons { display: flex; gap: 8px; }
       .login-btn, .logout-btn { 
@@ -3181,7 +3200,6 @@
       .mode3-result-block.active {
         display: block;
       }
-
       .mode3-result-placeholder {
         display: flex;
         flex-direction: column;
@@ -3820,7 +3838,7 @@
         <!-- 頂部導航欄 -->
         <div class="top-navbar">
           <div class="navbar-left">
-            <div class="navbar-title">AIJob短影音智能體</div>
+            <div class="navbar-title clickable-title" onclick="switchPage('homepage')">AIJob短影音智能體</div>
             <div class="navbar-tabs">
               <a href="#homepage" class="navbar-tab" onclick="switchPage('homepage'); return false;">首頁</a>
               <a href="#mode1" class="navbar-tab" onclick="switchPage('mode1'); return false;">一鍵生成</a>
@@ -3835,7 +3853,7 @@
             <span id="userName" class="user-name"></span>
           </div>
           <div class="auth-buttons">
-              <button id="loginBtn" class="login-btn" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">🔐 Google 登入</button>
+              <button id="loginBtn" class="login-btn" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">🔐 登入</button>
             <button id="logoutBtn" class="logout-btn" style="display: none;">登出</button>
           </div>
         </div>
@@ -4530,8 +4548,6 @@
 
     <!-- 彈出提示框 -->
     <div id="toast" class="toast" style="display: none;"></div>
-
-
     <script>
       // 頁面控制函數
       function switchPage(pageId) {
@@ -5326,7 +5342,6 @@
           switchPage('homepage');
         }
       }
-      
       // 更新個人資料庫用戶資訊
       function updateDbUserInfo() {
         if (currentUser) {
@@ -5501,7 +5516,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      ${generateScriptTable(script.script_data)}
+                      ${generateScriptTable(script.script_data || script.content || script)}
                     </tbody>
                   </table>
                 </div>
@@ -6128,7 +6143,6 @@
           showToast('生成腳本失敗', 3000);
         }
       }
-      
       // 一鍵生成帳號定位
       async function generatePositioning() {
         const platform = platformSelect.value;
@@ -6509,121 +6523,172 @@
         }
       }
       
-      // 提取腳本數據
+      // 提取腳本數據 - 按照規範格式解析
       function extractScriptData(content) {
         console.log('開始解析腳本內容:', content);
         
-        const scriptData = {
-          title: '',
-          overview: '',
-          visual: '',
-          sections: []
-        };
+        try {
+          // 清理內容，移除HTML標籤
+          const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+          console.log('清理後的內容:', cleanContent);
+          
+          // 按照規範解析腳本
+          const scriptData = parseScriptToJSON(cleanContent);
+          console.log('解析結果:', scriptData);
+          return scriptData;
+          
+        } catch (error) {
+          console.error('腳本解析失敗:', error);
+          return {
+            error: "PARSE_FAILED",
+            message: "腳本格式解析失敗，請檢查內容格式"
+          };
+        }
+      }
+      
+      // 按照規範將腳本解析為JSON格式
+      function parseScriptToJSON(content) {
+        const lines = content.split('\n').map(line => line.trim()).filter(line => line);
         
-        // 清理內容，移除HTML標籤
-        const cleanContent = content.replace(/<[^>]*>/g, '').trim();
-        console.log('清理後的內容:', cleanContent);
-        
-        // 提取主題標題 - 尋找第一行或包含"主題"的行
-        const lines = cleanContent.split('\n').map(line => line.trim()).filter(line => line);
-        
-        // 尋找主題標題
+        // 1. 提取主題標題
+        let title = '';
         for (let line of lines) {
           if (line.includes('主題') || line.includes('標題') || line.match(/^[1-9]\.?\s*[^0-9]/)) {
-            scriptData.title = line.replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim();
+            title = line.replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim();
             break;
           }
         }
         
         // 如果沒找到主題，使用第一行
-        if (!scriptData.title && lines.length > 0) {
-          scriptData.title = lines[0].replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim();
+        if (!title && lines.length > 0) {
+          title = lines[0].replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim();
         }
         
-        // 解析腳本段落 - 尋找Hook、Value、CTA等關鍵詞
-        const sectionKeywords = ['Hook', 'Value', 'CTA', 'Pain Point', '痛點', '價值', '行動呼籲'];
-        let currentSection = null;
+        // 2. 解析腳本分段
+        const rows = [];
+        let currentSegment = null;
+        let valueCount = 0;
         
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           
-          // 檢查是否為段落標題
-          const isSectionHeader = sectionKeywords.some(keyword => 
-            line.includes(keyword) || 
-            line.match(new RegExp(`^[1-9]\\d*\\.?\\s*${keyword}`, 'i')) ||
-            line.match(new RegExp(`^${keyword}\\s*[：:]`, 'i'))
-          );
-          
-          if (isSectionHeader) {
+          // 檢查時間模式
+          const timeMatch = line.match(/(\d+)-(\d+)s?/i);
+          if (timeMatch) {
             // 保存上一個段落
-            if (currentSection) {
-              scriptData.sections.push(currentSection);
+            if (currentSegment) {
+              rows.push(currentSegment);
             }
             
             // 開始新段落
-            currentSection = {
-              type: line.replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim(),
-              content: []
+            const startSec = parseInt(timeMatch[1]);
+            const endSec = parseInt(timeMatch[2]);
+            
+            // 確定段落類型
+            let section = '';
+            if (line.toLowerCase().includes('hook')) {
+              section = 'Hook';
+            } else if (line.toLowerCase().includes('value') || line.toLowerCase().includes('價值')) {
+              valueCount++;
+              section = `Value ${valueCount}`;
+            } else if (line.toLowerCase().includes('cta') || line.toLowerCase().includes('行動呼籲')) {
+              section = 'CTA';
+            } else {
+              // 根據時間推測段落類型
+              if (startSec === 0) {
+                section = 'Hook';
+              } else if (valueCount < 3) {
+                valueCount++;
+                section = `Value ${valueCount}`;
+              } else {
+                section = 'CTA';
+              }
+            }
+            
+            currentSegment = {
+              start_sec: startSec,
+              end_sec: endSec,
+              section: section,
+              shot_desc: '',
+              dialogue: '',
+              subtitle: '',
+              sfx: ''
             };
-          } else if (currentSection && line.length > 0) {
-            // 添加到當前段落
-            currentSection.content.push(line);
+            
+            continue;
+          }
+          
+          // 解析段落內容
+          if (currentSegment) {
+            // 檢查是否為台詞
+            if (line.includes('台詞') || line.includes('口白') || line.match(/^「.*」$/) || line.match(/^".*"$/)) {
+              currentSegment.dialogue = line.replace(/^[台詞口白：:]\s*/, '').replace(/^["「]|["」]$/g, '').trim();
+            }
+            // 檢查是否為鏡頭描述
+            else if (line.includes('鏡頭') || line.includes('畫面') || line.includes('CU') || line.includes('MS') || line.includes('LS')) {
+              currentSegment.shot_desc = line.replace(/^[鏡頭畫面：:]\s*/, '').trim();
+            }
+            // 檢查是否為字幕
+            else if (line.includes('字幕') || line.includes('大字卡')) {
+              currentSegment.subtitle = line.replace(/^[字幕大字卡：:]\s*/, '').trim();
+            }
+            // 檢查是否為音效
+            else if (line.includes('音效') || line.includes('轉場') || line.includes('音樂')) {
+              currentSegment.sfx = line.replace(/^[音效轉場音樂：:]\s*/, '').trim();
+            }
+            // 如果沒有標籤，根據內容推測
+            else if (line.length > 0) {
+              // 如果台詞為空，可能是台詞
+              if (!currentSegment.dialogue) {
+                currentSegment.dialogue = line;
+              }
+              // 如果鏡頭描述為空，可能是鏡頭描述
+              else if (!currentSegment.shot_desc) {
+                currentSegment.shot_desc = line;
+              }
+            }
           }
         }
         
         // 保存最後一個段落
-        if (currentSection) {
-          scriptData.sections.push(currentSection);
+        if (currentSegment) {
+          rows.push(currentSegment);
         }
         
-        // 如果沒有找到段落，嘗試按時間分割
-        if (scriptData.sections.length === 0) {
-          const timePatterns = [
-            /0-3s?/i, /3-7s?/i, /7-15s?/i, /15-25s?/i, /25-30s?/i
-          ];
+        // 3. 排序並確保時間正確
+        rows.sort((a, b) => a.start_sec - b.start_sec);
+        
+        // 4. 清理數據
+        rows.forEach(row => {
+          // 移除末尾空白和標點符號（保留表情符號）
+          row.dialogue = cleanText(row.dialogue);
+          row.shot_desc = cleanText(row.shot_desc);
+          row.subtitle = cleanText(row.subtitle);
+          row.sfx = cleanText(row.sfx);
           
-          let currentTimeSection = null;
-          for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const hasTimePattern = timePatterns.some(pattern => pattern.test(line));
-            
-            if (hasTimePattern) {
-              if (currentTimeSection) {
-                scriptData.sections.push(currentTimeSection);
-              }
-              currentTimeSection = {
-                type: line.trim(),
-                content: []
-              };
-            } else if (currentTimeSection && line.length > 0) {
-              currentTimeSection.content.push(line);
-            }
+          // 確保end_sec > start_sec
+          if (row.end_sec <= row.start_sec) {
+            row.end_sec = row.start_sec + 1;
           }
-          
-          if (currentTimeSection) {
-            scriptData.sections.push(currentTimeSection);
-          }
-        }
+        });
         
-        // 解析畫面感內容
-        const visualPatterns = [
-          /畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
-          /\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
-          /\d+\.\s*畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
-          /\d+\.\s*\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i
-        ];
+        // 5. 構建最終JSON
+        const result = {
+          creator_id: currentUser ? currentUser.user_id : 'unknown',
+          project_id: null,
+          title: title,
+          rows: rows
+        };
         
-        for (const pattern of visualPatterns) {
-          const match = cleanContent.match(pattern);
-          if (match && match[1]) {
-            scriptData.visual = match[1].trim();
-            console.log('✅ 找到畫面感:', scriptData.visual.substring(0, 100) + '...');
-            break;
-          }
-        }
+        return result;
+      }
+      
+      // 清理文本數據
+      function cleanText(text) {
+        if (!text) return '';
         
-        console.log('解析結果:', scriptData);
-        return scriptData;
+        // 移除末尾空白和標點符號（保留表情符號）
+        return text.replace(/\s+$/, '').replace(/[。，、；：！？]$/, '');
       }
       
       // 載入我的腳本
@@ -6806,7 +6871,6 @@
           </div>
         `).join('');
       }
-      
       // 根據台詞內容生成畫面描述
       function generateVisualDescription(dialogue) {
         if (!dialogue || dialogue.trim() === '') return '-';
@@ -6911,92 +6975,129 @@
       function generateScriptTable(scriptData) {
         console.log('生成腳本表格，數據:', scriptData);
         
-        if (!scriptData || !scriptData.sections || scriptData.sections.length === 0) {
-          console.log('沒有腳本數據，返回無數據行');
-          return '<tr><td colspan="6">無數據</td></tr>';
+        // 檢查是否有錯誤
+        if (scriptData && scriptData.error) {
+          console.log('腳本數據有錯誤:', scriptData.message);
+          return `<tr><td colspan="6">解析失敗: ${scriptData.message}</td></tr>`;
         }
         
-        let tableRows = '';
-        let timeIndex = 0;
-        const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
-        
-        // 檢查是否有畫面感資料
-        const hasVisualData = scriptData.visual && scriptData.visual.trim() !== '';
-        let visualLines = [];
-        
-        if (hasVisualData) {
-          // 解析畫面感內容，按行分割
-          visualLines = scriptData.visual.split('\n').map(line => line.trim()).filter(line => line);
-          console.log('畫面感資料:', visualLines);
-        }
-        
-        scriptData.sections.forEach((section, sectionIndex) => {
-          console.log(`處理段落 ${sectionIndex}:`, section);
+        // 處理新格式（有rows欄位）
+        if (scriptData && scriptData.rows && scriptData.rows.length > 0) {
+          let tableRows = '';
           
-          // 如果段落有內容
-          if (section.content && section.content.length > 0) {
-          section.content.forEach((content, contentIndex) => {
-            const timeRange = timeRanges[timeIndex] || '-';
-            const sectionType = section.type || '內容段落';
-            
-              // 清理內容，移除多餘的空白
-              const cleanContent = content.trim();
-              
-              // 限制顯示長度，超過30個字符就截斷並加上省略號
-              const displayContent = cleanContent.length > 30 ? 
-                cleanContent.substring(0, 30) + '...' : cleanContent;
-            
-            // 獲取對應的畫面描述
-            let visualDescription = '-';
-            if (hasVisualData && visualLines[timeIndex]) {
-              // 使用實際的畫面感內容
-              visualDescription = visualLines[timeIndex].length > 50 ? 
-                visualLines[timeIndex].substring(0, 50) + '...' : visualLines[timeIndex];
-            } else {
-              // 如果沒有畫面感資料，使用智能生成
-              visualDescription = generateVisualDescription(cleanContent);
-            }
+          // 按照規範格式生成表格行
+          scriptData.rows.forEach((row, index) => {
+            const timeRange = `${row.start_sec}-${row.end_sec}s`;
+            const section = row.section || '-';
+            const shotDesc = row.shot_desc || '-';
+            const dialogue = row.dialogue || '-';
+            const subtitle = row.subtitle || '-';
+            const sfx = row.sfx || '-';
             
             tableRows += `
               <tr>
                 <td>${timeRange}</td>
-                <td>${sectionType}</td>
-                <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : visualDescription}">${visualDescription}</td>
-                <td title="${cleanContent}">${displayContent}</td>
-                <td>-</td>
-                <td>-</td>
+                <td>${section}</td>
+                <td title="${shotDesc}">${shotDesc}</td>
+                <td title="${dialogue}">${dialogue}</td>
+                <td title="${subtitle}">${subtitle}</td>
+                <td title="${sfx}">${sfx}</td>
               </tr>
             `;
-            timeIndex++;
           });
-          } else {
-            // 如果段落沒有內容，但段落類型存在
-            const timeRange = timeRanges[timeIndex] || '-';
-            const sectionType = section.type || '內容段落';
-            
-            // 獲取對應的畫面描述
-            let visualDescription = '-';
-            if (hasVisualData && visualLines[timeIndex]) {
-              visualDescription = visualLines[timeIndex].length > 50 ? 
-                visualLines[timeIndex].substring(0, 50) + '...' : visualLines[timeIndex];
-            }
-            
-            tableRows += `
-              <tr>
-                <td>${timeRange}</td>
-                <td>${sectionType}</td>
-                <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : ''}">${visualDescription}</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
-            `;
-            timeIndex++;
-          }
-        });
+          
+          console.log('生成的表格行:', tableRows);
+          return tableRows || '<tr><td colspan="6">無數據</td></tr>';
+        }
         
-        console.log('生成的表格行:', tableRows);
-        return tableRows || '<tr><td colspan="6">無數據</td></tr>';
+        // 處理舊格式（有sections欄位）
+        if (scriptData && scriptData.sections && scriptData.sections.length > 0) {
+          let tableRows = '';
+          let timeIndex = 0;
+          const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
+          
+          // 檢查是否有畫面感資料
+          const hasVisualData = scriptData.visual && scriptData.visual.trim() !== '';
+          let visualLines = [];
+          
+          if (hasVisualData) {
+            // 解析畫面感內容，按行分割
+            visualLines = scriptData.visual.split('\n').map(line => line.trim()).filter(line => line);
+            console.log('畫面感資料:', visualLines);
+          }
+          
+          scriptData.sections.forEach((section, sectionIndex) => {
+            console.log(`處理段落 ${sectionIndex}:`, section);
+            
+            // 如果段落有內容
+            if (section.content && section.content.length > 0) {
+              section.content.forEach((content, contentIndex) => {
+                const timeRange = timeRanges[timeIndex] || '-';
+                const sectionType = section.type || '內容段落';
+                
+                // 清理內容，移除多餘的空白
+                const cleanContent = content.trim();
+                
+                // 限制顯示長度，超過30個字符就截斷並加上省略號
+                const displayContent = cleanContent.length > 30 ? 
+                  cleanContent.substring(0, 30) + '...' : cleanContent;
+              
+                // 獲取對應的畫面描述
+                let visualDescription = '-';
+                if (hasVisualData && visualLines[timeIndex]) {
+                  // 使用實際的畫面感內容
+                  visualDescription = visualLines[timeIndex].length > 50 ? 
+                    visualLines[timeIndex].substring(0, 50) + '...' : visualLines[timeIndex];
+                } else {
+                  // 如果沒有畫面感資料，使用智能生成
+                  visualDescription = generateVisualDescription(cleanContent);
+                }
+                
+                tableRows += `
+                  <tr>
+                    <td>${timeRange}</td>
+                    <td>${sectionType}</td>
+                    <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : visualDescription}">${visualDescription}</td>
+                    <td title="${cleanContent}">${displayContent}</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                `;
+                timeIndex++;
+              });
+            } else {
+              // 如果段落沒有內容，但段落類型存在
+              const timeRange = timeRanges[timeIndex] || '-';
+              const sectionType = section.type || '內容段落';
+              
+              // 獲取對應的畫面描述
+              let visualDescription = '-';
+              if (hasVisualData && visualLines[timeIndex]) {
+                visualDescription = visualLines[timeIndex].length > 50 ? 
+                  visualLines[timeIndex].substring(0, 50) + '...' : visualLines[timeIndex];
+              }
+              
+              tableRows += `
+                <tr>
+                  <td>${timeRange}</td>
+                  <td>${sectionType}</td>
+                  <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : ''}">${visualDescription}</td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>-</td>
+                </tr>
+              `;
+              timeIndex++;
+            }
+          });
+          
+          console.log('生成的表格行:', tableRows);
+          return tableRows || '<tr><td colspan="6">無數據</td></tr>';
+        }
+        
+        // 如果都沒有，返回無數據
+        console.log('沒有腳本數據，返回無數據行');
+        return '<tr><td colspan="6">無數據</td></tr>';
       }
       
       // 切換腳本展開/收起
@@ -7562,7 +7663,6 @@
           showToast('登入成功！', 3000);
         }
       }
-
       async function handleAuthCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
@@ -8254,7 +8354,6 @@
           console.log('❌ 未找到AI回應');
         }
       };
-      
       // 添加終極解決方案：直接從頁面提取
       window.extractFromPage = function() {
         console.log('=== 終極解決方案：從頁面直接提取 ===');
@@ -8713,7 +8812,6 @@
         
         return isScriptContent;
       }
-      
       // 新增：更精確的AI內容解析函數
       function parseAIContent(aiText) {
         const sections = {
@@ -9513,7 +9611,6 @@
           button.disabled = false;
         }
       }
-
       // 生成今日腳本
       async function generateMode3TodayScripts() {
         const resultBlock = document.getElementById('mode3-scripts-result');
@@ -9665,7 +9762,3 @@
     </div>
   </body>
 </html>
-
-
-
-
