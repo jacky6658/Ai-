@@ -2369,6 +2369,174 @@
         height: 85vh;
         max-height: 700px;
       }
+      
+      /* 個人資料庫頁面樣式 */
+      .user-db-page {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+      
+      .user-db-container {
+        display: flex;
+        gap: 24px;
+        min-height: 600px;
+      }
+      
+      .user-db-sidebar {
+        width: 280px;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .sidebar-header {
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .profile-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid #e5e7eb;
+      }
+      
+      .profile-info h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      
+      .profile-info p {
+        margin: 0;
+        font-size: 14px;
+        color: #6b7280;
+      }
+      
+      .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: none;
+        text-align: left;
+        font-size: 14px;
+        color: #6b7280;
+      }
+      
+      .menu-item:hover {
+        background: #e5e7eb;
+        color: #1f2937;
+      }
+      
+      .menu-item.active {
+        background: #3b82f6;
+        color: white;
+      }
+      
+      .menu-icon {
+        font-size: 16px;
+      }
+      
+      .menu-text {
+        font-weight: 500;
+      }
+      
+      .menu-divider {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 12px 0;
+      }
+      
+      .logout-item {
+        color: #dc2626;
+      }
+      
+      .logout-item:hover {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      
+      .user-db-content {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .db-section {
+        display: none;
+      }
+      
+      .db-section.active {
+        display: block;
+      }
+      
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 16px;
+      }
+      
+      .section-content {
+        color: #6b7280;
+        line-height: 1.6;
+      }
+      
+      .profile-details {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+      }
+      
+      .detail-item label {
+        font-weight: 600;
+        color: #374151;
+        min-width: 80px;
+      }
+      
+      .detail-item span {
+        color: #6b7280;
+      }
     </style>
   </head>
   <body>
@@ -2383,10 +2551,11 @@
               <button class="navbar-tab" onclick="switchPage('homepage')">首頁</button>
               <button class="navbar-tab" onclick="switchPage('mode1')">一鍵生成</button>
               <button class="navbar-tab" onclick="switchPage('mode2')">AI顧問</button>
+              <button id="userDBTab" class="navbar-tab" onclick="switchPage('userDB')" style="display:none;">個人資料庫</button>
             </div>
           </div>
           <div class="navbar-right">
-            <div class="user-info" id="userInfo" style="display: none;">
+            <div class="user-info" id="userInfo" style="display: none;" onclick="switchPage('userDB')">
               <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像" style="width: 32px; height: 32px; border-radius: 50%;">
             <span id="userName" class="user-name"></span>
           </div>
@@ -2531,6 +2700,114 @@
                   <div class="input-row">
                     <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
                     <button id="sendBtn" class="send-btn">送出</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 個人資料庫頁面 -->
+          <div id="userDB" class="page">
+            <div class="user-db-page">
+              <h2 class="page-title">👤 個人資料庫</h2>
+              <div class="user-db-container">
+                <!-- 左側功能選單 -->
+                <div class="user-db-sidebar">
+                  <div class="sidebar-header">
+                    <div class="user-profile">
+                      <img id="dbUserAvatar" class="profile-avatar" src="" alt="用戶頭像">
+                      <div class="profile-info">
+                        <h3 id="dbUserName">用戶名稱</h3>
+                        <p id="dbUserEmail">user@example.com</p>
+                      </div>
+                    </div>
+                  </div>
+                  <nav class="sidebar-menu">
+                    <div class="menu-item" onclick="showDbSection('personalInfo')">
+                      <span class="menu-icon">👤</span>
+                      <span class="menu-text">個人資料</span>
+                    </div>
+                    <div class="menu-item" onclick="showDbSection('myScripts')">
+                      <span class="menu-icon">💾</span>
+                      <span class="menu-text">我的腳本</span>
+                    </div>
+                    <div class="menu-item" onclick="showDbSection('accountPositioning')">
+                      <span class="menu-icon">🎯</span>
+                      <span class="menu-text">帳號定位</span>
+                    </div>
+                    <div class="menu-item" onclick="showDbSection('topicRecords')">
+                      <span class="menu-icon">💡</span>
+                      <span class="menu-text">選題記錄</span>
+                    </div>
+                    <div class="menu-item" onclick="showDbSection('settings')">
+                      <span class="menu-icon">⚙️</span>
+                      <span class="menu-text">設定</span>
+                    </div>
+                    <div class="menu-item" onclick="showDbSection('usageStats')">
+                      <span class="menu-icon">📊</span>
+                      <span class="menu-text">使用統計</span>
+                    </div>
+                    <div class="menu-item" onclick="showDbSection('helpCenter')">
+                      <span class="menu-icon">❓</span>
+                      <span class="menu-text">幫助中心</span>
+                    </div>
+                    <div class="menu-divider"></div>
+                    <div class="menu-item logout-item" onclick="logout()">
+                      <span class="menu-icon">🚪</span>
+                      <span class="menu-text">登出</span>
+                    </div>
+                  </nav>
+                </div>
+                <!-- 右側內容區域 -->
+                <div class="user-db-content">
+                  <!-- 個人資料 -->
+                  <div id="db-personalInfo" class="db-section active">
+                    <h3 class="section-title">👤 個人資料</h3>
+                    <div class="section-content">
+                      <p>個人資料功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 我的腳本 -->
+                  <div id="db-myScripts" class="db-section">
+                    <h3 class="section-title">💾 我的腳本</h3>
+                    <div class="section-content">
+                      <p>我的腳本功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 帳號定位 -->
+                  <div id="db-accountPositioning" class="db-section">
+                    <h3 class="section-title">🎯 帳號定位</h3>
+                    <div class="section-content">
+                      <p>帳號定位功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 選題記錄 -->
+                  <div id="db-topicRecords" class="db-section">
+                    <h3 class="section-title">💡 選題記錄</h3>
+                    <div class="section-content">
+                      <p>選題記錄功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 設定 -->
+                  <div id="db-settings" class="db-section">
+                    <h3 class="section-title">⚙️ 設定</h3>
+                    <div class="section-content">
+                      <p>設定功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 使用統計 -->
+                  <div id="db-usageStats" class="db-section">
+                    <h3 class="section-title">📊 使用統計</h3>
+                    <div class="section-content">
+                      <p>使用統計功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 幫助中心 -->
+                  <div id="db-helpCenter" class="db-section">
+                    <h3 class="section-title">❓ 幫助中心</h3>
+                    <div class="section-content">
+                      <p>幫助中心功能開發中...</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2844,7 +3121,8 @@
         const tabMap = {
           'homepage': 0,
           'mode1': 1,
-          'mode2': 2
+          'mode2': 2,
+          'userDB': 3
         };
         
         if (tabMap[pageId] !== undefined) {
@@ -3572,11 +3850,23 @@
           loginBtn.style.display = 'none';
           logoutBtn.style.display = 'block';
           updateUserDrawer(currentUser);
+          // 顯示個人資料庫分頁
+          const userDBTab = document.getElementById('userDBTab');
+          if (userDBTab) {
+            userDBTab.style.display = 'inline-block';
+          }
+          // 更新個人資料庫用戶資訊
+          updateDbUserInfo();
         } else {
           userInfo.style.display = 'none';
           loginBtn.style.display = 'block';
           logoutBtn.style.display = 'none';
           closeUserDrawer();
+          // 隱藏個人資料庫分頁
+          const userDBTab = document.getElementById('userDBTab');
+          if (userDBTab) {
+            userDBTab.style.display = 'none';
+          }
         }
       }
       
@@ -3589,6 +3879,135 @@
         updateAuthUI(false);
         showToast('已登出', 3000);
         closeUserDrawer();
+        // 如果當前在個人資料庫頁面，跳轉回首頁
+        if (document.getElementById('userDB').classList.contains('active')) {
+          switchPage('homepage');
+        }
+      }
+      
+      // 更新個人資料庫用戶資訊
+      function updateDbUserInfo() {
+        if (currentUser) {
+          const dbUserAvatar = document.getElementById('dbUserAvatar');
+          const dbUserName = document.getElementById('dbUserName');
+          const dbUserEmail = document.getElementById('dbUserEmail');
+          
+          if (dbUserAvatar) dbUserAvatar.src = currentUser.picture || 'https://via.placeholder.com/48';
+          if (dbUserName) dbUserName.textContent = currentUser.name || '用戶';
+          if (dbUserEmail) dbUserEmail.textContent = currentUser.email || 'user@example.com';
+        }
+      }
+      
+      // 顯示個人資料庫分區
+      function showDbSection(sectionName) {
+        // 隱藏所有分區
+        document.querySelectorAll('.db-section').forEach(section => {
+          section.classList.remove('active');
+        });
+        
+        // 移除所有選單項的active狀態
+        document.querySelectorAll('.menu-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        // 顯示選中的分區
+        const targetSection = document.getElementById(`db-${sectionName}`);
+        if (targetSection) {
+          targetSection.classList.add('active');
+        }
+        
+        // 添加對應選單項的active狀態
+        const targetMenuItem = document.querySelector(`[onclick="showDbSection('${sectionName}')"]`);
+        if (targetMenuItem) {
+          targetMenuItem.classList.add('active');
+        }
+        
+        // 根據分區載入相應數據
+        switch(sectionName) {
+          case 'personalInfo':
+            loadPersonalInfoForUserDB();
+            break;
+          case 'myScripts':
+            loadMyScriptsForUserDB();
+            break;
+          case 'accountPositioning':
+            loadPositioningRecordsForUserDB();
+            break;
+          case 'topicRecords':
+            loadTopicHistoryForUserDB();
+            break;
+        }
+      }
+      
+      // 載入個人資料庫的個人資料
+      function loadPersonalInfoForUserDB() {
+        const content = document.querySelector('#db-personalInfo .section-content');
+        if (currentUser) {
+          content.innerHTML = `
+            <div class="profile-details">
+              <div class="detail-item">
+                <label>姓名：</label>
+                <span>${currentUser.name || '未設定'}</span>
+              </div>
+              <div class="detail-item">
+                <label>Email：</label>
+                <span>${currentUser.email || '未設定'}</span>
+              </div>
+              <div class="detail-item">
+                <label>用戶ID：</label>
+                <span>${currentUser.user_id || '未生成'}</span>
+              </div>
+              <div class="detail-item">
+                <label>註冊時間：</label>
+                <span>${currentUser.created_at || '未知'}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          content.innerHTML = '<p>請先登入以查看個人資料</p>';
+        }
+      }
+      
+      // 載入個人資料庫的我的腳本
+      function loadMyScriptsForUserDB() {
+        const content = document.querySelector('#db-myScripts .section-content');
+        if (currentUser && currentUser.user_id) {
+          content.innerHTML = '<p>正在載入腳本記錄...</p>';
+          // 這裡可以調用API載入用戶的腳本記錄
+          setTimeout(() => {
+            content.innerHTML = '<p>我的腳本功能開發中...</p>';
+          }, 1000);
+        } else {
+          content.innerHTML = '<p>請先登入以查看腳本記錄</p>';
+        }
+      }
+      
+      // 載入個人資料庫的帳號定位記錄
+      function loadPositioningRecordsForUserDB() {
+        const content = document.querySelector('#db-accountPositioning .section-content');
+        if (currentUser && currentUser.user_id) {
+          content.innerHTML = '<p>正在載入帳號定位記錄...</p>';
+          // 這裡可以調用API載入用戶的帳號定位記錄
+          setTimeout(() => {
+            content.innerHTML = '<p>帳號定位記錄功能開發中...</p>';
+          }, 1000);
+        } else {
+          content.innerHTML = '<p>請先登入以查看帳號定位記錄</p>';
+        }
+      }
+      
+      // 載入個人資料庫的選題記錄
+      function loadTopicHistoryForUserDB() {
+        const content = document.querySelector('#db-topicRecords .section-content');
+        if (currentUser && currentUser.user_id) {
+          content.innerHTML = '<p>正在載入選題記錄...</p>';
+          // 這裡可以調用API載入用戶的選題記錄
+          setTimeout(() => {
+            content.innerHTML = '<p>選題記錄功能開發中...</p>';
+          }, 1000);
+        } else {
+          content.innerHTML = '<p>請先登入以查看選題記錄</p>';
+        }
       }
       
       // 結果區塊功能
