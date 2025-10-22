@@ -5,8 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AIJob短影音智能體</title>
     <style>
-      :root { color-scheme: light; }
-      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; background:#ffffff; color:#1a1a1a; }
+      :root { 
+        color-scheme: light; 
+        --safe-area-inset-top: env(safe-area-inset-top);
+        --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        --safe-area-inset-left: env(safe-area-inset-left);
+        --safe-area-inset-right: env(safe-area-inset-right);
+      }
+      body { 
+        margin: 0; 
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; 
+        background:#ffffff; 
+        color:#1a1a1a; 
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        overflow-x: hidden;
+      }
       
       /* 頁面容器 */
       .app-container {
@@ -35,6 +52,11 @@
         justify-content: space-between;
         align-items: center;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding-top: calc(16px + var(--safe-area-inset-top));
+        min-height: 60px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
       }
       
       .navbar-left {
@@ -64,6 +86,7 @@
         font-size: 14px;
         font-weight: 500;
         transition: all 0.2s;
+        text-decoration: none;
       }
       
       .navbar-tab.active {
@@ -3118,6 +3141,458 @@
           min-width: 120px;
         }
       }
+      
+      /* 響應式設計 - 手機版 */
+      @media (max-width: 768px) {
+        /* 頂部導航欄手機版 */
+        .top-navbar {
+          padding: 12px 16px;
+          padding-top: calc(12px + var(--safe-area-inset-top));
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        
+        .navbar-left {
+          gap: 16px;
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .navbar-title {
+          font-size: 18px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .navbar-tabs {
+          display: none; /* 手機版隱藏標籤，改用底部導航 */
+        }
+        
+        .navbar-right {
+          gap: 8px;
+        }
+        
+        .user-info {
+          padding: 6px 12px;
+          font-size: 14px;
+        }
+        
+        .user-avatar {
+          width: 28px !important;
+          height: 28px !important;
+        }
+        
+        .user-name {
+          font-size: 14px;
+        }
+        
+        .login-btn, .logout-btn {
+          padding: 8px 16px;
+          font-size: 14px;
+        }
+        
+        /* 主內容區域手機版 */
+        .main-content {
+          padding: 16px;
+          margin-right: 0;
+        }
+        
+        .main-content.sidebar-open {
+          margin-right: 0;
+        }
+        
+        /* 首頁手機版 */
+        .homepage {
+          padding: 20px 0;
+        }
+        
+        .homepage-title {
+          font-size: 24px;
+          margin-bottom: 16px;
+        }
+        
+        .homepage-subtitle {
+          font-size: 16px;
+          margin-bottom: 32px;
+        }
+        
+        .mode-cards {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        
+        .mode-card {
+          padding: 24px 20px;
+        }
+        
+        .mode-card h3 {
+          font-size: 20px;
+          margin-bottom: 12px;
+        }
+        
+        .mode-card p {
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        
+        /* 一鍵生成手機版 */
+        .mode1-container {
+          flex-direction: column;
+          gap: 20px;
+        }
+        
+        .settings-section {
+          width: 100%;
+          padding: 20px;
+        }
+        
+        .results-section {
+          width: 100%;
+        }
+        
+        .form-group {
+          margin-bottom: 16px;
+        }
+        
+        .form-group label {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+          padding: 12px;
+          font-size: 16px; /* 防止iOS縮放 */
+        }
+        
+        .generate-btn {
+          padding: 12px 24px;
+          font-size: 16px;
+          width: 100%;
+        }
+        
+        .result-content {
+          padding: 16px;
+        }
+        
+        .result-header h3 {
+          font-size: 18px;
+        }
+        
+        .result-body {
+          font-size: 14px;
+          line-height: 1.6;
+        }
+        
+        .result-actions {
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .save-btn, .regenerate-btn {
+          padding: 12px 20px;
+          font-size: 14px;
+          width: 100%;
+        }
+        
+        /* AI顧問手機版 */
+        .mode2-container {
+          padding: 16px;
+        }
+        
+        .ai-instructions {
+          margin-bottom: 20px;
+        }
+        
+        .instructions-header {
+          padding: 16px;
+        }
+        
+        .instructions-header h3 {
+          font-size: 16px;
+        }
+        
+        .instruction-list {
+          padding: 16px;
+        }
+        
+        .instruction-list li {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        .chat-container {
+          height: calc(100vh - 200px);
+          min-height: 400px;
+        }
+        
+        .chat-messages {
+          padding: 16px;
+          max-height: calc(100% - 120px);
+        }
+        
+        .message {
+          margin-bottom: 16px;
+          max-width: 85%;
+        }
+        
+        .message.user {
+          margin-left: auto;
+        }
+        
+        .message-content {
+          padding: 12px 16px;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        
+        .chat-input-container {
+          padding: 16px;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .chat-input {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 16px;
+          border-radius: 25px;
+        }
+        
+        .send-btn {
+          padding: 12px 24px;
+          font-size: 16px;
+          border-radius: 25px;
+          width: 100%;
+        }
+        
+        .quick-buttons {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+        }
+        
+        .quick-btn {
+          padding: 10px 16px;
+          font-size: 14px;
+          border-radius: 20px;
+        }
+        
+        /* 創作者資料庫手機版 */
+        .user-db-page {
+          padding: 16px;
+        }
+        
+        .user-db-container {
+          flex-direction: column;
+        }
+        
+        .user-db-sidebar {
+          width: 100%;
+          margin-bottom: 20px;
+          border-radius: 12px;
+        }
+        
+        .sidebar-header {
+          padding: 16px;
+        }
+        
+        .user-profile {
+          flex-direction: column;
+          text-align: center;
+          gap: 12px;
+        }
+        
+        .profile-avatar {
+          width: 60px;
+          height: 60px;
+        }
+        
+        .profile-info h3 {
+          font-size: 18px;
+        }
+        
+        .profile-info p {
+          font-size: 14px;
+        }
+        
+        .sidebar-menu {
+          padding: 16px;
+        }
+        
+        .menu-item {
+          padding: 12px 16px;
+          margin-bottom: 8px;
+          border-radius: 8px;
+        }
+        
+        .menu-text {
+          font-size: 14px;
+        }
+        
+        .user-db-content {
+          width: 100%;
+        }
+        
+        .db-section {
+          padding: 16px;
+        }
+        
+        .section-title {
+          font-size: 18px;
+          margin-bottom: 16px;
+        }
+        
+        /* 腳本表格手機版 */
+        .script-table {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        .script-table table {
+          min-width: 600px;
+          font-size: 12px;
+        }
+        
+        .script-table th,
+        .script-table td {
+          padding: 8px 6px;
+          white-space: nowrap;
+        }
+        
+        .script-actions {
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .action-btn {
+          padding: 10px 16px;
+          font-size: 14px;
+          width: 100%;
+        }
+        
+        /* 用戶抽屜手機版 */
+        .user-drawer {
+          width: 100%;
+          max-width: 100vw;
+          right: 0;
+          border-radius: 0;
+        }
+        
+        .user-drawer-header {
+          padding: 20px 16px;
+          padding-top: calc(20px + var(--safe-area-inset-top));
+        }
+        
+        .user-drawer-content {
+          padding: 16px;
+        }
+        
+        .drawer-section h3 {
+          font-size: 16px;
+          margin-bottom: 12px;
+        }
+        
+        .drawer-section p {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        /* 底部導航欄（手機版專用） */
+        .bottom-navbar {
+          display: flex;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: white;
+          border-top: 1px solid #e5e7eb;
+          padding: 8px 0;
+          padding-bottom: calc(8px + var(--safe-area-inset-bottom));
+          z-index: 100;
+        }
+        
+        .bottom-nav-item {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 8px 4px;
+          text-decoration: none;
+          color: #6b7280;
+          font-size: 12px;
+          transition: color 0.2s;
+        }
+        
+        .bottom-nav-item.active {
+          color: #3b82f6;
+        }
+        
+        .bottom-nav-item span {
+          margin-top: 4px;
+        }
+        
+        /* 隱藏桌面版導航 */
+        .navbar-tabs {
+          display: none;
+        }
+      }
+      
+      /* 超小螢幕手機 */
+      @media (max-width: 480px) {
+        .homepage-title {
+          font-size: 20px;
+        }
+        
+        .homepage-subtitle {
+          font-size: 14px;
+        }
+        
+        .mode-card {
+          padding: 20px 16px;
+        }
+        
+        .mode-card h3 {
+          font-size: 18px;
+        }
+        
+        .mode-card p {
+          font-size: 13px;
+        }
+        
+        .chat-container {
+          height: calc(100vh - 180px);
+        }
+        
+        .script-table table {
+          font-size: 11px;
+        }
+        
+        .script-table th,
+        .script-table td {
+          padding: 6px 4px;
+        }
+      }
+      
+      /* iOS Safari 特殊處理 */
+      @supports (-webkit-touch-callout: none) {
+        .chat-container {
+          height: calc(100vh - 200px);
+          height: calc(100dvh - 200px);
+        }
+        
+        .main-content {
+          min-height: calc(100vh - 60px);
+          min-height: calc(100dvh - 60px);
+        }
+        
+        .app-container {
+          min-height: 100vh;
+          min-height: 100dvh;
+        }
+      }
     </style>
   </head>
   <body>
@@ -3129,11 +3604,11 @@
           <div class="navbar-left">
             <div class="navbar-title">AIJob短影音智能體</div>
             <div class="navbar-tabs">
-              <button class="navbar-tab" onclick="switchPage('homepage')">首頁</button>
-              <button class="navbar-tab" onclick="switchPage('mode1')">一鍵生成</button>
-              <button class="navbar-tab" onclick="switchPage('mode2')">AI顧問</button>
-              <button class="navbar-tab" onclick="switchPage('mode3')">IP人設規劃</button>
-              <button id="userDBTab" class="navbar-tab" onclick="switchPage('userDB')" style="display:none;">個人資料庫</button>
+              <a href="#homepage" class="navbar-tab" onclick="switchPage('homepage'); return false;">首頁</a>
+              <a href="#mode1" class="navbar-tab" onclick="switchPage('mode1'); return false;">一鍵生成</a>
+              <a href="#mode2" class="navbar-tab" onclick="switchPage('mode2'); return false;">AI顧問</a>
+              <a href="#mode3" class="navbar-tab" onclick="switchPage('mode3'); return false;">IP人設規劃</a>
+              <a href="#userDB" id="userDBTab" class="navbar-tab" onclick="switchPage('userDB'); return false;" style="display:none;">創作者資料庫</a>
             </div>
           </div>
           <div class="navbar-right">
@@ -4594,6 +5069,11 @@
           if (userDBTab) {
             userDBTab.style.display = 'inline-block';
           }
+          // 同時更新底部導航欄
+          const bottomUserDBTab = document.getElementById('bottomUserDBTab');
+          if (bottomUserDBTab) {
+            bottomUserDBTab.style.display = 'flex';
+          }
           // 更新個人資料庫用戶資訊
           updateDbUserInfo();
         } else {
@@ -4605,6 +5085,11 @@
           const userDBTab = document.getElementById('userDBTab');
           if (userDBTab) {
             userDBTab.style.display = 'none';
+          }
+          // 同時隱藏底部導航欄
+          const bottomUserDBTab = document.getElementById('bottomUserDBTab');
+          if (bottomUserDBTab) {
+            bottomUserDBTab.style.display = 'none';
           }
         }
       }
@@ -5215,6 +5700,9 @@
         
         updateResultBlock('scriptContent', '正在生成腳本...', false);
         
+        // 立即顯示操作按鈕
+        document.getElementById('scriptActions').style.display = 'flex';
+        
         try {
           const response = await fetch('https://aivideobackend.zeabur.app/api/generate/script', {
             method: 'POST',
@@ -5270,16 +5758,8 @@
             }
           }
           
-          // 立即顯示操作按鈕
-          document.getElementById('scriptActions').style.display = 'flex';
-          
           // 自動切換到腳本標籤
           switchTab('script');
-          
-          // 詢問用戶是否儲存結果
-          setTimeout(() => {
-            addMessage(`🎉 腳本生成完成！是否要將此腳本儲存到您的資料庫中？`, false);
-          }, 1000);
           
         } catch (error) {
           updateResultBlock('scriptContent', '生成失敗，請稍後再試', false);
@@ -5299,6 +5779,9 @@
         }
         
         updateResultBlock('positioningContent', '正在分析帳號定位...', false);
+        
+        // 立即顯示操作按鈕
+        document.getElementById('positioningActions').style.display = 'flex';
         
         try {
           const response = await fetch('https://aivideobackend.zeabur.app/api/generate/positioning', {
@@ -5355,16 +5838,8 @@
             }
           }
           
-          // 立即顯示操作按鈕
-          document.getElementById('positioningActions').style.display = 'flex';
-          
           // 自動切換到帳號定位標籤
           switchTab('positioning');
-          
-          // 詢問用戶是否儲存結果
-          setTimeout(() => {
-            addMessage(`🎯 帳號定位分析完成！是否要將此分析結果儲存到您的資料庫中？`, false);
-          }, 1000);
           
         } catch (error) {
           updateResultBlock('positioningContent', '生成失敗，請稍後再試', false);
@@ -5437,6 +5912,9 @@
         
         updateResultBlock('topicContent', '正在推薦選題...', false);
         
+        // 立即顯示操作按鈕
+        document.getElementById('topicActions').style.display = 'flex';
+        
         try {
           const response = await fetch('https://aivideobackend.zeabur.app/api/generate/topics', {
             method: 'POST',
@@ -5492,16 +5970,8 @@
             }
           }
           
-          // 立即顯示操作按鈕
-          document.getElementById('topicActions').style.display = 'flex';
-          
           // 自動切換到選題標籤
           switchTab('topics');
-          
-          // 詢問用戶是否儲存結果
-          setTimeout(() => {
-            addMessage(`💡 選題推薦完成！是否要將此選題建議儲存到您的資料庫中？`, false);
-          }, 1000);
           
         } catch (error) {
           updateResultBlock('topicContent', '生成失敗，請稍後再試', false);
@@ -5684,6 +6154,7 @@
         const scriptData = {
           title: '',
           overview: '',
+          visual: '',
           sections: []
         };
         
@@ -5769,6 +6240,23 @@
           
           if (currentTimeSection) {
             scriptData.sections.push(currentTimeSection);
+          }
+        }
+        
+        // 解析畫面感內容
+        const visualPatterns = [
+          /畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
+          /\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
+          /\d+\.\s*畫面感[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i,
+          /\d+\.\s*\*\*畫面感\*\*[：:]\s*([\s\S]*?)(?=\n\s*(?:發佈文案|$))/i
+        ];
+        
+        for (const pattern of visualPatterns) {
+          const match = cleanContent.match(pattern);
+          if (match && match[1]) {
+            scriptData.visual = match[1].trim();
+            console.log('✅ 找到畫面感:', scriptData.visual.substring(0, 100) + '...');
+            break;
           }
         }
         
@@ -5957,6 +6445,106 @@
         `).join('');
       }
       
+      // 根據台詞內容生成畫面描述
+      function generateVisualDescription(dialogue) {
+        if (!dialogue || dialogue.trim() === '') return '-';
+        
+        const content = dialogue.toLowerCase();
+        
+        // 時間相關
+        if (content.includes('時間') || content.includes('⏳') || content.includes('時鐘')) {
+          return '時鐘特寫，指針快速轉動';
+        }
+        
+        // 工作/加班相關
+        if (content.includes('加班') || content.includes('工作') || content.includes('疲憊')) {
+          return '疲憊的上班族在辦公室加班';
+        }
+        
+        // AI/科技相關
+        if (content.includes('ai') || content.includes('智能') || content.includes('✨')) {
+          return '高效工作者使用AI工具，螢幕發光';
+        }
+        
+        // 驚訝/震驚相關
+        if (content.includes('😲') || content.includes('不知道') || content.includes('out')) {
+          return '驚訝表情特寫';
+        }
+        
+        // 決策/思考相關
+        if (content.includes('決策') || content.includes('聰明') || content.includes('🧠')) {
+          return '大腦圖案與數據分析圖表結合';
+        }
+        
+        // 機會/目標相關
+        if (content.includes('機會') || content.includes('抓住') || content.includes('🎯')) {
+          return '箭頭射中靶心';
+        }
+        
+        // 競爭相關
+        if (content.includes('競爭') || content.includes('超車') || content.includes('🔥')) {
+          return '賽車超越對手，火焰特效';
+        }
+        
+        // 未來/趨勢相關
+        if (content.includes('未來') || content.includes('趨勢') || content.includes('入場券')) {
+          return '一張通往未來世界的門票';
+        }
+        
+        // 成功/成就相關
+        if (content.includes('成功') || content.includes('掌握') || content.includes('🏆')) {
+          return '一人自信地操作AI工具，獎盃特寫';
+        }
+        
+        // 角色相關
+        if (content.includes('學生') || content.includes('上班族') || content.includes('創業者')) {
+          return '學生、上班族、創業者三種不同角色的蒙太奇畫面';
+        }
+        
+        // 上升/進步相關
+        if (content.includes('上升') || content.includes('搭上') || content.includes('列車')) {
+          return '一人登上快速行駛的列車或電梯';
+        }
+        
+        // 金錢相關
+        if (content.includes('金錢') || content.includes('💰') || content.includes('省下')) {
+          return '時鐘與金錢符號的疊加動畫';
+        }
+        
+        // 文件/資料相關
+        if (content.includes('文件') || content.includes('資料') || content.includes('分析')) {
+          return '動畫展示文件自動歸類、數據圖表自動生成';
+        }
+        
+        // 操作相關
+        if (content.includes('指令') || content.includes('下指令') || content.includes('💡')) {
+          return '手指輕點螢幕，任務快速完成的進度條';
+        }
+        
+        // 問題/疑問相關
+        if (content.includes('?') || content.includes('？') || content.includes('如何') || content.includes('什麼')) {
+          return '疑問表情特寫，思考狀態';
+        }
+        
+        // 強調/重要相關
+        if (content.includes('重要') || content.includes('關鍵') || content.includes('注意')) {
+          return '重要資訊高亮顯示，強調效果';
+        }
+        
+        // 對比相關
+        if (content.includes('vs') || content.includes('對比') || content.includes('比較')) {
+          return '左右分屏對比畫面';
+        }
+        
+        // 步驟/流程相關
+        if (content.includes('步驟') || content.includes('流程') || content.includes('第一') || content.includes('第二')) {
+          return '步驟指示圖，流程動畫';
+        }
+        
+        // 預設描述
+        return '根據台詞內容的相關畫面';
+      }
+      
       // 生成腳本表格
       function generateScriptTable(scriptData) {
         console.log('生成腳本表格，數據:', scriptData);
@@ -5969,6 +6557,16 @@
         let tableRows = '';
         let timeIndex = 0;
         const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
+        
+        // 檢查是否有畫面感資料
+        const hasVisualData = scriptData.visual && scriptData.visual.trim() !== '';
+        let visualLines = [];
+        
+        if (hasVisualData) {
+          // 解析畫面感內容，按行分割
+          visualLines = scriptData.visual.split('\n').map(line => line.trim()).filter(line => line);
+          console.log('畫面感資料:', visualLines);
+        }
         
         scriptData.sections.forEach((section, sectionIndex) => {
           console.log(`處理段落 ${sectionIndex}:`, section);
@@ -5986,12 +6584,23 @@
               const displayContent = cleanContent.length > 30 ? 
                 cleanContent.substring(0, 30) + '...' : cleanContent;
             
+            // 獲取對應的畫面描述
+            let visualDescription = '-';
+            if (hasVisualData && visualLines[timeIndex]) {
+              // 使用實際的畫面感內容
+              visualDescription = visualLines[timeIndex].length > 50 ? 
+                visualLines[timeIndex].substring(0, 50) + '...' : visualLines[timeIndex];
+            } else {
+              // 如果沒有畫面感資料，使用智能生成
+              visualDescription = generateVisualDescription(cleanContent);
+            }
+            
             tableRows += `
               <tr>
                 <td>${timeRange}</td>
                 <td>${sectionType}</td>
-                <td>-</td>
-                  <td title="${cleanContent}">${displayContent}</td>
+                <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : visualDescription}">${visualDescription}</td>
+                <td title="${cleanContent}">${displayContent}</td>
                 <td>-</td>
                 <td>-</td>
               </tr>
@@ -6003,11 +6612,18 @@
             const timeRange = timeRanges[timeIndex] || '-';
             const sectionType = section.type || '內容段落';
             
+            // 獲取對應的畫面描述
+            let visualDescription = '-';
+            if (hasVisualData && visualLines[timeIndex]) {
+              visualDescription = visualLines[timeIndex].length > 50 ? 
+                visualLines[timeIndex].substring(0, 50) + '...' : visualLines[timeIndex];
+            }
+            
             tableRows += `
               <tr>
                 <td>${timeRange}</td>
                 <td>${sectionType}</td>
-                <td>-</td>
+                <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : ''}">${visualDescription}</td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
@@ -8649,8 +9265,32 @@
         initializeMode3();
       });
     </script>
+    
+    <!-- 底部導航欄（手機版） -->
+    <div class="bottom-navbar">
+      <a href="#homepage" class="bottom-nav-item" onclick="switchPage('homepage'); return false;">
+        <span>🏠</span>
+        <span>首頁</span>
+      </a>
+      <a href="#mode1" class="bottom-nav-item" onclick="switchPage('mode1'); return false;">
+        <span>⚡</span>
+        <span>一鍵生成</span>
+      </a>
+      <a href="#mode2" class="bottom-nav-item" onclick="switchPage('mode2'); return false;">
+        <span>💬</span>
+        <span>AI顧問</span>
+      </a>
+      <a href="#mode3" class="bottom-nav-item" onclick="switchPage('mode3'); return false;">
+        <span>🎭</span>
+        <span>IP人設</span>
+      </a>
+      <a href="#userDB" id="bottomUserDBTab" class="bottom-nav-item" onclick="switchPage('userDB'); return false;" style="display:none;">
+        <span>👤</span>
+        <span>資料庫</span>
+      </a>
+    </div>
   </body>
-  </html>
+</html>
 
 
 
