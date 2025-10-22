@@ -661,20 +661,89 @@
       #chatMessages {
         flex: 1;
         overflow-y: auto;
-        padding: 24px;
-        min-height: 600px;
+        padding: 16px;
+        min-height: 400px;
         background: #f8fafc;
         transition: min-height 0.3s ease;
       }
       
       /* 當說明收起時，聊天訊息區延長高度 */
       .instruction-list.collapsed + #chatContainer #chatMessages {
-        min-height: 800px;
+        min-height: 600px;
+      }
+
+      /* ===== AI顧問聊天訊息樣式（套用IP模式設計） ===== */
+      
+      /* 聊天訊息容器 */
+      .message {
+        display: flex;
+        margin-bottom: 16px;
+        align-items: flex-start;
+      }
+
+      .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+
+      .user .message-avatar {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .ai .message-avatar {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .message-content {
+        flex: 1;
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        line-height: 1.5;
+      }
+
+      .user .message-content {
+        background: #dbeafe;
+        border-color: #3b82f6;
+        color: #1e40af;
+      }
+
+      .ai .message-content {
+        background: #f8fafc;
+        border-color: #e5e7eb;
+        color: #374151;
+      }
+
+      .message-content p {
+        margin: 0 0 8px 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .message-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      .message-content li {
+        margin: 4px 0;
       }
       
       .input-row {
-        padding: 32px 24px;
-        margin-top: 20px;
+        padding: 16px;
+        margin-top: 0;
         border-top: 1px solid #e5e7eb;
         background: white;
         border-radius: 0 0 12px 12px;
@@ -765,7 +834,7 @@
         cursor: not-allowed;
       }
       
-      /* 快速提問按鈕樣式 */
+      /* 快速提問按鈕樣式（套用IP模式設計） */
       .quick-questions {
         display: flex;
         gap: 8px;
@@ -788,6 +857,35 @@
         background: #3b82f6;
         color: white;
         border-color: #3b82f6;
+      }
+
+      /* 快速按鈕樣式（套用IP模式設計） */
+      .quick-buttons { 
+        display: flex; 
+        gap: 8px; 
+        margin-bottom: 12px; 
+        flex-wrap: wrap;
+        padding: 12px 16px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8fafc;
+      }
+
+      .quick-btn {
+        background: white;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+
+      .quick-btn:hover {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
       }
       
       /* 主要布局：左右分欄 5:5 */
@@ -2514,6 +2612,512 @@
       .detail-item span {
         color: #6b7280;
       }
+
+      /* ===== 模式3：IP人設規劃模式樣式 ===== */
+      .mode3-page {
+        min-height: 100vh;
+        background: #f8fafc;
+        padding: 0;
+      }
+
+      .mode3-container {
+        display: flex;
+        height: calc(100vh - 60px);
+        gap: 0;
+      }
+
+      .mode3-left-panel {
+        flex: 1;
+        background: white;
+        border-right: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .mode3-right-panel {
+        flex: 1;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      /* 說明欄位 */
+      .mode3-instructions {
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+      }
+
+      .mode3-instructions-header {
+        padding: 12px 16px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.2s;
+      }
+
+      .mode3-instructions-header:hover {
+        background: #e2e8f0;
+      }
+
+      .mode3-instructions-title {
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+      }
+
+      .mode3-instructions-toggle {
+        font-size: 12px;
+        color: #6b7280;
+        transition: transform 0.2s;
+      }
+
+      .mode3-instructions.collapsed .mode3-instructions-toggle {
+        transform: rotate(-90deg);
+      }
+
+      .mode3-instructions-content {
+        padding: 16px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #4b5563;
+        max-height: 300px;
+        overflow-y: auto;
+        transition: max-height 0.3s ease;
+      }
+
+      .mode3-instructions.collapsed .mode3-instructions-content {
+        max-height: 0;
+        padding: 0 16px;
+        overflow: hidden;
+      }
+
+      .mode3-instructions-content p {
+        margin: 0 0 12px 0;
+      }
+
+      .mode3-instructions-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      .mode3-instructions-content li {
+        margin: 4px 0;
+      }
+
+      /* 聊天容器 */
+      .mode3-chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .mode3-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        min-height: 200px;
+        transition: min-height 0.3s ease;
+      }
+
+      .mode3-chat-messages.expanded {
+        min-height: 400px;
+      }
+
+      .mode3-message {
+        display: flex;
+        margin-bottom: 16px;
+        align-items: flex-start;
+      }
+
+      .mode3-message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+
+      .mode3-user-message .mode3-message-avatar {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .mode3-assistant-message .mode3-message-avatar {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .mode3-message-content {
+        flex: 1;
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .mode3-user-message .mode3-message-content {
+        background: #dbeafe;
+        border-color: #3b82f6;
+        color: #1e40af;
+      }
+
+      .mode3-message-content p {
+        margin: 0 0 8px 0;
+        line-height: 1.5;
+      }
+
+      .mode3-message-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      .mode3-message-content li {
+        margin: 4px 0;
+      }
+
+      .mode3-message-content:last-child p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* 快速按鈕 */
+      .mode3-quick-buttons {
+        padding: 12px 16px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8fafc;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .mode3-quick-btn {
+        background: white;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+
+      .mode3-quick-btn:hover {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+      }
+
+      /* 輸入區域 */
+      .mode3-input-container {
+        padding: 16px;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+      }
+
+      .mode3-input-wrapper {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+      }
+
+      .mode3-message-input {
+        flex: 1;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 44px;
+        max-height: 120px;
+        font-family: inherit;
+      }
+
+      .mode3-message-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .mode3-send-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        flex-shrink: 0;
+      }
+
+      .mode3-send-btn:hover {
+        background: #2563eb;
+      }
+
+      .mode3-send-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .mode3-send-icon {
+        font-size: 16px;
+      }
+
+      /* 結果面板 */
+      .mode3-results-header {
+        padding: 16px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .mode3-results-header h3 {
+        margin: 0;
+        font-size: 16px;
+        color: #374151;
+      }
+
+      .mode3-result-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .mode3-action-btn {
+        background: white;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+
+      .mode3-action-btn:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+        color: #374151;
+      }
+
+      /* 標籤 */
+      .mode3-tabs {
+        display: flex;
+        border-bottom: 1px solid #e5e7eb;
+        background: white;
+      }
+
+      .mode3-tab {
+        flex: 1;
+        background: none;
+        border: none;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #6b7280;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .mode3-tab:hover {
+        background: #f8fafc;
+        color: #374151;
+      }
+
+      .mode3-tab.active {
+        color: #3b82f6;
+        border-bottom-color: #3b82f6;
+        background: #f8fafc;
+      }
+
+      /* 結果內容 */
+      .mode3-results-content {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+      }
+
+      .mode3-result-block {
+        display: none;
+        padding: 16px;
+        height: 100%;
+      }
+
+      .mode3-result-block.active {
+        display: block;
+      }
+
+      .mode3-result-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        color: #6b7280;
+      }
+
+      .mode3-placeholder-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      .mode3-placeholder-icon h4 {
+        margin: 0 0 8px 0;
+        color: #374151;
+        font-size: 18px;
+      }
+
+      .mode3-placeholder-icon p {
+        margin: 0 0 24px 0;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .mode3-generate-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mode3-generate-btn:hover {
+        background: #2563eb;
+      }
+
+      .mode3-generate-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      /* 結果內容樣式 */
+      .mode3-result-content {
+        line-height: 1.6;
+        color: #374151;
+      }
+
+      .mode3-result-content h1,
+      .mode3-result-content h2,
+      .mode3-result-content h3,
+      .mode3-result-content h4 {
+        color: #1f2937;
+        margin: 16px 0 8px 0;
+      }
+
+      .mode3-result-content h1:first-child,
+      .mode3-result-content h2:first-child,
+      .mode3-result-content h3:first-child,
+      .mode3-result-content h4:first-child {
+        margin-top: 0;
+      }
+
+      .mode3-result-content p {
+        margin: 8px 0;
+      }
+
+      .mode3-result-content ul,
+      .mode3-result-content ol {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      .mode3-result-content li {
+        margin: 4px 0;
+      }
+
+      .mode3-result-content strong {
+        color: #1f2937;
+        font-weight: 600;
+      }
+
+      .mode3-result-content em {
+        color: #6b7280;
+        font-style: italic;
+      }
+
+      /* 載入動畫 */
+      .mode3-loading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .mode3-loading-dots {
+        display: flex;
+        gap: 4px;
+      }
+
+      .mode3-loading-dot {
+        width: 6px;
+        height: 6px;
+        background: #3b82f6;
+        border-radius: 50%;
+        animation: mode3-bounce 1.4s infinite ease-in-out both;
+      }
+
+      .mode3-loading-dot:nth-child(1) { animation-delay: -0.32s; }
+      .mode3-loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+      @keyframes mode3-bounce {
+        0%, 80%, 100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 768px) {
+        .mode3-container {
+          flex-direction: column;
+          height: auto;
+        }
+
+        .mode3-left-panel,
+        .mode3-right-panel {
+          min-height: 50vh;
+        }
+
+        .mode3-tabs {
+          flex-wrap: wrap;
+        }
+
+        .mode3-tab {
+          flex: none;
+          min-width: 120px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -2528,6 +3132,7 @@
               <button class="navbar-tab" onclick="switchPage('homepage')">首頁</button>
               <button class="navbar-tab" onclick="switchPage('mode1')">一鍵生成</button>
               <button class="navbar-tab" onclick="switchPage('mode2')">AI顧問</button>
+              <button class="navbar-tab" onclick="switchPage('mode3')">IP人設規劃</button>
               <button id="userDBTab" class="navbar-tab" onclick="switchPage('userDB')" style="display:none;">個人資料庫</button>
             </div>
           </div>
@@ -2561,10 +3166,10 @@
                   <h3 class="mode-card-title">AI顧問對話模式</h3>
                   <p class="mode-card-desc">與AI進行深度對話，靈活討論內容策略，適合需要創意討論的用戶</p>
                 </div>
-                <div class="mode-card" onclick="showToast('IP人設規劃功能開發中...', 3000)">
+                <div class="mode-card" onclick="switchPage('mode3')">
                   <div class="mode-card-icon">🎭</div>
                   <h3 class="mode-card-title">IP人設規劃模式</h3>
-                  <p class="mode-card-desc">透過聊天記錄人生曲線，AI協助擬定個人化IP，即將推出</p>
+                  <p class="mode-card-desc">透過聊天記錄人生曲線，AI協助擬定個人化IP Profile、14天規劃和腳本</p>
                 </div>
               </div>
             </div>
@@ -2663,7 +3268,14 @@
                 <div id="chatContainer">
                   <!-- 聊天訊息區域 -->
                   <div class="chat-messages" id="chatMessages">
-                    <div class="message ai">嗨！我是你的 AI短影音顧問 🤖<br>想知道你今天想聊什麼～<br>是想討論帳號定位、腳本選題，還是直接生成內容呢？🚀</div>
+                    <div class="message ai">
+                      <div class="message-avatar">🤖</div>
+                      <div class="message-content">
+                        <p>嗨！我是你的 AI短影音顧問 🤖</p>
+                        <p>想知道你今天想聊什麼～</p>
+                        <p>是想討論帳號定位、腳本選題，還是直接生成內容呢？🚀</p>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- 快速按鈕區域 -->
@@ -2677,6 +3289,157 @@
                   <div class="input-row">
                     <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
                     <button id="sendBtn" class="send-btn">送出</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模式3：IP人設規劃頁面 -->
+          <div id="mode3" class="page">
+            <div class="mode3-page">
+              <div class="mode3-container">
+                <!-- 左側聊天面板 -->
+                <div class="mode3-left-panel">
+                  <!-- 說明欄位 -->
+                  <div class="mode3-instructions">
+                    <div class="mode3-instructions-header" onclick="toggleMode3Instructions()">
+                      <span class="mode3-instructions-title">📋 使用說明</span>
+                      <span class="mode3-instructions-toggle">▼</span>
+                    </div>
+                    <div class="mode3-instructions-content">
+                      <p><strong>🎯 IP人設規劃模式</strong></p>
+                      <p>透過與AI深度對話，記錄您的人生曲線和個人特色，讓AI協助您建立完整的IP人設。</p>
+                      
+                      <p><strong>💬 對話流程：</strong></p>
+                      <ul>
+                        <li>分享您的背景、經歷、專長</li>
+                        <li>討論您的價值觀和人生目標</li>
+                        <li>描述您的個性和溝通風格</li>
+                        <li>探索您的內容創作方向</li>
+                      </ul>
+                      
+                      <p><strong>📊 生成內容：</strong></p>
+                      <ul>
+                        <li><strong>IP Profile：</strong>完整的個人品牌檔案</li>
+                        <li><strong>14天規劃：</strong>詳細的短影音內容規劃</li>
+                        <li><strong>今日腳本：</strong>3支即時可用的腳本</li>
+                      </ul>
+                      
+                      <p><strong>💡 使用技巧：</strong></p>
+                      <ul>
+                        <li>點擊快速按鈕快速開始對話</li>
+                        <li>詳細描述您的想法和需求</li>
+                        <li>可以隨時要求重新生成內容</li>
+                        <li>生成的內容可儲存到個人資料庫</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- 聊天區域 -->
+                  <div class="mode3-chat-container">
+                    <div class="mode3-chat-messages" id="mode3-chat-messages">
+                      <div class="mode3-message mode3-assistant-message">
+                        <div class="mode3-message-avatar">🤖</div>
+                        <div class="mode3-message-content">
+                          <p>您好！我是您的IP人設規劃顧問。讓我們開始建立您的個人品牌檔案吧！</p>
+                          <p>請告訴我：</p>
+                          <ul>
+                            <li>您的職業背景和專長領域</li>
+                            <li>您希望分享的價值觀或理念</li>
+                            <li>您的目標受眾是誰</li>
+                            <li>您希望在短影音中展現什麼樣的形象</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 快速按鈕 -->
+                    <div class="mode3-quick-buttons">
+                      <button class="mode3-quick-btn" onclick="sendMode3Message('我想分享我的專業經驗')">專業經驗</button>
+                      <button class="mode3-quick-btn" onclick="sendMode3Message('我想建立個人品牌')">個人品牌</button>
+                      <button class="mode3-quick-btn" onclick="sendMode3Message('我想分享生活故事')">生活故事</button>
+                      <button class="mode3-quick-btn" onclick="sendMode3Message('我想做知識分享')">知識分享</button>
+                    </div>
+
+                    <!-- 輸入區域 -->
+                    <div class="mode3-input-container">
+                      <div class="mode3-input-wrapper">
+                        <textarea 
+                          id="mode3-message-input" 
+                          class="mode3-message-input" 
+                          placeholder="請描述您的背景、專長、價值觀或目標..."
+                          rows="3"
+                        ></textarea>
+                        <button class="mode3-send-btn" onclick="sendMode3Message()">
+                          <span class="mode3-send-icon">📤</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 右側結果面板 -->
+                <div class="mode3-right-panel">
+                  <div class="mode3-results-header">
+                    <h3>📊 生成結果</h3>
+                    <div class="mode3-result-actions">
+                      <button class="mode3-action-btn" onclick="saveMode3Result()" title="儲存結果">
+                        <span>💾</span>
+                      </button>
+                      <button class="mode3-action-btn" onclick="regenerateMode3Result()" title="重新生成">
+                        <span>🔄</span>
+                      </button>
+                      <button class="mode3-action-btn" onclick="exportMode3Result()" title="匯出結果">
+                        <span>📤</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 結果標籤 -->
+                  <div class="mode3-tabs">
+                    <button class="mode3-tab active" onclick="switchMode3Tab('profile')">《IP Profile》</button>
+                    <button class="mode3-tab" onclick="switchMode3Tab('plan')">《14天短影音規劃表》</button>
+                    <button class="mode3-tab" onclick="switchMode3Tab('scripts')">《今日3支腳本》</button>
+                  </div>
+
+                  <!-- 結果內容 -->
+                  <div class="mode3-results-content">
+                    <!-- IP Profile 結果 -->
+                    <div id="mode3-profile-result" class="mode3-result-block active">
+                      <div class="mode3-result-placeholder">
+                        <div class="mode3-placeholder-icon">🎭</div>
+                        <h4>IP Profile</h4>
+                        <p>與AI對話後，將在此顯示您的個人品牌檔案</p>
+                        <button class="mode3-generate-btn" onclick="generateMode3IPProfile()">
+                          <span>🚀</span> 生成IP Profile
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- 14天規劃結果 -->
+                    <div id="mode3-plan-result" class="mode3-result-block">
+                      <div class="mode3-result-placeholder">
+                        <div class="mode3-placeholder-icon">📅</div>
+                        <h4>14天短影音規劃</h4>
+                        <p>基於您的IP Profile，生成詳細的內容規劃</p>
+                        <button class="mode3-generate-btn" onclick="generateMode314DayPlan()">
+                          <span>🚀</span> 生成14天規劃
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- 今日腳本結果 -->
+                    <div id="mode3-scripts-result" class="mode3-result-block">
+                      <div class="mode3-result-placeholder">
+                        <div class="mode3-placeholder-icon">📝</div>
+                        <h4>今日3支腳本</h4>
+                        <p>根據您的規劃，生成今日可用的腳本</p>
+                        <button class="mode3-generate-btn" onclick="generateMode3TodayScripts()">
+                          <span>🚀</span> 生成今日腳本
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3097,7 +3860,8 @@
           'homepage': 0,
           'mode1': 1,
           'mode2': 2,
-          'userDB': 3
+          'mode3': 3,
+          'userDB': 4
         };
         
         if (tabMap[pageId] !== undefined) {
@@ -4032,31 +4796,51 @@
         }
       }
       
-      // 添加聊天訊息
+      // 添加聊天訊息（套用IP模式設計）
       function addMessage(content, isUser = false) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
-        messageDiv.className = `msg ${isUser ? 'user' : 'assistant'}`;
+        messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
         
-        // 添加標籤
-        const label = document.createElement('div');
-        label.className = 'msg-label';
-        label.textContent = isUser ? '你' : 'AIJob短影音顧問';
-        messageDiv.appendChild(label);
+        // 添加頭像
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
         
-        // 添加氣泡
-        const bubble = document.createElement('div');
-        bubble.className = 'msg-bubble';
+        if (isUser) {
+          // 用戶頭像：使用 Gmail 頭像或默認頭像
+          const userAvatarImg = document.getElementById('userAvatar');
+          if (userAvatarImg && userAvatarImg.src && userAvatarImg.src !== '') {
+            const img = document.createElement('img');
+            img.src = userAvatarImg.src;
+            img.alt = '用戶頭像';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            avatar.appendChild(img);
+          } else {
+            avatar.textContent = '👤';
+          }
+        } else {
+          // AI 頭像：使用表情符號
+          avatar.textContent = '🤖';
+        }
+        
+        messageDiv.appendChild(avatar);
+        
+        // 添加訊息內容
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
         
         // 如果是 AI 回覆，清理 Markdown 格式
         if (!isUser) {
           const cleanText = cleanMarkdownFormat(content);
-          bubble.innerHTML = cleanText;
+          messageContent.innerHTML = cleanText;
         } else {
-          bubble.textContent = content;
+          messageContent.textContent = content;
         }
         
-        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(messageContent);
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
@@ -7258,6 +8042,408 @@
         console.log('完整解析結果:', sections);
         return sections;
       }
+
+      // ===== 模式3：IP人設規劃模式函數 =====
+      
+      // 切換說明欄位顯示/隱藏
+      function toggleMode3Instructions() {
+        const instructions = document.querySelector('.mode3-instructions');
+        const chatMessages = document.querySelector('.mode3-chat-messages');
+        
+        if (instructions.classList.contains('collapsed')) {
+          instructions.classList.remove('collapsed');
+          chatMessages.classList.remove('expanded');
+        } else {
+          instructions.classList.add('collapsed');
+          chatMessages.classList.add('expanded');
+        }
+      }
+
+      // 發送訊息
+      async function sendMode3Message(message = null) {
+        const input = document.getElementById('mode3-message-input');
+        const messageText = message || input.value.trim();
+        
+        if (!messageText) return;
+        
+        // 清空輸入框
+        if (!message) {
+          input.value = '';
+        }
+        
+        // 添加用戶訊息
+        addMode3Message('user', messageText);
+        
+        // 添加載入訊息
+        const loadingId = addMode3LoadingMessage();
+        
+        try {
+          // 這裡應該調用後端API
+          // 暫時使用模擬回應
+          setTimeout(() => {
+            updateMode3LastMessage(loadingId, 'assistant', '感謝您的分享！我已經記錄了您的資訊。請繼續告訴我更多關於您的背景、專長或目標，這樣我就能為您建立更完整的IP Profile。');
+          }, 2000);
+        } catch (error) {
+          console.error('發送訊息失敗:', error);
+          updateMode3LastMessage(loadingId, 'assistant', '抱歉，發生了錯誤。請稍後再試。');
+        }
+      }
+
+      // 添加訊息到聊天區域
+      function addMode3Message(sender, content) {
+        const messagesContainer = document.getElementById('mode3-chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `mode3-message mode3-${sender}-message`;
+        
+        // 創建頭像元素
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'mode3-message-avatar';
+        
+        if (sender === 'user') {
+          // 用戶頭像：使用 Gmail 頭像或默認頭像
+          const userAvatarImg = document.getElementById('userAvatar');
+          if (userAvatarImg && userAvatarImg.src && userAvatarImg.src !== '') {
+            const img = document.createElement('img');
+            img.src = userAvatarImg.src;
+            img.alt = '用戶頭像';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            avatarDiv.appendChild(img);
+          } else {
+            avatarDiv.textContent = '👤';
+          }
+        } else {
+          // AI 頭像：使用表情符號
+          avatarDiv.textContent = '🤖';
+        }
+        
+        // 創建訊息內容元素
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'mode3-message-content';
+        contentDiv.innerHTML = `<p>${content}</p>`;
+        
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      // 添加載入訊息
+      function addMode3LoadingMessage() {
+        const messagesContainer = document.getElementById('mode3-chat-messages');
+        const messageDiv = document.createElement('div');
+        const messageId = 'loading-' + Date.now();
+        messageDiv.id = messageId;
+        messageDiv.className = 'mode3-message mode3-assistant-message';
+        
+        messageDiv.innerHTML = `
+          <div class="mode3-message-avatar">🤖</div>
+          <div class="mode3-message-content">
+            <div class="mode3-loading">
+              <span>AI正在思考中</span>
+              <div class="mode3-loading-dots">
+                <div class="mode3-loading-dot"></div>
+                <div class="mode3-loading-dot"></div>
+                <div class="mode3-loading-dot"></div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        return messageId;
+      }
+
+      // 更新最後一條訊息
+      function updateMode3LastMessage(messageId, sender, content) {
+        const messageDiv = document.getElementById(messageId);
+        if (messageDiv) {
+          messageDiv.className = `mode3-message mode3-${sender}-message`;
+          
+          // 創建頭像元素
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'mode3-message-avatar';
+          
+          if (sender === 'user') {
+            // 用戶頭像：使用 Gmail 頭像或默認頭像
+            const userAvatarImg = document.getElementById('userAvatar');
+            if (userAvatarImg && userAvatarImg.src && userAvatarImg.src !== '') {
+              const img = document.createElement('img');
+              img.src = userAvatarImg.src;
+              img.alt = '用戶頭像';
+              img.style.width = '100%';
+              img.style.height = '100%';
+              img.style.borderRadius = '50%';
+              img.style.objectFit = 'cover';
+              avatarDiv.appendChild(img);
+            } else {
+              avatarDiv.textContent = '👤';
+            }
+          } else {
+            // AI 頭像：使用表情符號
+            avatarDiv.textContent = '🤖';
+          }
+          
+          // 創建訊息內容元素
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'mode3-message-content';
+          contentDiv.innerHTML = `<p>${content}</p>`;
+          
+          messageDiv.innerHTML = '';
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(contentDiv);
+        }
+      }
+
+      // 切換結果標籤
+      function switchMode3Tab(tabName) {
+        // 移除所有標籤的active類別
+        document.querySelectorAll('.mode3-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // 隱藏所有結果區塊
+        document.querySelectorAll('.mode3-result-block').forEach(block => {
+          block.classList.remove('active');
+        });
+        
+        // 激活選中的標籤
+        event.target.classList.add('active');
+        
+        // 顯示對應的結果區塊
+        const resultBlock = document.getElementById(`mode3-${tabName}-result`);
+        if (resultBlock) {
+          resultBlock.classList.add('active');
+        }
+      }
+
+      // 生成IP Profile
+      async function generateMode3IPProfile() {
+        const resultBlock = document.getElementById('mode3-profile-result');
+        const button = resultBlock.querySelector('.mode3-generate-btn');
+        
+        // 禁用按鈕並顯示載入狀態
+        button.disabled = true;
+        button.innerHTML = '<span>⏳</span> 生成中...';
+        
+        try {
+          // 這裡應該調用後端API
+          // 暫時使用模擬數據
+          setTimeout(() => {
+            const mockProfile = `
+              <div class="mode3-result-content">
+                <h2>🎭 IP Profile</h2>
+                <h3>基本資訊</h3>
+                <p><strong>姓名：</strong>張小明</p>
+                <p><strong>職業：</strong>軟體工程師</p>
+                <p><strong>專長：</strong>前端開發、UI/UX設計</p>
+                
+                <h3>個人特色</h3>
+                <ul>
+                  <li>技術分享達人，善於將複雜概念簡化</li>
+                  <li>熱愛學習新技術，樂於分享經驗</li>
+                  <li>親和力強，善於與觀眾互動</li>
+                </ul>
+                
+                <h3>內容定位</h3>
+                <p>以「技術小白也能懂」的角度，分享前端開發技巧、職場經驗和學習心得。</p>
+                
+                <h3>目標受眾</h3>
+                <p>對程式設計有興趣的初學者、轉職者、以及希望提升技能的在職工程師。</p>
+              </div>
+            `;
+            
+            resultBlock.innerHTML = mockProfile;
+          }, 2000);
+        } catch (error) {
+          console.error('生成IP Profile失敗:', error);
+          button.innerHTML = '<span>❌</span> 生成失敗，請重試';
+          button.disabled = false;
+        }
+      }
+
+      // 生成14天規劃
+      async function generateMode314DayPlan() {
+        const resultBlock = document.getElementById('mode3-plan-result');
+        const button = resultBlock.querySelector('.mode3-generate-btn');
+        
+        button.disabled = true;
+        button.innerHTML = '<span>⏳</span> 生成中...';
+        
+        try {
+          setTimeout(() => {
+            const mockPlan = `
+              <div class="mode3-result-content">
+                <h2>📅 14天短影音規劃表</h2>
+                <h3>第1-3天：技術基礎分享</h3>
+                <ul>
+                  <li>Day 1: HTML基礎概念</li>
+                  <li>Day 2: CSS佈局技巧</li>
+                  <li>Day 3: JavaScript入門</li>
+                </ul>
+                
+                <h3>第4-7天：實作教學</h3>
+                <ul>
+                  <li>Day 4: 建立第一個網頁</li>
+                  <li>Day 5: 響應式設計</li>
+                  <li>Day 6: 互動功能實作</li>
+                  <li>Day 7: 專案整合</li>
+                </ul>
+                
+                <h3>第8-10天：職場經驗</h3>
+                <ul>
+                  <li>Day 8: 面試技巧分享</li>
+                  <li>Day 9: 職場溝通</li>
+                  <li>Day 10: 技能提升建議</li>
+                </ul>
+                
+                <h3>第11-14天：進階主題</h3>
+                <ul>
+                  <li>Day 11: 框架選擇</li>
+                  <li>Day 12: 效能優化</li>
+                  <li>Day 13: 專案管理</li>
+                  <li>Day 14: 未來規劃</li>
+                </ul>
+              </div>
+            `;
+            
+            resultBlock.innerHTML = mockPlan;
+          }, 2000);
+        } catch (error) {
+          console.error('生成14天規劃失敗:', error);
+          button.innerHTML = '<span>❌</span> 生成失敗，請重試';
+          button.disabled = false;
+        }
+      }
+
+      // 生成今日腳本
+      async function generateMode3TodayScripts() {
+        const resultBlock = document.getElementById('mode3-scripts-result');
+        const button = resultBlock.querySelector('.mode3-generate-btn');
+        
+        button.disabled = true;
+        button.innerHTML = '<span>⏳</span> 生成中...';
+        
+        try {
+          setTimeout(() => {
+            const mockScripts = `
+              <div class="mode3-result-content">
+                <h2>📝 今日3支腳本</h2>
+                
+                <h3>腳本1：技術分享</h3>
+                <p><strong>標題：</strong>「5分鐘學會CSS Flexbox」</p>
+                <p><strong>內容：</strong>大家好！今天要教大家CSS Flexbox的基本概念，讓你的網頁佈局更靈活...</p>
+                <p><strong>時長：</strong>60秒</p>
+                
+                <h3>腳本2：職場經驗</h3>
+                <p><strong>標題：</strong>「程式設計師面試必問的3個問題」</p>
+                <p><strong>內容：</strong>面試時最常被問到的問題，我來分享我的回答技巧...</p>
+                <p><strong>時長：</strong>45秒</p>
+                
+                <h3>腳本3：學習心得</h3>
+                <p><strong>標題：</strong>「如何保持學習程式設計的動力」</p>
+                <p><strong>內容：</strong>學習程式設計遇到挫折怎麼辦？分享我的經驗...</p>
+                <p><strong>時長：</strong>50秒</p>
+              </div>
+            `;
+            
+            resultBlock.innerHTML = mockScripts;
+          }, 2000);
+        } catch (error) {
+          console.error('生成今日腳本失敗:', error);
+          button.innerHTML = '<span>❌</span> 生成失敗，請重試';
+          button.disabled = false;
+        }
+      }
+
+      // 儲存結果
+      function saveMode3Result() {
+        showToast('結果已儲存到個人資料庫', 3000);
+        // 這裡應該調用後端API儲存結果
+      }
+
+      // 重新生成結果
+      function regenerateMode3Result() {
+        const activeTab = document.querySelector('.mode3-tab.active');
+        if (activeTab) {
+          const tabName = activeTab.textContent.includes('Profile') ? 'profile' : 
+                         activeTab.textContent.includes('規劃') ? 'plan' : 'scripts';
+          
+          if (tabName === 'profile') {
+            generateMode3IPProfile();
+          } else if (tabName === 'plan') {
+            generateMode314DayPlan();
+          } else if (tabName === 'scripts') {
+            generateMode3TodayScripts();
+          }
+        }
+      }
+
+      // 匯出結果
+      function exportMode3Result() {
+        const activeTab = document.querySelector('.mode3-tab.active');
+        const tabName = activeTab.textContent.includes('Profile') ? 'profile' : 
+                       activeTab.textContent.includes('規劃') ? 'plan' : 'scripts';
+        
+        const resultBlock = document.getElementById(`mode3-${tabName}-result`);
+        const content = resultBlock.querySelector('.mode3-result-content');
+        
+        if (content) {
+          const data = {
+            type: tabName,
+            content: content.innerHTML,
+            timestamp: new Date().toISOString()
+          };
+          
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ip-${tabName}-${Date.now()}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          showToast('結果已匯出為JSON檔案', 3000);
+        } else {
+          showToast('沒有可匯出的內容', 3000);
+        }
+      }
+
+      // 初始化模式3
+      function initializeMode3() {
+        // 設置說明欄位預設為收起狀態
+        setTimeout(() => {
+          const instructions = document.querySelector('.mode3-instructions');
+          const chatMessages = document.querySelector('.mode3-chat-messages');
+          if (instructions && chatMessages) {
+            instructions.classList.add('collapsed');
+            chatMessages.classList.add('expanded');
+          }
+        }, 100);
+        
+        // 設置輸入框Enter鍵發送
+        const input = document.getElementById('mode3-message-input');
+        if (input) {
+          input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMode3Message();
+            }
+          });
+        }
+      }
+
+      // 在頁面載入時初始化模式3
+      document.addEventListener('DOMContentLoaded', function() {
+        // 現有的初始化代碼...
+        
+        // 初始化模式3
+        initializeMode3();
+      });
     </script>
   </body>
   </html>
