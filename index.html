@@ -2573,11 +2573,16 @@
             }
           }
           
-          // 顯示操作按鈕
+          // 立即顯示操作按鈕
           document.getElementById('scriptActions').style.display = 'flex';
           
           // 自動切換到腳本標籤
           switchTab('script');
+          
+          // 詢問用戶是否儲存結果
+          setTimeout(() => {
+            addMessage(`腳本生成完成！是否要將此腳本儲存到您的資料庫中？`, false);
+          }, 1000);
           
         } catch (error) {
           updateResultBlock('scriptContent', '生成失敗，請稍後再試', false);
@@ -2653,11 +2658,16 @@
             }
           }
           
-          // 顯示操作按鈕
+          // 立即顯示操作按鈕
           document.getElementById('positioningActions').style.display = 'flex';
           
           // 自動切換到帳號定位標籤
           switchTab('positioning');
+          
+          // 詢問用戶是否儲存結果
+          setTimeout(() => {
+            addMessage(`帳號定位分析完成！是否要將此分析結果儲存到您的資料庫中？`, false);
+          }, 1000);
           
         } catch (error) {
           updateResultBlock('positioningContent', '生成失敗，請稍後再試', false);
@@ -2785,11 +2795,16 @@
             }
           }
           
-          // 顯示操作按鈕
+          // 立即顯示操作按鈕
           document.getElementById('topicActions').style.display = 'flex';
           
           // 自動切換到選題標籤
           switchTab('topics');
+          
+          // 詢問用戶是否儲存結果
+          setTimeout(() => {
+            addMessage(`選題推薦完成！是否要將此選題建議儲存到您的資料庫中？`, false);
+          }, 1000);
           
         } catch (error) {
           updateResultBlock('topicContent', '生成失敗，請稍後再試', false);
@@ -2864,7 +2879,7 @@
           return;
         }
         
-        const content = document.getElementById('scriptContent').innerHTML;
+        const content = document.getElementById('scriptContent').textContent;
         if (!content || content.includes('請先完成')) {
           showToast('沒有可儲存的內容', 3000);
           return;
@@ -2967,8 +2982,7 @@
       
       // 提取腳本數據
       function extractScriptData(content) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(content, 'text/html');
+        console.log('開始解析腳本內容:', content);
         
         const scriptData = {
           title: '',
@@ -2976,41 +2990,92 @@
           sections: []
         };
         
-        // 提取主題標題
-        const titleElement = doc.querySelector('h4');
-        if (titleElement) {
-          scriptData.title = titleElement.textContent.trim();
+        // 清理內容，移除HTML標籤
+        const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+        console.log('清理後的內容:', cleanContent);
+        
+        // 提取主題標題 - 尋找第一行或包含"主題"的行
+        const lines = cleanContent.split('\n').map(line => line.trim()).filter(line => line);
+        
+        // 尋找主題標題
+        for (let line of lines) {
+          if (line.includes('主題') || line.includes('標題') || line.match(/^[1-9]\.?\s*[^0-9]/)) {
+            scriptData.title = line.replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim();
+            break;
+          }
         }
         
-        // 提取概覽
-        const overviewElement = doc.querySelector('p');
-        if (overviewElement) {
-          scriptData.overview = overviewElement.textContent.trim();
+        // 如果沒找到主題，使用第一行
+        if (!scriptData.title && lines.length > 0) {
+          scriptData.title = lines[0].replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim();
         }
         
-        // 提取腳本內容的各個段落
-        const sections = doc.querySelectorAll('h5, .script-section, strong');
-        sections.forEach(section => {
-          const sectionText = section.textContent.trim();
-          if (sectionText && (sectionText.includes('Value') || sectionText.includes('Hook') || sectionText.includes('CTA') || sectionText.includes('秒'))) {
-            const sectionData = {
-              type: sectionText,
-              content: []
-            };
-            
-            // 提取段落內容
-            let nextElement = section.nextElementSibling;
-            while (nextElement && !nextElement.matches('h5, .script-section, strong')) {
-              if (nextElement.textContent.trim()) {
-                sectionData.content.push(nextElement.textContent.trim());
-              }
-              nextElement = nextElement.nextElementSibling;
+        // 解析腳本段落 - 尋找Hook、Value、CTA等關鍵詞
+        const sectionKeywords = ['Hook', 'Value', 'CTA', 'Pain Point', '痛點', '價值', '行動呼籲'];
+        let currentSection = null;
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // 檢查是否為段落標題
+          const isSectionHeader = sectionKeywords.some(keyword => 
+            line.includes(keyword) || 
+            line.match(new RegExp(`^[1-9]\\d*\\.?\\s*${keyword}`, 'i')) ||
+            line.match(new RegExp(`^${keyword}\\s*[：:]`, 'i'))
+          );
+          
+          if (isSectionHeader) {
+            // 保存上一個段落
+            if (currentSection) {
+              scriptData.sections.push(currentSection);
             }
             
-            scriptData.sections.push(sectionData);
+            // 開始新段落
+            currentSection = {
+              type: line.replace(/^[1-9]\.?\s*/, '').replace(/[：:]\s*/, '').trim(),
+              content: []
+            };
+          } else if (currentSection && line.length > 0) {
+            // 添加到當前段落
+            currentSection.content.push(line);
           }
-        });
+        }
         
+        // 保存最後一個段落
+        if (currentSection) {
+          scriptData.sections.push(currentSection);
+        }
+        
+        // 如果沒有找到段落，嘗試按時間分割
+        if (scriptData.sections.length === 0) {
+          const timePatterns = [
+            /0-3s?/i, /3-7s?/i, /7-15s?/i, /15-25s?/i, /25-30s?/i
+          ];
+          
+          let currentTimeSection = null;
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const hasTimePattern = timePatterns.some(pattern => pattern.test(line));
+            
+            if (hasTimePattern) {
+              if (currentTimeSection) {
+                scriptData.sections.push(currentTimeSection);
+              }
+              currentTimeSection = {
+                type: line.trim(),
+                content: []
+              };
+            } else if (currentTimeSection && line.length > 0) {
+              currentTimeSection.content.push(line);
+            }
+          }
+          
+          if (currentTimeSection) {
+            scriptData.sections.push(currentTimeSection);
+          }
+        }
+        
+        console.log('解析結果:', scriptData);
         return scriptData;
       }
       
@@ -3197,7 +3262,10 @@
       
       // 生成腳本表格
       function generateScriptTable(scriptData) {
-        if (!scriptData || !scriptData.sections) {
+        console.log('生成腳本表格，數據:', scriptData);
+        
+        if (!scriptData || !scriptData.sections || scriptData.sections.length === 0) {
+          console.log('沒有腳本數據，返回無數據行');
           return '<tr><td colspan="6">無數據</td></tr>';
         }
         
@@ -3205,8 +3273,32 @@
         let timeIndex = 0;
         const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
         
-        scriptData.sections.forEach(section => {
-          section.content.forEach((content, contentIndex) => {
+        scriptData.sections.forEach((section, sectionIndex) => {
+          console.log(`處理段落 ${sectionIndex}:`, section);
+          
+          // 如果段落有內容
+          if (section.content && section.content.length > 0) {
+            section.content.forEach((content, contentIndex) => {
+              const timeRange = timeRanges[timeIndex] || '-';
+              const sectionType = section.type || '內容段落';
+              
+              // 清理內容，移除多餘的空白
+              const cleanContent = content.trim();
+              
+              tableRows += `
+                <tr>
+                  <td>${timeRange}</td>
+                  <td>${sectionType}</td>
+                  <td>-</td>
+                  <td>${cleanContent}</td>
+                  <td>-</td>
+                  <td>-</td>
+                </tr>
+              `;
+              timeIndex++;
+            });
+          } else {
+            // 如果段落沒有內容，但段落類型存在
             const timeRange = timeRanges[timeIndex] || '-';
             const sectionType = section.type || '內容段落';
             
@@ -3215,15 +3307,16 @@
                 <td>${timeRange}</td>
                 <td>${sectionType}</td>
                 <td>-</td>
-                <td>${content}</td>
+                <td>-</td>
                 <td>-</td>
                 <td>-</td>
               </tr>
             `;
             timeIndex++;
-          });
+          }
         });
         
+        console.log('生成的表格行:', tableRows);
         return tableRows || '<tr><td colspan="6">無數據</td></tr>';
       }
       
