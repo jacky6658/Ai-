@@ -1641,6 +1641,198 @@
         padding: 20px;
       }
       
+      /* 底部導航欄默認隱藏（桌面版） */
+      .bottom-navbar {
+        display: none;
+      }
+      
+      /* 帳號定位記錄樣式 */
+      .positioning-record-item {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: all 0.2s ease;
+      }
+      
+      .positioning-record-item:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+      }
+      
+      .record-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      
+      .record-number {
+        font-weight: 600;
+        color: #3b82f6;
+        font-size: 14px;
+      }
+      
+      .record-date {
+        color: #6b7280;
+        font-size: 12px;
+      }
+      
+      .record-preview {
+        color: #374151;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 3px solid #3b82f6;
+      }
+      
+      .record-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      
+      .view-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      
+      .view-btn:hover {
+        background: #2563eb;
+      }
+      
+      .delete-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      
+      .delete-btn:hover {
+        background: #dc2626;
+      }
+      
+      /* 彈出視窗樣式 */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+      
+      .modal-content {
+        background: white;
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8f9fa;
+      }
+      
+      .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #1f2937;
+      }
+      
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+      
+      .modal-close:hover {
+        background: #e5e7eb;
+        color: #374151;
+      }
+      
+      .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      
+      .record-detail {
+        line-height: 1.6;
+      }
+      
+      .detail-meta {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .detail-label {
+        font-weight: 600;
+        color: #374151;
+        margin-right: 8px;
+      }
+      
+      .detail-value {
+        color: #6b7280;
+      }
+      
+      .detail-content {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #3b82f6;
+      }
+      
+      .content-text {
+        color: #1f2937;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      
+      .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8f9fa;
+        text-align: right;
+      }
+      
       /* 抽屜內容區域樣式 */
       .drawer-content {
         padding: 20px;
@@ -3368,16 +3560,42 @@
           width: 100%;
         }
         
+        /* AI顧問模式的輸入區域手機版優化 */
+        .input-row {
+          padding: 16px;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .input-row textarea {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 16px;
+          border-radius: 25px;
+          resize: none;
+        }
+        
+        .input-row .send-btn {
+          padding: 12px 24px;
+          font-size: 16px;
+          border-radius: 25px;
+          width: 100%;
+        }
+        
         .quick-buttons {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+          display: flex !important;
+          flex-direction: column;
           gap: 8px;
+          padding: 16px;
+          background: #f8fafc;
+          border-top: 1px solid #e5e7eb;
         }
         
         .quick-btn {
-          padding: 10px 16px;
+          padding: 12px 16px;
           font-size: 14px;
           border-radius: 20px;
+          width: 100%;
         }
         
         /* 創作者資料庫手機版 */
@@ -3502,7 +3720,7 @@
         
         /* 底部導航欄（手機版專用） */
         .bottom-navbar {
-          display: flex;
+          display: flex !important;
           position: fixed;
           bottom: 0;
           left: 0;
@@ -5411,16 +5629,160 @@
       }
       
       // 載入個人資料庫的帳號定位記錄
-      function loadPositioningRecordsForUserDB() {
+      async function loadPositioningRecordsForUserDB() {
         const content = document.querySelector('#db-accountPositioning .section-content');
-        if (currentUser && currentUser.user_id) {
-          content.innerHTML = '<p>正在載入帳號定位記錄...</p>';
-          // 這裡可以調用API載入用戶的帳號定位記錄
-          setTimeout(() => {
-            content.innerHTML = '<p>帳號定位記錄功能開發中...</p>';
-          }, 1000);
-        } else {
-          content.innerHTML = '<p>請先登入以查看帳號定位記錄</p>';
+        
+        if (!accessToken || !currentUser || !currentUser.user_id) {
+          content.innerHTML = '<div class="loading-text">請先登入以查看帳號定位記錄</div>';
+          return;
+        }
+        
+        content.innerHTML = '<div class="loading-text">正在載入帳號定位記錄...</div>';
+        
+        try {
+          const response = await fetch(`https://aivideobackend.zeabur.app/api/user/positioning/${currentUser.user_id}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            displayPositioningRecordsForUserDB(data.records || []);
+          } else if (response.status === 401) {
+            content.innerHTML = '<div class="loading-text">請先登入</div>';
+          } else if (response.status === 404) {
+            content.innerHTML = '<div class="loading-text">帳號定位功能即將上線，請稍後再試</div>';
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '載入失敗');
+          }
+        } catch (error) {
+          console.error('Load positioning records error:', error);
+          content.innerHTML = '<div class="loading-text">載入失敗，請稍後再試</div>';
+        }
+      }
+      
+      // 顯示帳號定位記錄（創作者資料庫版本）
+      function displayPositioningRecordsForUserDB(records) {
+        const container = document.querySelector('#db-accountPositioning .section-content');
+        
+        if (records.length === 0) {
+          container.innerHTML = '<div class="loading-text">尚無帳號定位記錄</div>';
+          return;
+        }
+        
+        container.innerHTML = records.map(record => {
+          const date = new Date(record.created_at).toLocaleString('zh-TW', {
+            timeZone: 'Asia/Taipei',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          const preview = record.content.substring(0, 100) + (record.content.length > 100 ? '...' : '');
+          
+          return `
+            <div class="positioning-record-item" data-record-id="${record.id}">
+              <div class="record-header">
+                <span class="record-number">編號 ${record.record_number}</span>
+                <span class="record-date">${date}</span>
+              </div>
+              <div class="record-preview">${preview}</div>
+              <div class="record-actions">
+                <button class="action-btn view-btn" onclick="viewPositioningDetailForUserDB(${record.id}, '${record.record_number}')">查看完整結果</button>
+                <button class="action-btn delete-btn" onclick="deletePositioningRecordForUserDB(${record.id})">刪除</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // 查看帳號定位詳細內容（創作者資料庫版本）
+      async function viewPositioningDetailForUserDB(recordId, recordNumber) {
+        if (!currentUser?.user_id) return;
+        
+        try {
+          const response = await fetch(`https://aivideobackend.zeabur.app/api/user/positioning/${currentUser.user_id}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const record = data.records.find(r => r.id === recordId);
+            
+            if (record) {
+              // 創建彈出視窗顯示完整內容
+              const modal = document.createElement('div');
+              modal.className = 'modal-overlay';
+              modal.innerHTML = `
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3>帳號定位詳細內容 - 編號 ${recordNumber}</h3>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="record-detail">
+                      <div class="detail-meta">
+                        <span class="detail-label">建立時間：</span>
+                        <span class="detail-value">${new Date(record.created_at).toLocaleString('zh-TW', {
+                          timeZone: 'Asia/Taipei',
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
+                      </div>
+                      <div class="detail-content">
+                        <div class="content-text">${record.content.replace(/\n/g, '<br>')}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="action-btn" onclick="this.closest('.modal-overlay').remove()">關閉</button>
+                  </div>
+                </div>
+              `;
+              
+              document.body.appendChild(modal);
+            } else {
+              showToast('找不到該記錄', 3000);
+            }
+          } else {
+            throw new Error('載入失敗');
+          }
+        } catch (error) {
+          console.error('View positioning detail error:', error);
+          showToast('載入失敗，請稍後再試', 3000);
+        }
+      }
+      
+      // 刪除帳號定位記錄（創作者資料庫版本）
+      async function deletePositioningRecordForUserDB(recordId) {
+        if (!confirm('確定要刪除這筆帳號定位記錄嗎？')) return;
+        
+        try {
+          const response = await fetch(`https://aivideobackend.zeabur.app/api/user/positioning/${currentUser.user_id}/${recordId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          if (response.ok) {
+            showToast('記錄已刪除', 2000);
+            // 重新載入列表
+            await loadPositioningRecordsForUserDB();
+          } else {
+            throw new Error('刪除失敗');
+          }
+        } catch (error) {
+          console.error('Delete positioning record error:', error);
+          showToast('刪除失敗，請稍後再試', 3000);
         }
       }
       
@@ -7056,9 +7418,6 @@
         try {
           console.log('DEBUG: Login function called');
           
-          // 顯示彈跳視窗覆蓋層
-          showPopupOverlay('正在開啟 Google 登入視窗...');
-          
           // 獲取 Google 認證 URL
           console.log('DEBUG: Fetching auth URL from backend...');
           const response = await fetch('https://aivideobackend.zeabur.app/api/auth/google');
@@ -7066,27 +7425,41 @@
           
           console.log('DEBUG: Auth URL received:', data.auth_url);
           
-          // 使用彈跳視窗進行 Google 認證
-          console.log('DEBUG: Opening popup window with URL:', data.auth_url);
-          const popup = window.open(
-            data.auth_url,
-            'googleAuth',
-            'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
-          );
+          // 檢測是否為手機版
+          const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
           
-          console.log('DEBUG: Popup window object:', popup);
+          if (isMobile) {
+            // 手機版：直接跳轉到Google登入頁面
+            console.log('DEBUG: Mobile detected, redirecting to Google auth page');
+            window.location.href = data.auth_url;
+          } else {
+            // 桌面版：使用彈跳視窗
+            console.log('DEBUG: Desktop detected, opening popup window');
+            
+            // 顯示彈跳視窗覆蓋層
+            showPopupOverlay('正在開啟 Google 登入視窗...');
+            
+            // 使用彈跳視窗進行 Google 認證
+            console.log('DEBUG: Opening popup window with URL:', data.auth_url);
+            const popup = window.open(
+              data.auth_url,
+              'googleAuth',
+              'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+            );
+            
+            console.log('DEBUG: Popup window object:', popup);
+            
+            if (!popup) {
+              console.error('DEBUG: Popup window blocked or failed to open');
+              hidePopupOverlay();
+              showPopupError('請允許彈跳視窗以完成登入', true);
+              return;
+            }
           
-          if (!popup) {
-            console.error('DEBUG: Popup window blocked or failed to open');
-            hidePopupOverlay();
-            showPopupError('請允許彈跳視窗以完成登入', true);
-            return;
-          }
-          
-          console.log('DEBUG: Popup window opened successfully');
-          
-          // 更新覆蓋層訊息
-          updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
+            console.log('DEBUG: Popup window opened successfully');
+            
+            // 更新覆蓋層訊息
+            updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
           
           // 監聽彈跳視窗關閉
           const checkClosed = setInterval(() => {
