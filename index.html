@@ -2361,6 +2361,7 @@
         font-size: 15px;
       }
       
+      
       /* 擴大用戶抽屜視窗 */
       .user-drawer {
         width: 85%;
@@ -2387,14 +2388,14 @@
           <div class="navbar-right">
             <div class="user-info" id="userInfo" style="display: none;">
               <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像" style="width: 32px; height: 32px; border-radius: 50%;">
-              <span id="userName" class="user-name"></span>
-            </div>
-            <div class="auth-buttons">
+            <span id="userName" class="user-name"></span>
+          </div>
+          <div class="auth-buttons">
               <button id="loginBtn" class="login-btn" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">🔐 Google 登入</button>
-              <button id="logoutBtn" class="logout-btn" style="display: none;">登出</button>
-            </div>
+            <button id="logoutBtn" class="logout-btn" style="display: none;">登出</button>
           </div>
         </div>
+      </div>
 
         <!-- 頁面內容區域 -->
         <div class="page-content">
@@ -2672,7 +2673,6 @@
         </div>
       </div>
 
-
       <!-- 用戶抽屜 -->
       <div id="userDrawerOverlay" class="user-drawer-overlay" onclick="closeUserDrawer()"></div>
       <div id="userDrawer" class="user-drawer">
@@ -2852,19 +2852,6 @@
         }
       }
       
-      // 側邊欄控制函數
-      function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        
-        if (sidebar.classList.contains('open')) {
-          sidebar.classList.remove('open');
-          mainContent.classList.remove('sidebar-open');
-        } else {
-          sidebar.classList.add('open');
-          mainContent.classList.add('sidebar-open');
-        }
-      }
       
       // AI說明區塊控制函數
       function toggleInstructions() {
@@ -4606,29 +4593,29 @@
           
           // 如果段落有內容
           if (section.content && section.content.length > 0) {
-            section.content.forEach((content, contentIndex) => {
-              const timeRange = timeRanges[timeIndex] || '-';
-              const sectionType = section.type || '內容段落';
-              
+          section.content.forEach((content, contentIndex) => {
+            const timeRange = timeRanges[timeIndex] || '-';
+            const sectionType = section.type || '內容段落';
+            
               // 清理內容，移除多餘的空白
               const cleanContent = content.trim();
               
               // 限制顯示長度，超過30個字符就截斷並加上省略號
               const displayContent = cleanContent.length > 30 ? 
                 cleanContent.substring(0, 30) + '...' : cleanContent;
-              
-              tableRows += `
-                <tr>
-                  <td>${timeRange}</td>
-                  <td>${sectionType}</td>
-                  <td>-</td>
+            
+            tableRows += `
+              <tr>
+                <td>${timeRange}</td>
+                <td>${sectionType}</td>
+                <td>-</td>
                   <td title="${cleanContent}">${displayContent}</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
-              `;
-              timeIndex++;
-            });
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            `;
+            timeIndex++;
+          });
           } else {
             // 如果段落沒有內容，但段落類型存在
             const timeRange = timeRanges[timeIndex] || '-';
