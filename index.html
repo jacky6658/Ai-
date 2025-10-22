@@ -7460,19 +7460,20 @@
             
             // 更新覆蓋層訊息
             updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
-          
-          // 監聽彈跳視窗關閉
-          const checkClosed = setInterval(() => {
-            if (popup.closed) {
-              clearInterval(checkClosed);
-              hidePopupOverlay();
-              // 檢查是否有認證結果
-              checkAuthResult();
-            }
-          }, 1000);
-          
-          // 監聽來自彈跳視窗的訊息
-          window.addEventListener('message', handleAuthMessage);
+            
+            // 監聽彈跳視窗關閉
+            const checkClosed = setInterval(() => {
+              if (popup.closed) {
+                clearInterval(checkClosed);
+                hidePopupOverlay();
+                // 檢查是否有認證結果
+                checkAuthResult();
+              }
+            }, 1000);
+            
+            // 監聽來自彈跳視窗的訊息
+            window.addEventListener('message', handleAuthMessage);
+          }
           
         } catch (error) {
           console.error('Login error:', error);
