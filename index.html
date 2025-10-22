@@ -546,6 +546,70 @@
         line-height: 1.5;
       }
       
+      /* 一鍵生成使用說明樣式 */
+      .one-click-instructions {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      }
+      
+      .one-click-instructions h3 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .instruction-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .step {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      
+      .step-number {
+        width: 24px;
+        height: 24px;
+        background: #3b82f6;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      
+      .step-content {
+        flex: 1;
+      }
+      
+      .step-content strong {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+      
+      .step-content p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.4;
+      }
+      
       /* 頁面隱藏/顯示 */
       .page {
         display: none;
@@ -2319,6 +2383,48 @@
                 <div id="userSettingsContainer">
                   <!-- 原有的用戶需求設定內容將移動到這裡 -->
                 </div>
+                
+                <!-- 一鍵生成使用說明 -->
+                <div class="one-click-instructions" id="oneClickInstructions" style="display: none;">
+                  <h3>🚀 一鍵生成使用說明</h3>
+                  <div class="instruction-steps">
+                    <div class="step">
+                      <div class="step-number">1</div>
+                      <div class="step-content">
+                        <strong>設定需求</strong>
+                        <p>選擇平台、輸入主題、設定秒數和帳號定位，然後點擊「套用設定」</p>
+                      </div>
+                    </div>
+                    <div class="step">
+                      <div class="step-number">2</div>
+                      <div class="step-content">
+                        <strong>生成帳號定位</strong>
+                        <p>點擊右側「一鍵生成帳號定位」按鈕，AI將分析您的帳號定位</p>
+                      </div>
+                    </div>
+                    <div class="step">
+                      <div class="step-number">3</div>
+                      <div class="step-content">
+                        <strong>生成選題</strong>
+                        <p>點擊「一鍵生成選題」按鈕，AI將為您推薦適合的腳本主題</p>
+                      </div>
+                    </div>
+                    <div class="step">
+                      <div class="step-number">4</div>
+                      <div class="step-content">
+                        <strong>生成腳本</strong>
+                        <p>點擊「一鍵生成腳本」按鈕，AI將生成完整的短影音腳本</p>
+                      </div>
+                    </div>
+                    <div class="step">
+                      <div class="step-number">5</div>
+                      <div class="step-content">
+                        <strong>儲存或重新生成</strong>
+                        <p>滿意結果可點擊「儲存」，不滿意可點擊「再換一個」重新生成</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- 右半部：一鍵生成結果區塊 -->
@@ -2339,9 +2445,36 @@
           <div id="mode2" class="page">
             <div class="mode2-page">
               <div class="chat-container">
-                <!-- 這裡將放置原有的聊天功能 -->
+                <!-- AI 說明區塊 -->
+                <div class="ai-instructions">
+                  <h3>如何使用 AI 短影音顧問 🚀</h3>
+                  <div class="instruction-list">
+                    <p><strong>方法一｜先設定再開聊</strong><br>在「用戶需求設定」選擇平台、輸入主題與帳號定位 → 按「套用」✅<br>接著直接與 AI短影音顧問 對話，協作確認你的帳號定位與選題，並為你生成腳本 ✍️✨</p>
+                    <p><strong>方法二｜直接規劃不設置</strong><br>跳過「用戶需求設定」➡️ 直接開啟與 AI短影音顧問 對話，由顧問協助你規劃短影音帳號方向、梳理內容策略與製作腳本 💡🧭</p>
+                    <p><strong>方法三｜一鍵完成全流程</strong><br>在「用戶需求設定」選擇平台、輸入主題與帳號定位 → 按「套用」✅<br>右側依序完成：帳號定位 → 腳本選題 → 生成腳本，一鍵生成整套內容 ⚡️🧩</p>
+                    <p><strong>小提醒：</strong>任何時候都能回到對話微調需求，讓產出更貼近你的品牌與風格 🎯💬</p>
+                  </div>
+                </div>
+                
+                <!-- 聊天功能區域 -->
                 <div id="chatContainer">
-                  <!-- 原有的聊天內容將移動到這裡 -->
+                  <!-- 聊天訊息區域 -->
+                  <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">嗨！我是你的 AI短影音顧問 🤖<br>想知道你今天想聊什麼～<br>是想討論帳號定位、腳本選題，還是直接生成內容呢？🚀</div>
+                  </div>
+
+                  <!-- 快速按鈕區域 -->
+                  <div class="quick-buttons">
+                    <button class="quick-btn" data-text="我要如何開始？">我要如何開始？</button>
+                    <button class="quick-btn" data-text="我要怎麼帳號定位">我要怎麼帳號定位</button>
+                    <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
+                  </div>
+
+                  <!-- 輸入區域 -->
+                  <div class="input-row">
+                    <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
+                    <button id="sendBtn" class="send-btn">送出</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2421,35 +2554,6 @@
           </div>
             </div>
 
-            <!-- AI 說明區塊 -->
-            <div class="ai-instructions">
-              <h3>如何使用 AI 短影音顧問 🚀</h3>
-              <div class="instruction-list">
-                <p><strong>方法一｜先設定再開聊</strong><br>在「用戶需求設定」選擇平台、輸入主題與帳號定位 → 按「套用」✅<br>接著直接與 AI短影音顧問 對話，協作確認你的帳號定位與選題，並為你生成腳本 ✍️✨</p>
-                <p><strong>方法二｜直接規劃不設置</strong><br>跳過「用戶需求設定」➡️ 直接開啟與 AI短影音顧問 對話，由顧問協助你規劃短影音帳號方向、梳理內容策略與製作腳本 💡🧭</p>
-                <p><strong>方法三｜一鍵完成全流程</strong><br>在「用戶需求設定」選擇平台、輸入主題與帳號定位 → 按「套用」✅<br>右側依序完成：帳號定位 → 腳本選題 → 生成腳本，一鍵生成整套內容 ⚡️🧩</p>
-                <p><strong>小提醒：</strong>任何時候都能回到對話微調需求，讓產出更貼近你的品牌與風格 🎯💬</p>
-        </div>
-      </div>
-
-            <!-- 聊天區域 -->
-            <div class="chat-section">
-              <div class="chat-messages" id="chatMessages">
-                <div class="message ai">嗨！我是你的 AI短影音顧問 🤖<br>想知道你今天想聊什麼～<br>是想討論帳號定位、腳本選題，還是直接生成內容呢？🚀</div>
-              </div>
-
-      <!-- 快速按鈕區域 -->
-      <div class="quick-buttons">
-        <button class="quick-btn" data-text="我要如何開始？">我要如何開始？</button>
-        <button class="quick-btn" data-text="我要怎麼帳號定位">我要怎麼帳號定位</button>
-        <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
-      </div>
-
-              <div class="input-row">
-                <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
-                <button id="sendBtn" class="send-btn">送出</button>
-        </div>
-      </div>
           </div>
         </div>
 
@@ -2901,6 +3005,9 @@
           const container = document.getElementById('userSettingsContainer');
           if (container) {
             container.appendChild(settingsBlock);
+            
+            // 設置使用說明顯示控制
+            setupInstructionsToggle();
           }
         }
         
@@ -2915,16 +3022,57 @@
           }
         }
         
-        // 移動聊天內容
-        const chatMessages = document.getElementById('chatMessages');
-        const inputRow = document.querySelector('.input-row');
-        if (chatMessages && inputRow) {
-          const container = document.getElementById('chatContainer');
-          if (container) {
-            container.appendChild(chatMessages);
-            container.appendChild(inputRow);
-          }
+        // 聊天內容已經在正確位置，不需要移動
+        // 只需要確保快速按鈕功能正常
+        setupQuickButtons();
+      }
+      
+      // 設置使用說明顯示控制
+      function setupInstructionsToggle() {
+        const settingsToggle = document.getElementById('settingsToggle');
+        const settingsContent = document.getElementById('settingsContent');
+        const instructions = document.getElementById('oneClickInstructions');
+        
+        if (settingsToggle && settingsContent && instructions) {
+          // 監聽設定區塊的展開/收合
+          const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+              if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const isExpanded = settingsContent.style.display !== 'none';
+                instructions.style.display = isExpanded ? 'block' : 'none';
+              }
+            });
+          });
+          
+          observer.observe(settingsContent, { attributes: true });
+          
+          // 初始狀態檢查
+          const isExpanded = settingsContent.style.display !== 'none';
+          instructions.style.display = isExpanded ? 'block' : 'none';
         }
+      }
+      
+      // 設置快速按鈕功能
+      function setupQuickButtons() {
+        // 快速按鈕功能
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const text = btn.getAttribute('data-text');
+            if (text) {
+              const messageInput = document.getElementById('messageInput');
+              if (messageInput) {
+                messageInput.value = text;
+                messageInput.focus();
+                
+                // 添加視覺反饋
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                  btn.style.transform = 'scale(1)';
+                }, 150);
+              }
+            }
+          });
+        });
       }
 
       // 新的元素引用
