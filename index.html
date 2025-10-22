@@ -7,7 +7,741 @@
     <style>
       :root { color-scheme: light; }
       body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; background:#ffffff; color:#1a1a1a; }
+      
+      /* 頁面容器 */
+      .app-container {
+        display: flex;
+        min-height: 100vh;
+      }
+      
+      /* 主內容區域 */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        transition: margin-right 0.3s ease;
+      }
+      
+      .main-content.sidebar-open {
+        margin-right: 300px;
+      }
+      
+      /* 頂部導航欄 */
+      .top-navbar {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      
+      .navbar-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      
+      .navbar-tabs {
+        display: flex;
+        gap: 8px;
+      }
+      
+      .navbar-tab {
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      
+      .navbar-tab.active {
+        background: #3b82f6;
+        color: white;
+      }
+      
+      .navbar-tab:hover:not(.active) {
+        background: #f3f4f6;
+      }
+      
+      .navbar-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+      
+      .logout-btn {
+        padding: 6px 12px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+      
+      /* 頁面內容區域 */
+      .page-content {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+      }
+      
+      /* 首頁樣式 */
+      .homepage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+      }
+      
+      .homepage-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 16px;
+      }
+      
+      .homepage-subtitle {
+        font-size: 18px;
+        color: #6b7280;
+        margin-bottom: 48px;
+        max-width: 600px;
+        line-height: 1.6;
+      }
+      
+      .mode-cards {
+        display: flex;
+        gap: 24px;
+        max-width: 800px;
+      }
+      
+      .mode-card {
+        flex: 1;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 32px 24px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .mode-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-color: #3b82f6;
+      }
+      
+      .mode-card-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+      
+      .mode-card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 12px;
+      }
+      
+      .mode-card-desc {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+      }
+      
+      /* 模式1：一鍵生成頁面 */
+      .mode1-page {
+        display: flex;
+        gap: 24px;
+        height: calc(100vh - 120px);
+      }
+      
+      .mode1-left {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+      }
+      
+      .mode1-right {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+      }
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      /* 模式2：AI顧問對話頁面 */
+      .mode2-page {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 120px);
+      }
+      
+      .chat-container {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      
+      /* 側邊欄樣式 */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        right: -300px;
+        width: 300px;
+        height: 100vh;
+        background: white;
+        border-left: 1px solid #e5e7eb;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+      }
+      
+      .sidebar.open {
+        right: 0;
+      }
+      
+      .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .sidebar-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      
+      .sidebar-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #6b7280;
+      }
+      
+      .sidebar-menu {
+        padding: 20px 0;
+      }
+      
+      .sidebar-item {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        border: none;
+        background: none;
+        text-align: left;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+      
+      .sidebar-item:hover {
+        background: #f3f4f6;
+        color: #1f2937;
+      }
+      
+      .sidebar-item.active {
+        background: #3b82f6;
+        color: white;
+      }
+      
+      /* 側邊欄切換按鈕 */
+      .sidebar-toggle {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1001;
+        transition: all 0.2s;
+      }
+      
+      .sidebar-toggle:hover {
+        background: #2563eb;
+        transform: translateY(-50%) scale(1.1);
+      }
+      
+      /* 側邊欄頁面樣式 */
+      .sidebar-page-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .sidebar-page-container {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90%;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .sidebar-page-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+      }
+      
+      .sidebar-page-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      
+      .sidebar-page-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      
+      .sidebar-page-close:hover {
+        background: #e5e7eb;
+        color: #374151;
+      }
+      
+      .sidebar-page-content {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+      }
+      
+      /* 側邊欄頁面內容樣式 */
+      .profile-content {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      
+      .profile-section h3 {
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      
+      .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .detail-item label {
+        font-weight: 500;
+        color: #6b7280;
+        min-width: 80px;
+      }
+      
+      .detail-item span {
+        color: #1f2937;
+      }
+      
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      
+      .stat-item {
+        text-align: center;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+      
+      .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-bottom: 4px;
+      }
+      
+      .stat-label {
+        font-size: 12px;
+        color: #6b7280;
+      }
+      
+      .scripts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .script-item {
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+      
+      .script-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      
+      .script-header h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      
+      .script-date {
+        font-size: 12px;
+        color: #6b7280;
+      }
+      
+      .script-preview {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      
+      .script-actions {
+        display: flex;
+        gap: 8px;
+      }
+      
+      .btn-primary {
+        padding: 6px 12px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      
+      .btn-danger {
+        padding: 6px 12px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      
+      .help-content {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      
+      .help-section {
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+      
+      .help-section h3,
+      .help-section h4 {
+        margin: 0 0 12px 0;
+        color: #1f2937;
+      }
+      
+      .help-section h3 {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      
+      .help-section h4 {
+        font-size: 16px;
+        font-weight: 500;
+      }
+      
+      .help-section p {
+        margin: 8px 0;
+        color: #6b7280;
+        line-height: 1.5;
+      }
+      
+      /* 頁面隱藏/顯示 */
+      .page {
+        display: none;
+      }
+      
+      .page.active {
+        display: block;
+      }
+      
+      /* 響應式設計 */
+      @media (max-width: 768px) {
+        .mode1-page {
+          flex-direction: column;
+          height: auto;
+        }
+        
+        .mode1-left,
+        .mode1-right {
+          flex: none;
+        }
+        
+        .mode-cards {
+          flex-direction: column;
+        }
+        
+        .main-content.sidebar-open {
+          margin-right: 0;
+        }
+        
+        .sidebar {
+          width: 100%;
+          right: -100%;
+        }
+      }
+      
       .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+      
+      /* 確保原有功能在新佈局中正常顯示 */
+      .userSettingsContainer,
+      .oneClickGenerationContainer,
+      .chatContainer {
+        width: 100%;
+        height: 100%;
+      }
+      
+      /* 用戶需求設定樣式調整 */
+      .settings-block {
+        margin-bottom: 20px;
+      }
+      
+      .settings-content {
+        margin-top: 16px;
+      }
+      
+      /* 一鍵生成結果區塊樣式調整 */
+      .result-tabs {
+        margin-bottom: 0;
+      }
+      
+      .results-container {
+        flex: 1;
+        min-height: 400px;
+      }
+      
+      /* 聊天容器樣式調整 */
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      
+      #chatMessages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        min-height: 500px;
+        background: #f8fafc;
+        border-radius: 12px 12px 0 0;
+      }
+      
+      .input-row {
+        padding: 24px;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 0 0 12px 12px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+      }
+      
+      /* 優化聊天訊息樣式 */
+      .msg {
+        margin-bottom: 16px;
+        max-width: 80%;
+      }
+      
+      .msg.user {
+        margin-left: auto;
+      }
+      
+      .msg.assistant {
+        margin-right: auto;
+      }
+      
+      .msg-bubble {
+        padding: 16px 20px;
+        border-radius: 18px;
+        line-height: 1.5;
+        font-size: 15px;
+      }
+      
+      .msg.user .msg-bubble {
+        background: #3b82f6;
+        color: white;
+        border-bottom-right-radius: 4px;
+      }
+      
+      .msg.assistant .msg-bubble {
+        background: white;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        border-bottom-left-radius: 4px;
+      }
+      
+      .msg-label {
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: #6b7280;
+      }
+      
+      /* 優化輸入框樣式 */
+      #messageInput {
+        flex: 1;
+        min-height: 44px;
+        max-height: 120px;
+        padding: 12px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        font-size: 15px;
+        resize: none;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      
+      #messageInput:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+      
+      #sendBtn {
+        padding: 12px 20px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 22px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        min-width: 80px;
+      }
+      
+      #sendBtn:hover {
+        background: #2563eb;
+      }
+      
+      #sendBtn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      
+      /* 快速提問按鈕樣式 */
+      .quick-questions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      
+      .quick-question-btn {
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #6b7280;
+        transition: all 0.2s;
+      }
+      
+      .quick-question-btn:hover {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
       
       /* 主要布局：左右分欄 5:5 */
       .main-layout { 
@@ -1520,26 +2254,135 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <!-- 頂部標題欄 -->
-      <div class="header">
-      <h1>AIJob短影音智能體</h1>
-        <div class="header-right">
-          <div class="user-info" id="userInfo" style="display: none;" onclick="toggleUserDrawer()">
-            <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像">
-            <span id="userName" class="user-name"></span>
+    <div class="app-container">
+      <!-- 主內容區域 -->
+      <div class="main-content" id="mainContent">
+        <!-- 頂部導航欄 -->
+        <div class="top-navbar">
+          <div class="navbar-left">
+            <div class="navbar-title">AIJob短影音智能體</div>
+            <div class="navbar-tabs">
+              <button class="navbar-tab" onclick="switchPage('homepage')">首頁</button>
+              <button class="navbar-tab" onclick="switchPage('mode1')">一鍵生成</button>
+              <button class="navbar-tab" onclick="switchPage('mode2')">AI顧問</button>
+            </div>
           </div>
-          <div class="auth-buttons">
-            <button id="loginBtn" class="login-btn">🔐 Google 登入</button>
-            <button id="logoutBtn" class="logout-btn" style="display: none;">登出</button>
+          <div class="navbar-right">
+            <div class="user-info" id="userInfo" style="display: none;">
+              <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像" style="width: 32px; height: 32px; border-radius: 50%;">
+              <span id="userName" class="user-name"></span>
+            </div>
+            <div class="auth-buttons">
+              <button id="loginBtn" class="login-btn" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">🔐 Google 登入</button>
+              <button id="logoutBtn" class="logout-btn" style="display: none;">登出</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 頁面內容區域 -->
+        <div class="page-content">
+          <!-- 首頁 -->
+          <div id="homepage" class="page active">
+            <div class="homepage">
+              <h1 class="homepage-title">歡迎使用 AIJob短影音智能體</h1>
+              <p class="homepage-subtitle">選擇您偏好的使用模式，開始創作精彩的短影音內容</p>
+              <div class="mode-cards">
+                <div class="mode-card" onclick="switchPage('mode1')">
+                  <div class="mode-card-icon">⚡</div>
+                  <h3 class="mode-card-title">一鍵生成模式</h3>
+                  <p class="mode-card-desc">快速設定需求，依序生成帳號定位、選題和腳本，適合效率導向的用戶</p>
+                </div>
+                <div class="mode-card" onclick="switchPage('mode2')">
+                  <div class="mode-card-icon">💬</div>
+                  <h3 class="mode-card-title">AI顧問對話模式</h3>
+                  <p class="mode-card-desc">與AI進行深度對話，靈活討論內容策略，適合需要創意討論的用戶</p>
+                </div>
+                <div class="mode-card" onclick="showToast('IP人設規劃功能開發中...', 3000)">
+                  <div class="mode-card-icon">🎭</div>
+                  <h3 class="mode-card-title">IP人設規劃模式</h3>
+                  <p class="mode-card-desc">透過聊天記錄人生曲線，AI協助擬定個人化IP，即將推出</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模式1：一鍵生成頁面 -->
+          <div id="mode1" class="page">
+            <div class="mode1-page">
+              <!-- 左半部：用戶需求設定 -->
+              <div class="mode1-left">
+                <h2 class="section-title">
+                  <span>⚙️</span>
+                  用戶需求設定
+                </h2>
+                <!-- 這裡將放置原有的用戶需求設定表單 -->
+                <div id="userSettingsContainer">
+                  <!-- 原有的用戶需求設定內容將移動到這裡 -->
+                </div>
+              </div>
+
+              <!-- 右半部：一鍵生成結果區塊 -->
+              <div class="mode1-right">
+                <h2 class="section-title">
+                  <span>🚀</span>
+                  一鍵生成腳本
+                </h2>
+                <!-- 這裡將放置原有的一鍵生成功能 -->
+                <div id="oneClickGenerationContainer">
+                  <!-- 原有的一鍵生成內容將移動到這裡 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模式2：AI顧問對話頁面 -->
+          <div id="mode2" class="page">
+            <div class="mode2-page">
+              <div class="chat-container">
+                <!-- 這裡將放置原有的聊天功能 -->
+                <div id="chatContainer">
+                  <!-- 原有的聊天內容將移動到這裡 -->
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 主要布局：左右分欄 5:5 -->
-      <div class="main-layout">
-        <!-- 左側面板：設定+聊天+輸入 -->
-        <div class="left-panel">
+      <!-- 側邊欄 -->
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h3 class="sidebar-title">功能選單</h3>
+          <button class="sidebar-close" onclick="toggleSidebar()">×</button>
+        </div>
+        <div class="sidebar-menu">
+          <button class="sidebar-item" onclick="showSidebarPage('profile')">👤 個人資料</button>
+          <button class="sidebar-item" onclick="showSidebarPage('scripts')">📝 我的腳本</button>
+          <button class="sidebar-item" onclick="showSidebarPage('positioning')">🎯 帳號定位</button>
+          <button class="sidebar-item" onclick="showSidebarPage('topics')">💡 選題記錄</button>
+          <button class="sidebar-item" onclick="showSidebarPage('settings')">⚙️ 設定</button>
+          <button class="sidebar-item" onclick="showSidebarPage('statistics')">📊 使用統計</button>
+          <button class="sidebar-item" onclick="showSidebarPage('help')">❓ 幫助中心</button>
+          <button class="sidebar-item" onclick="logout()">🚪 登出</button>
+        </div>
+      </div>
+
+      <!-- 側邊欄頁面容器 -->
+      <div class="sidebar-page-overlay" id="sidebarPageOverlay" style="display: none;">
+        <div class="sidebar-page-container">
+          <div class="sidebar-page-header">
+            <h2 id="sidebarPageTitle">頁面標題</h2>
+            <button class="sidebar-page-close" onclick="closeSidebarPage()">×</button>
+          </div>
+          <div class="sidebar-page-content" id="sidebarPageContent">
+            <!-- 頁面內容將動態載入到這裡 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 側邊欄切換按鈕 -->
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
           <div class="left-content">
             <!-- 用戶需求設定區塊 -->
       <div class="settings-block">
@@ -1822,6 +2665,268 @@
 
 
     <script>
+      // 頁面控制函數
+      function switchPage(pageId) {
+        // 隱藏所有頁面
+        document.querySelectorAll('.page').forEach(page => {
+          page.classList.remove('active');
+        });
+        
+        // 顯示選中的頁面
+        document.getElementById(pageId).classList.add('active');
+        
+        // 更新導航標籤狀態
+        document.querySelectorAll('.navbar-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // 根據頁面ID設置對應標籤為active
+        const tabMap = {
+          'homepage': 0,
+          'mode1': 1,
+          'mode2': 2
+        };
+        
+        if (tabMap[pageId] !== undefined) {
+          document.querySelectorAll('.navbar-tab')[tabMap[pageId]].classList.add('active');
+        }
+      }
+      
+      // 側邊欄控制函數
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        
+        if (sidebar.classList.contains('open')) {
+          sidebar.classList.remove('open');
+          mainContent.classList.remove('sidebar-open');
+        } else {
+          sidebar.classList.add('open');
+          mainContent.classList.add('sidebar-open');
+        }
+      }
+      
+      // 側邊欄頁面顯示函數
+      function showSidebarPage(pageType) {
+        const overlay = document.getElementById('sidebarPageOverlay');
+        const title = document.getElementById('sidebarPageTitle');
+        const content = document.getElementById('sidebarPageContent');
+        
+        // 設置頁面標題
+        const pageTitles = {
+          'profile': '個人資料',
+          'scripts': '我的腳本',
+          'positioning': '帳號定位記錄',
+          'topics': '選題記錄',
+          'settings': '系統設定',
+          'statistics': '使用統計',
+          'help': '幫助中心'
+        };
+        
+        title.textContent = pageTitles[pageType] || '功能頁面';
+        
+        // 根據頁面類型載入相應內容
+        switch(pageType) {
+          case 'profile':
+            loadProfilePage(content);
+            break;
+          case 'scripts':
+            loadScriptsPage(content);
+            break;
+          case 'positioning':
+            loadPositioningPage(content);
+            break;
+          case 'topics':
+            loadTopicsPage(content);
+            break;
+          case 'settings':
+            loadSettingsPage(content);
+            break;
+          case 'statistics':
+            loadStatisticsPage(content);
+            break;
+          case 'help':
+            loadHelpPage(content);
+            break;
+          default:
+            content.innerHTML = '<p>功能開發中...</p>';
+        }
+        
+        // 顯示頁面
+        overlay.style.display = 'flex';
+        
+        // 關閉側邊欄
+        toggleSidebar();
+      }
+      
+      // 關閉側邊欄頁面
+      function closeSidebarPage() {
+        document.getElementById('sidebarPageOverlay').style.display = 'none';
+      }
+      
+      // 載入個人資料頁面
+      function loadProfilePage(container) {
+        container.innerHTML = `
+          <div class="profile-content">
+            <div class="profile-section">
+              <h3>用戶資訊</h3>
+              <div class="user-details">
+                <div class="detail-item">
+                  <label>姓名：</label>
+                  <span id="profileName">${currentUser?.name || '未設定'}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Email：</label>
+                  <span id="profileEmail">${currentUser?.email || '未設定'}</span>
+                </div>
+                <div class="detail-item">
+                  <label>註冊時間：</label>
+                  <span id="profileDate">${currentUser?.created_at || '未知'}</span>
+                </div>
+              </div>
+            </div>
+            <div class="profile-section">
+              <h3>使用統計</h3>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-number">${getLocalScripts().length}</div>
+                  <div class="stat-label">已生成腳本</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${getLocalPositioning().length}</div>
+                  <div class="stat-label">帳號定位</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${getLocalTopics().length}</div>
+                  <div class="stat-label">選題記錄</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // 載入我的腳本頁面
+      function loadScriptsPage(container) {
+        const scripts = getLocalScripts();
+        if (scripts.length === 0) {
+          container.innerHTML = '<p>尚未生成任何腳本</p>';
+          return;
+        }
+        
+        let html = '<div class="scripts-list">';
+        scripts.forEach(script => {
+          const date = new Date(script.created_at).toLocaleDateString('zh-TW');
+          html += `
+            <div class="script-item">
+              <div class="script-header">
+                <h4>${script.name || '未命名腳本'}</h4>
+                <span class="script-date">${date}</span>
+              </div>
+              <div class="script-preview">${script.content ? script.content.substring(0, 100) + '...' : '無內容'}</div>
+              <div class="script-actions">
+                <button onclick="viewScript(${script.id})" class="btn-primary">查看</button>
+                <button onclick="deleteScript(${script.id})" class="btn-danger">刪除</button>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      }
+      
+      // 載入帳號定位頁面
+      function loadPositioningPage(container) {
+        container.innerHTML = '<p>帳號定位記錄功能開發中...</p>';
+      }
+      
+      // 載入選題記錄頁面
+      function loadTopicsPage(container) {
+        container.innerHTML = '<p>選題記錄功能開發中...</p>';
+      }
+      
+      // 載入設定頁面
+      function loadSettingsPage(container) {
+        container.innerHTML = '<p>系統設定功能開發中...</p>';
+      }
+      
+      // 載入統計頁面
+      function loadStatisticsPage(container) {
+        container.innerHTML = '<p>使用統計功能開發中...</p>';
+      }
+      
+      // 載入幫助頁面
+      function loadHelpPage(container) {
+        container.innerHTML = `
+          <div class="help-content">
+            <h3>使用指南</h3>
+            <div class="help-section">
+              <h4>一鍵生成模式</h4>
+              <p>1. 在左側設定您的需求（平台、主題、秒數、帳號定位）</p>
+              <p>2. 點擊「套用設定」</p>
+              <p>3. 在右側依序點擊生成按鈕</p>
+              <p>4. 儲存或重新生成</p>
+            </div>
+            <div class="help-section">
+              <h4>AI顧問對話模式</h4>
+              <p>1. 直接與AI進行對話</p>
+              <p>2. 討論內容策略和創意</p>
+              <p>3. AI協助生成腳本</p>
+            </div>
+            <div class="help-section">
+              <h4>常見問題</h4>
+              <p><strong>Q: 如何儲存腳本？</strong></p>
+              <p>A: 生成完成後點擊「儲存」按鈕即可</p>
+              <p><strong>Q: 如何查看已儲存的腳本？</strong></p>
+              <p>A: 點擊右側功能按鈕，選擇「我的腳本」</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      // 初始化頁面
+      document.addEventListener('DOMContentLoaded', function() {
+        // 設置默認頁面為首頁
+        switchPage('homepage');
+        
+        // 移動原有內容到新容器
+        moveExistingContent();
+      });
+      
+      // 移動現有內容到新容器
+      function moveExistingContent() {
+        // 移動用戶需求設定內容
+        const settingsBlock = document.querySelector('.settings-block');
+        if (settingsBlock) {
+          const container = document.getElementById('userSettingsContainer');
+          if (container) {
+            container.appendChild(settingsBlock);
+          }
+        }
+        
+        // 移動一鍵生成內容
+        const resultTabs = document.querySelector('.result-tabs');
+        const resultsContainer = document.querySelector('.results-container');
+        if (resultTabs && resultsContainer) {
+          const container = document.getElementById('oneClickGenerationContainer');
+          if (container) {
+            container.appendChild(resultTabs);
+            container.appendChild(resultsContainer);
+          }
+        }
+        
+        // 移動聊天內容
+        const chatMessages = document.getElementById('chatMessages');
+        const inputRow = document.querySelector('.input-row');
+        if (chatMessages && inputRow) {
+          const container = document.getElementById('chatContainer');
+          if (container) {
+            container.appendChild(chatMessages);
+            container.appendChild(inputRow);
+          }
+        }
+      }
+
       // 新的元素引用
       const chatEl = document.getElementById('chatMessages');
       const messageInput = document.getElementById('messageInput');
@@ -2581,7 +3686,7 @@
           
           // 詢問用戶是否儲存結果
           setTimeout(() => {
-            addMessage(`腳本生成完成！是否要將此腳本儲存到您的資料庫中？`, false);
+            addMessage(`🎉 腳本生成完成！是否要將此腳本儲存到您的資料庫中？`, false);
           }, 1000);
           
         } catch (error) {
@@ -2666,7 +3771,7 @@
           
           // 詢問用戶是否儲存結果
           setTimeout(() => {
-            addMessage(`帳號定位分析完成！是否要將此分析結果儲存到您的資料庫中？`, false);
+            addMessage(`🎯 帳號定位分析完成！是否要將此分析結果儲存到您的資料庫中？`, false);
           }, 1000);
           
         } catch (error) {
@@ -2803,7 +3908,7 @@
           
           // 詢問用戶是否儲存結果
           setTimeout(() => {
-            addMessage(`選題推薦完成！是否要將此選題建議儲存到您的資料庫中？`, false);
+            addMessage(`💡 選題推薦完成！是否要將此選題建議儲存到您的資料庫中？`, false);
           }, 1000);
           
         } catch (error) {
@@ -3285,12 +4390,16 @@
               // 清理內容，移除多餘的空白
               const cleanContent = content.trim();
               
+              // 限制顯示長度，超過30個字符就截斷並加上省略號
+              const displayContent = cleanContent.length > 30 ? 
+                cleanContent.substring(0, 30) + '...' : cleanContent;
+              
               tableRows += `
                 <tr>
                   <td>${timeRange}</td>
                   <td>${sectionType}</td>
                   <td>-</td>
-                  <td>${cleanContent}</td>
+                  <td title="${cleanContent}">${displayContent}</td>
                   <td>-</td>
                   <td>-</td>
                 </tr>
@@ -3383,8 +4492,82 @@
       
       // 查看完整腳本
       function viewFullScript(scriptId) {
-        // 這裡可以實現查看完整腳本的功能
-        showToast('查看完整腳本功能開發中...', 3000);
+        // 找到對應的腳本數據
+        const scripts = getLocalScripts();
+        const script = scripts.find(s => s.id == scriptId);
+        
+        if (!script) {
+          showToast('找不到腳本數據', 3000);
+          return;
+        }
+        
+        // 創建彈出視窗
+        const modal = document.createElement('div');
+        modal.className = 'script-modal-overlay';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          max-width: 90%;
+          max-height: 90%;
+          overflow-y: auto;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        `;
+        
+        // 生成完整腳本內容
+        let fullContent = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e5e7eb; padding-bottom: 16px;">
+            <h2 style="margin: 0; color: #1f2937; font-size: 20px;">${script.name || '未命名腳本'}</h2>
+            <button onclick="this.closest('.script-modal-overlay').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">×</button>
+          </div>
+        `;
+        
+        if (script.script_data && script.script_data.sections) {
+          fullContent += '<div style="margin-bottom: 20px;">';
+          script.script_data.sections.forEach((section, index) => {
+            fullContent += `
+              <div style="margin-bottom: 16px; padding: 16px; background: #f8fafc; border-radius: 8px;">
+                <h3 style="margin: 0 0 12px 0; color: #374151; font-size: 16px; font-weight: 600;">${section.type || '內容段落'}</h3>
+                <div style="color: #4b5563; line-height: 1.6;">
+                  ${section.content ? section.content.map(content => `<p style="margin: 8px 0;">${content}</p>`).join('') : '<p>無內容</p>'}
+                </div>
+              </div>
+            `;
+          });
+          fullContent += '</div>';
+        } else {
+          // 如果沒有結構化數據，顯示原始內容
+          fullContent += `
+            <div style="background: #f8fafc; padding: 16px; border-radius: 8px; white-space: pre-wrap; line-height: 1.6; color: #4b5563;">
+              ${script.content || '無內容'}
+            </div>
+          `;
+        }
+        
+        modalContent.innerHTML = fullContent;
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        // 點擊背景關閉
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
       }
       
       // 下載PDF
