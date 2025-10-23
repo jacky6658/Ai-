@@ -753,7 +753,6 @@
         padding: 12px 16px;
         border-radius: 12px;
         border: 1px solid #e5e7eb;
-        line-height: 1.5;
       }
 
       .user .message-content {
@@ -770,10 +769,7 @@
 
       .message-content p {
         margin: 0 0 8px 0;
-      }
-
-      .message-content p:last-child {
-        margin-bottom: 0;
+        line-height: 1.5;
       }
 
       .message-content ul {
@@ -783,6 +779,44 @@
 
       .message-content li {
         margin: 4px 0;
+      }
+
+      .message-content:last-child p:last-child {
+        margin-bottom: 0;
+      }
+      
+      /* AI思考中載入動畫 */
+      .ai-loading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .ai-loading-dots {
+        display: flex;
+        gap: 4px;
+      }
+
+      .ai-loading-dot {
+        width: 6px;
+        height: 6px;
+        background: #3b82f6;
+        border-radius: 50%;
+        animation: ai-bounce 1.4s infinite ease-in-out both;
+      }
+
+      .ai-loading-dot:nth-child(1) { animation-delay: -0.32s; }
+      .ai-loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+      @keyframes ai-bounce {
+        0%, 80%, 100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
       }
       
       .input-row {
@@ -2492,12 +2526,24 @@
       /* 手機版快速按鈕優化 */
       @media (max-width: 768px) {
         .quick-buttons { 
+          display: flex !important;
           gap: 6px; 
           margin-bottom: 10px;
+          visibility: visible !important;
+          opacity: 1 !important;
+          height: auto !important;
+          min-height: 60px !important;
         }
         .quick-btn { 
           padding: 6px 12px; 
           font-size: 13px;
+        }
+        .input-row {
+          display: flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          height: auto !important;
+          min-height: 80px !important;
         }
       }
       
@@ -3534,13 +3580,26 @@
         }
         
         .chat-container {
-          height: calc(100vh - 200px);
-          min-height: 400px;
+          height: calc(100vh - 120px);
+          min-height: 500px;
+          display: flex !important;
+          flex-direction: column !important;
+          overflow: visible !important;
+        }
+        
+        #chatContainer {
+          display: flex !important;
+          flex-direction: column !important;
+          flex: 1 !important;
+          height: 100% !important;
+          overflow: visible !important;
         }
         
         .chat-messages {
           padding: 16px;
-          max-height: calc(100% - 120px);
+          flex: 1;
+          overflow-y: auto;
+          max-height: none;
         }
         
         .message {
@@ -3580,40 +3639,87 @@
         
         /* AI顧問模式的輸入區域手機版優化 */
         .input-row {
-          padding: 16px;
-          flex-direction: column;
-          gap: 12px;
+          padding: 16px !important;
+          flex-direction: column !important;
+          gap: 12px !important;
+          display: flex !important;
+          border-top: 1px solid #e5e7eb !important;
+          background: white !important;
+          border-radius: 0 0 12px 12px !important;
+          flex-shrink: 0 !important;
+          position: relative !important;
+          z-index: 10 !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          height: auto !important;
+          min-height: 80px !important;
+          margin: 0 !important;
         }
         
         .input-row textarea {
-          width: 100%;
-          padding: 12px 16px;
-          font-size: 16px;
-          border-radius: 25px;
-          resize: none;
+          width: 100% !important;
+          padding: 12px 16px !important;
+          font-size: 16px !important;
+          border-radius: 25px !important;
+          resize: none !important;
+          border: 1px solid #d1d5db !important;
+          min-height: 60px !important;
         }
         
         .input-row .send-btn {
-          padding: 12px 24px;
-          font-size: 16px;
-          border-radius: 25px;
-          width: 100%;
+          padding: 12px 24px !important;
+          font-size: 16px !important;
+          border-radius: 25px !important;
+          width: 100% !important;
+          background: #3b82f6 !important;
+          color: white !important;
+          border: none !important;
         }
         
         .quick-buttons {
           display: flex !important;
-          flex-direction: column;
-          gap: 8px;
-          padding: 16px;
-          background: #f8fafc;
-          border-top: 1px solid #e5e7eb;
+          flex-direction: column !important;
+          gap: 8px !important;
+          padding: 16px !important;
+          background: #f8fafc !important;
+          border-top: 1px solid #e5e7eb !important;
+          flex-shrink: 0 !important;
+          position: relative !important;
+          z-index: 10 !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          height: auto !important;
+          min-height: 60px !important;
+          margin: 0 !important;
         }
         
-        .quick-btn {
-          padding: 12px 16px;
-          font-size: 14px;
-          border-radius: 20px;
-          width: 100%;
+        /* 強制顯示AI顧問模式的快速按鈕和輸入區域 */
+        .mode2 .quick-buttons,
+        .mode2 .input-row {
+          display: flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          height: auto !important;
+          position: relative !important;
+          z-index: 999 !important;
+        }
+        
+        .mode2 .quick-buttons {
+          min-height: 60px !important;
+          background: #f8fafc !important;
+          border-top: 1px solid #e5e7eb !important;
+          padding: 16px !important;
+          flex-direction: column !important;
+          gap: 8px !important;
+        }
+        
+        .mode2 .input-row {
+          min-height: 80px !important;
+          background: white !important;
+          border-top: 1px solid #e5e7eb !important;
+          padding: 16px !important;
+          flex-direction: column !important;
+          gap: 12px !important;
         }
         
         /* 創作者資料庫手機版 */
@@ -3829,10 +3935,260 @@
           min-height: 100dvh;
         }
       }
+      
+      /* 登入頁面樣式 */
+      .login-page {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f8f9fa;
+        background-image: 
+          radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+          radial-gradient(circle at 10% 60%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+          radial-gradient(circle at 90% 40%, rgba(59, 130, 246, 0.07) 0%, transparent 50%);
+        background-size: 80px 80px, 100px 100px, 60px 60px, 120px 120px, 90px 90px;
+        animation: starField 20s linear infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        overflow: hidden;
+      }
+      
+      /* 星星動畫 */
+      @keyframes starField {
+        0% {
+          background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+        }
+        25% {
+          background-position: 25% 25%, 25% 25%, 25% 25%, 25% 25%, 25% 25%;
+        }
+        50% {
+          background-position: 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%;
+        }
+        75% {
+          background-position: 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 75%;
+        }
+        100% {
+          background-position: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+        }
+      }
+      
+      /* 登入容器動畫 */
+      .login-container {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .login-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.03), transparent);
+        animation: shimmer 3s ease-in-out infinite;
+        pointer-events: none;
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+      }
+      
+      .login-header {
+        margin-bottom: 32px;
+      }
+      
+      .login-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #1f2937;
+        margin: 0 0 8px 0;
+        animation: titleGlow 2s ease-in-out infinite alternate;
+      }
+      
+      @keyframes titleGlow {
+        from {
+          text-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+        }
+        to {
+          text-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+      }
+      
+      .login-subtitle {
+        font-size: 16px;
+        color: #6b7280;
+        margin: 0 0 16px 0;
+      }
+      
+      .login-prompt {
+        font-size: 14px;
+        color: #9ca3af;
+        margin: 0;
+      }
+      
+      .login-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      
+      .login-btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      
+      .skip-btn {
+        background: #fbbf24;
+        color: #1f2937;
+      }
+      
+      .skip-btn:hover {
+        background: #f59e0b;
+      }
+      
+      .google-btn {
+        background: #3b82f6;
+        color: white;
+      }
+      
+      .google-btn:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.3);
+      }
+      
+      .google-btn:active {
+        transform: translateY(0);
+      }
+      
+      .line-btn {
+        background: #f3f4f6;
+        color: #9ca3af;
+        cursor: not-allowed;
+      }
+      
+      .google-icon, .line-icon {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .login-note {
+        font-size: 12px;
+        color: #9ca3af;
+        margin: 0 0 24px 0;
+      }
+      
+      .language-selector {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      
+      .lang-btn {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid #d1d5db;
+        background: white;
+        color: #6b7280;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .lang-btn.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+      
+      .lang-btn:hover:not(.active) {
+        background: #f9fafb;
+      }
+      
+      /* 手機版登入頁面 */
+      @media (max-width: 768px) {
+        .login-container {
+          padding: 32px 24px;
+          margin: 16px;
+        }
+        
+        .login-title {
+          font-size: 24px;
+        }
+        
+        .login-subtitle {
+          font-size: 14px;
+        }
+        
+        .login-btn {
+          padding: 14px 20px;
+          font-size: 15px;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="app-container">
+    <!-- 登入頁面 -->
+    <div id="loginPage" class="login-page">
+      <div class="login-container">
+        <div class="login-header">
+          <h1 class="login-title">AIJob短影音智能體</h1>
+          <p class="login-subtitle">您的個人化短影音創作專家</p>
+          <p class="login-prompt">請登入以繼續</p>
+        </div>
+        
+        <div class="login-buttons">
+          <button class="login-btn google-btn" onclick="login()">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0MSAxNy41ODI3IDcuOTUyMjcgMTcuNDc3MyA3LjM2MzY0SDkuMTgzNjRWMTAuODQ1NUgxMy44NDA5QzEzLjYzNjQgMTIuMzI1IDEyLjgxODIgMTMuNTU0NSAxMS42MzY0IDE0LjM0NTVDMTEuNjM2NCAxNC4zNDU1IDExLjYzNjQgMTQuMzQ1NSAxMS42MzY0IDE0LjM0NTVMMTMuNDU0NSAxNS45OTU1QzE0LjkwOTEgMTQuNjU0NSAxNy42NCAxMi4zMjUgMTcuNjQgOS4yMDQ1NVoiIGZpbGw9IjQyODVGNCIvPgo8cGF0aCBkPSJNOS4xODM2NCAxOC4wMDAyQzExLjQzMTggMTguMDAwMiAxMy4yNzI3IDE3LjI3MjcgMTQuNjM2NCAxNi4wOTU1TDEyLjgxODIgMTQuNDQ1NUMxMi4wOTU1IDE1LjAwOTEgMTEuMTU0NSAxNS40MzE4IDEwLjAwOTEgMTUuNDMxOEM3Ljc0NTQ1IDE1LjQzMTggNS44NDU0NSAxMy45NTQ1IDUuMTU0NTUgMTEuOTU0NUwzLjI3MjczIDEzLjU0NTVDNC42MzYzNiAxNi4wOTU1IDYuNzI3MjcgMTguMDAwMiA5LjE4MzY0IDE4LjAwMDJaIiBmaWxsPSIzNEE4NTMiLz4KPHBhdGggZD0iTTMuMjcyNzMgMTEuOTU0NUMzLjAwOTA5IDExLjE4MTggMi44NzI3MyAxMC4zNjM2IDIuODcyNzMgOS41MDAwMkMyLjg3MjczIDguNjM2MzYgMy4wMDkwOSA3LjgxODE4IDMuMjcyNzMgNy4wNDU0NUw1LjE1NDU1IDguNjM2MzZDNC45NTQ1NSA5LjM2MzY0IDQuODcyNzMgMTAuMTM2NCA0Ljg3MjczIDEwLjk1NDVDNC44NzI3MyAxMS43NzI3IDQuOTU0NTUgMTIuNTQ1NSAzLjI3MjczIDEzLjU0NTVMMy4yNzI3MyAxMS45NTQ1WiIgZmlsbD0iRkJCQzA0Ii8+CjxwYXRoIGQ9Ik05LjE4MzY0IDMuNTY4MThDMTEuMTU0NSAzLjU2ODE4IDEyLjYzNjQgNC4zNDA5MSAxMy40NTQ1IDUuMDQ1NDVMMTQuNjM2NCAzLjkwOTA5QzEzLjI3MjcgMi42MzYzNiAxMS40MzE4IDEuOTk5OTggOS4xODM2NCAxLjk5OTk4QzYuNzI3MjcgMS45OTk5OCA0LjYzNjM2IDMuOTA5MDkgMy4yNzI3MyA2LjQ1OTA5TDUuMTU0NTUgOC4wNDU0NUM1Ljg0NTQ1IDYuMDQ1NDUgNy43NDU0NSA0LjU2ODE4IDkuMTgzNjQgMy41NjgxOFoiIGZpbGw9IjM0QTg1MyIvPgo8L3N2Zz4K" alt="Google" class="google-icon">
+            使用 Google 登入
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主應用程式容器 -->
+    <div id="appContainer" class="app-container" style="display: none;">
       <!-- 主內容區域 -->
       <div class="main-content" id="mainContent">
         <!-- 頂部導航欄 -->
@@ -3958,7 +4314,7 @@
           </div>
 
           <!-- 模式2：AI顧問對話頁面 -->
-          <div id="mode2" class="page">
+          <div id="mode2" class="page mode2">
             <div class="mode2-page">
               <div class="chat-container">
                 <!-- AI 說明區塊 -->
@@ -4778,12 +5134,108 @@
       
       // 初始化頁面
       document.addEventListener('DOMContentLoaded', function() {
-        // 設置默認頁面為首頁
-        switchPage('homepage');
+        // 檢查是否已經登入
+        checkLoginStatus();
         
         // 移動原有內容到新容器
         moveExistingContent();
+        
+        // 調試AI顧問模式元素
+        setTimeout(debugAIConsultantElements, 2000);
       });
+      
+      // 檢查登入狀態
+      function checkLoginStatus() {
+        const accessToken = localStorage.getItem('accessToken');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        
+        if (accessToken && currentUser) {
+          // 已經登入，顯示主應用程式
+          showMainApp();
+        } else {
+          // 未登入，顯示登入頁面
+          showLoginPage();
+        }
+      }
+      
+      // 顯示登入頁面
+      function showLoginPage() {
+        document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'none';
+      }
+      
+      // 顯示主應用程式
+      function showMainApp() {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        
+        // 設置默認頁面為首頁
+        switchPage('homepage');
+        
+        // 更新認證UI
+        updateAuthUI(true);
+      }
+      
+      // 跳過登入
+      function skipLogin() {
+        showMainApp();
+      }
+      
+      // 設置語言
+      function setLanguage(lang) {
+        // 更新語言按鈕狀態
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // 這裡可以添加語言切換邏輯
+        console.log('Language set to:', lang);
+      }
+      
+      // 調試函數：檢查AI顧問模式元素狀態
+      function debugAIConsultantElements() {
+        console.log('=== 調試AI顧問模式元素 ===');
+        
+        const quickButtons = document.querySelector('.quick-buttons');
+        const inputRow = document.querySelector('.input-row');
+        const chatContainer = document.querySelector('#chatContainer');
+        
+        console.log('快速按鈕元素:', quickButtons);
+        console.log('輸入區域元素:', inputRow);
+        console.log('聊天容器元素:', chatContainer);
+        
+        if (quickButtons) {
+          console.log('快速按鈕樣式:', {
+            display: getComputedStyle(quickButtons).display,
+            visibility: getComputedStyle(quickButtons).visibility,
+            opacity: getComputedStyle(quickButtons).opacity,
+            height: getComputedStyle(quickButtons).height,
+            position: getComputedStyle(quickButtons).position,
+            zIndex: getComputedStyle(quickButtons).zIndex
+          });
+        }
+        
+        if (inputRow) {
+          console.log('輸入區域樣式:', {
+            display: getComputedStyle(inputRow).display,
+            visibility: getComputedStyle(inputRow).visibility,
+            opacity: getComputedStyle(inputRow).opacity,
+            height: getComputedStyle(inputRow).height,
+            position: getComputedStyle(inputRow).position,
+            zIndex: getComputedStyle(inputRow).zIndex
+          });
+        }
+        
+        if (chatContainer) {
+          console.log('聊天容器樣式:', {
+            display: getComputedStyle(chatContainer).display,
+            height: getComputedStyle(chatContainer).height,
+            overflow: getComputedStyle(chatContainer).overflow,
+            flexDirection: getComputedStyle(chatContainer).flexDirection
+          });
+        }
+      }
       
       // 移動現有內容到新容器
       function moveExistingContent() {
@@ -5337,10 +5789,9 @@
         updateAuthUI(false);
         showToast('已登出', 3000);
         closeUserDrawer();
-        // 如果當前在個人資料庫頁面，跳轉回首頁
-        if (document.getElementById('userDB').classList.contains('active')) {
-          switchPage('homepage');
-        }
+        
+        // 回到登入頁面
+        showLoginPage();
       }
       // 更新個人資料庫用戶資訊
       function updateDbUserInfo() {
@@ -5922,20 +6373,31 @@
         
         // 顯示 AI 回覆中的載入狀態
         const thinkingDiv = document.createElement('div');
-        thinkingDiv.className = 'msg assistant';
+        thinkingDiv.className = 'message ai';
         thinkingDiv.id = 'thinking-message';
         
-        // 添加 AI 標籤
-        const aiLabel = document.createElement('div');
-        aiLabel.className = 'msg-label';
-        aiLabel.textContent = 'AIJob短影音顧問';
-        thinkingDiv.appendChild(aiLabel);
+        // 添加 AI 頭像
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = '🤖';
+        thinkingDiv.appendChild(avatar);
         
-        // 添加載入動畫氣泡
+        // 添加載入動畫內容
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
         const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'loading';
-        loadingDiv.innerHTML = '<div class="spinner"></div><span>AI回覆中...</span>';
-        thinkingDiv.appendChild(loadingDiv);
+        loadingDiv.className = 'ai-loading';
+        loadingDiv.innerHTML = `
+          <span>AI正在思考中</span>
+          <div class="ai-loading-dots">
+            <div class="ai-loading-dot"></div>
+            <div class="ai-loading-dot"></div>
+            <div class="ai-loading-dot"></div>
+          </div>
+        `;
+        messageContent.appendChild(loadingDiv);
+        thinkingDiv.appendChild(messageContent);
         
         document.getElementById('chatMessages').appendChild(thinkingDiv);
         
@@ -7012,10 +7474,10 @@
         
         // 處理舊格式（有sections欄位）
         if (scriptData && scriptData.sections && scriptData.sections.length > 0) {
-          let tableRows = '';
-          let timeIndex = 0;
-          const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
-          
+        let tableRows = '';
+        let timeIndex = 0;
+        const timeRanges = ['0-3s', '3-7s', '7-15s', '15-25s', '25-30s'];
+        
           // 檢查是否有畫面感資料
           const hasVisualData = scriptData.visual && scriptData.visual.trim() !== '';
           let visualLines = [];
@@ -7031,9 +7493,9 @@
             
             // 如果段落有內容
             if (section.content && section.content.length > 0) {
-              section.content.forEach((content, contentIndex) => {
-                const timeRange = timeRanges[timeIndex] || '-';
-                const sectionType = section.type || '內容段落';
+          section.content.forEach((content, contentIndex) => {
+            const timeRange = timeRanges[timeIndex] || '-';
+            const sectionType = section.type || '內容段落';
                 
                 // 清理內容，移除多餘的空白
                 const cleanContent = content.trim();
@@ -7052,14 +7514,14 @@
                   // 如果沒有畫面感資料，使用智能生成
                   visualDescription = generateVisualDescription(cleanContent);
                 }
-                
-                tableRows += `
-                  <tr>
-                    <td>${timeRange}</td>
-                    <td>${sectionType}</td>
+            
+            tableRows += `
+              <tr>
+                <td>${timeRange}</td>
+                <td>${sectionType}</td>
                     <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : visualDescription}">${visualDescription}</td>
                     <td title="${cleanContent}">${displayContent}</td>
-                    <td>-</td>
+                <td>-</td>
                     <td>-</td>
                   </tr>
                 `;
@@ -7083,16 +7545,16 @@
                   <td>${sectionType}</td>
                   <td title="${hasVisualData && visualLines[timeIndex] ? visualLines[timeIndex] : ''}">${visualDescription}</td>
                   <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
-              `;
-              timeIndex++;
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            `;
+            timeIndex++;
             }
-          });
-          
+        });
+        
           console.log('生成的表格行:', tableRows);
-          return tableRows || '<tr><td colspan="6">無數據</td></tr>';
+        return tableRows || '<tr><td colspan="6">無數據</td></tr>';
         }
         
         // 如果都沒有，返回無數據
@@ -7539,41 +8001,41 @@
             
             // 顯示彈跳視窗覆蓋層
             showPopupOverlay('正在開啟 Google 登入視窗...');
-            
-            // 使用彈跳視窗進行 Google 認證
-            console.log('DEBUG: Opening popup window with URL:', data.auth_url);
-            const popup = window.open(
-              data.auth_url,
-              'googleAuth',
-              'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
-            );
-            
-            console.log('DEBUG: Popup window object:', popup);
-            
-            if (!popup) {
-              console.error('DEBUG: Popup window blocked or failed to open');
-              hidePopupOverlay();
-              showPopupError('請允許彈跳視窗以完成登入', true);
-              return;
-            }
           
-            console.log('DEBUG: Popup window opened successfully');
-            
-            // 更新覆蓋層訊息
-            updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
-            
-            // 監聽彈跳視窗關閉
-            const checkClosed = setInterval(() => {
-              if (popup.closed) {
-                clearInterval(checkClosed);
-                hidePopupOverlay();
-                // 檢查是否有認證結果
-                checkAuthResult();
-              }
-            }, 1000);
-            
-            // 監聽來自彈跳視窗的訊息
-            window.addEventListener('message', handleAuthMessage);
+          // 使用彈跳視窗進行 Google 認證
+          console.log('DEBUG: Opening popup window with URL:', data.auth_url);
+          const popup = window.open(
+            data.auth_url,
+            'googleAuth',
+            'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+          );
+          
+          console.log('DEBUG: Popup window object:', popup);
+          
+          if (!popup) {
+            console.error('DEBUG: Popup window blocked or failed to open');
+            hidePopupOverlay();
+            showPopupError('請允許彈跳視窗以完成登入', true);
+            return;
+          }
+          
+          console.log('DEBUG: Popup window opened successfully');
+          
+          // 更新覆蓋層訊息
+          updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
+          
+          // 監聽彈跳視窗關閉
+          const checkClosed = setInterval(() => {
+            if (popup.closed) {
+              clearInterval(checkClosed);
+              hidePopupOverlay();
+              // 檢查是否有認證結果
+              checkAuthResult();
+            }
+          }, 1000);
+          
+          // 監聽來自彈跳視窗的訊息
+          window.addEventListener('message', handleAuthMessage);
           }
           
         } catch (error) {
@@ -7631,6 +8093,9 @@
           hidePopupOverlay();
           updateAuthUI(true);
           showToast('登入成功！', 3000);
+          
+          // 顯示主應用程式
+          showMainApp();
           
           // 移除事件監聽器
           window.removeEventListener('message', handleAuthMessage);
@@ -7710,6 +8175,9 @@
           
           updateAuthUI(true);
           showToast('登入成功！', 3000);
+          
+          // 顯示主應用程式
+          showMainApp();
           
           // 清除 URL 中的認證參數
           window.history.replaceState({}, document.title, window.location.pathname);
