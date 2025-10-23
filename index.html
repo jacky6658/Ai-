@@ -66,7 +66,7 @@
       }
       
       .navbar-title {
-        font-size: 20px;
+        font-size: 30px;
         font-weight: 600;
         color: #1f2937;
         margin-right: auto;
@@ -252,7 +252,133 @@
       .mode2-page {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - 120px);
+        height: calc(100vh - 140px);
+        min-height: 600px;
+        position: relative;
+      }
+      
+      /* 說明按鈕 */
+      .instructions-toggle-btn {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: #3b82f6;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        transition: all 0.2s ease;
+        z-index: 1000;
+      }
+      
+      .instructions-toggle-btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      }
+      
+      .btn-icon {
+        font-size: 16px;
+      }
+      
+      .btn-text {
+        font-size: 13px;
+      }
+      
+      /* 抽屜背景遮罩 */
+      .drawer-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      
+      .drawer-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      /* 說明抽屜 */
+      .instructions-drawer {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 400px;
+        height: 100vh;
+        background: white;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .instructions-drawer.open {
+        right: 0;
+      }
+      
+      .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+      }
+      
+      .drawer-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #1f2937;
+      }
+      
+      .drawer-close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      
+      .drawer-close-btn:hover {
+        background: #e5e7eb;
+        color: #374151;
+      }
+      
+      .drawer-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+      
+      .drawer-content p {
+        margin: 0 0 16px 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #374151;
+      }
+      
+      .drawer-content p:last-child {
+        margin-bottom: 0;
+        padding-top: 12px;
+        border-top: 1px solid #e5e7eb;
+        font-size: 13px;
+        color: #6b7280;
       }
       
       .chat-container {
@@ -689,6 +815,29 @@
         margin-top: 16px;
       }
       
+      /* 一鍵生成頁面布局 */
+      .mode1-page {
+        display: flex;
+        gap: 24px;
+        min-height: calc(100vh - 120px);
+      }
+      
+      .mode1-left {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      .mode1-right {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
       /* 一鍵生成結果區塊樣式調整 */
       .result-tabs {
         margin-bottom: 0;
@@ -713,6 +862,7 @@
         min-height: 400px;
         background: #f8fafc;
         transition: min-height 0.3s ease;
+        max-height: calc(100vh - 200px);
       }
       
       /* 當說明收起時，聊天訊息區延長高度 */
@@ -836,35 +986,89 @@
       
       /* 優化聊天訊息樣式 */
       .msg {
+        display: flex;
         margin-bottom: 16px;
-        max-width: 80%;
+        align-items: flex-start;
+        max-width: 85%;
       }
       
       .msg.user {
         margin-left: auto;
+        flex-direction: row-reverse;
       }
       
       .msg.assistant {
         margin-right: auto;
       }
+      
+      .msg-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 8px;
+        flex-shrink: 0;
+      }
+      
+      .msg.user .msg-avatar {
+        background: #3b82f6;
+        color: white;
+      }
+      
+      .msg.assistant .msg-avatar {
+        background: #f3f4f6;
+        color: #374151;
+      }
+      
       .msg-bubble {
-        padding: 16px 20px;
-        border-radius: 18px;
+        flex: 1;
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
         line-height: 1.5;
         font-size: 15px;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       
       .msg.user .msg-bubble {
-        background: #3b82f6;
-        color: white;
-        border-bottom-right-radius: 4px;
+        background: #dbeafe;
+        border-color: #3b82f6;
+        color: #1e40af;
+        max-width: 100%;
+        word-wrap: break-word;
       }
       
       .msg.assistant .msg-bubble {
-        background: white;
+        background: #f8fafc;
+        border-color: #e5e7eb;
         color: #1f2937;
-        border: 1px solid #e5e7eb;
-        border-bottom-left-radius: 4px;
+        max-width: 100%;
+        word-wrap: break-word;
+      }
+      
+      .msg-bubble p {
+        margin: 0 0 4px 0;
+        line-height: 1.3;
+      }
+      
+      .msg-bubble ul {
+        margin: 4px 0;
+        padding-left: 20px;
+      }
+      
+      .msg-bubble li {
+        margin: 2px 0;
+        line-height: 1.3;
+      }
+      
+      .msg-bubble:last-child p:last-child {
+        margin-bottom: 0;
       }
       
       .msg-label {
@@ -944,11 +1148,10 @@
       .quick-buttons { 
         display: flex; 
         gap: 8px; 
-        margin-bottom: 12px; 
+        margin-bottom: 0; 
         flex-wrap: wrap;
-        padding: 12px 16px;
-        border-top: 1px solid #e5e7eb;
-        background: #f8fafc;
+        padding: 0;
+        background: transparent;
       }
 
       .quick-btn {
@@ -1084,6 +1287,7 @@
         border-bottom: 1px solid #e5e7eb;
       }
       
+      
       .result-header h3 {
         margin: 0;
         color: #1f2937;
@@ -1217,11 +1421,23 @@
       
       .input-row {
         display: flex;
+        flex-direction: column;
         gap: 12px;
-        align-items: flex-end;
+        padding: 16px;
+        margin-top: 0;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 0 0 12px 12px;
       }
       
-      .input-row textarea {
+      .input-container {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        width: 100%;
+      }
+      
+      .input-container textarea {
         flex: 1;
         padding: 12px 16px;
         border: 1px solid #d1d5db;
@@ -1232,15 +1448,17 @@
         max-height: 200px;
         line-height: 1.4;
         font-family: inherit;
+        width: 100%;
+        max-width: none;
       }
       
-      .input-row textarea:focus {
+      .input-container textarea:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
       
-      .input-row button {
+      .input-container button {
         padding: 12px 24px;
         background: #3b82f6;
         color: white;
@@ -1253,7 +1471,7 @@
         white-space: nowrap;
       }
       
-      .input-row button:hover {
+      .input-container button:hover {
         background: #2563eb;
       }
       
@@ -2104,11 +2322,17 @@
         padding: 0 20px 20px 20px;
         transition: all 0.3s ease;
         overflow: hidden;
+        display: none;
       }
       
       .instruction-list.collapsed {
         padding: 0 20px;
         max-height: 0;
+        display: none;
+      }
+      
+      .instruction-list.show {
+        display: block;
       }
       
       .instruction-list p {
@@ -2257,12 +2481,20 @@
           flex-direction: column;
           gap: 8px;
         }
-        .input-row button {
-          width: 100%;
+        
+        .input-container {
+          flex-direction: row;
+          gap: 8px;
+          align-items: flex-end;
+        }
+        .input-container button {
+          width: auto;
+          min-width: 80px;
+          flex-shrink: 0;
         }
         h1 { font-size: 16px; margin-bottom: 12px; }
         .chat { height: 50vh; padding: 12px; }
-        .msg-bubble { max-width: 85%; padding: 10px 14px; font-size: 14px; }
+        .msg-bubble { max-width: 90%; padding: 10px 14px; font-size: 14px; }
         .settings-block { padding: 16px; margin-bottom: 12px; }
         .settings-block h3 { font-size: 14px; margin-bottom: 12px; }
         .settings-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
@@ -2271,7 +2503,7 @@
         .controls { flex-direction: column; gap: 10px; }
         .controls .row { flex-direction: row !important; justify-content: space-between; }
         .controls .row button { flex: 1; margin: 0 4px; }
-        textarea { min-height: 50px; font-size: 16px; }
+        textarea { min-height: 40px; font-size: 16px; }
         button { padding: 12px 16px; font-size: 14px; }
         .results-block { padding: 16px; }
         .results-block h3 { font-size: 14px; }
@@ -2403,7 +2635,7 @@
       .msg { margin: 12px 0; line-height: 1.6; display: flex; }
       .msg.user { justify-content: flex-end; }
       .msg.assistant { justify-content: flex-start; }
-      .msg-bubble { max-width: 70%; padding: 12px 16px; border-radius: 18px; white-space: pre-wrap; word-wrap: break-word; }
+      .msg-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; white-space: pre-wrap; word-wrap: break-word; }
       .msg.user .msg-bubble { background: #3b82f6; color: #ffffff; border-bottom-right-radius: 4px; }
       .msg.assistant .msg-bubble { background: #f3f4f6; color: #374151; border-bottom-left-radius: 4px; }
       .msg-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; font-weight: 500; }
@@ -2446,7 +2678,7 @@
       }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       .controls { display: flex; gap: 8px; margin-top: 12px; align-items:center; }
-      textarea { flex: 1; min-height: 44px; max-height: 140px; resize: vertical; border-radius: 10px; border:1px solid #d1d5db; background:#ffffff; color:#374151; padding: 10px 12px; line-height: 1.4; -webkit-appearance: none; }
+      textarea { flex: 1; min-height: 40px; max-height: 140px; resize: vertical; border-radius: 10px; border:1px solid #d1d5db; background:#ffffff; color:#374151; padding: 10px 12px; line-height: 1.4; -webkit-appearance: none; }
       button { padding: 10px 14px; border-radius: 10px; border:1px solid #d1d5db; background:#f9fafb; color:#374151; cursor:pointer; -webkit-appearance: none; }
       button:disabled { opacity: .6; cursor:not-allowed; }
       .row { display:flex; gap:8px; flex-direction:column; }
@@ -2532,15 +2764,20 @@
         .quick-buttons { 
           display: flex !important;
           gap: 6px; 
-          margin-bottom: 10px;
+          margin-bottom: 8px;
           visibility: visible !important;
           opacity: 1 !important;
           height: auto !important;
-          min-height: 60px !important;
+          min-height: auto !important;
+          padding: 0 !important;
+          background: transparent !important;
         }
         .quick-btn { 
-          padding: 6px 12px; 
-          font-size: 13px;
+          padding: 6px 8px; 
+          font-size: 12px;
+          flex: 1;
+          min-width: 0;
+          text-align: center;
         }
         .input-row {
           display: flex !important;
@@ -3402,6 +3639,13 @@
         }
       }
       
+      /* 桌面版樣式 */
+      @media (min-width: 769px) {
+        .desktop-only {
+          display: block !important;
+        }
+      }
+      
       /* 響應式設計 - 手機版 */
       @media (max-width: 768px) {
         /* 頂部導航欄手機版 */
@@ -3410,6 +3654,11 @@
           padding-top: calc(12px + var(--safe-area-inset-top));
           flex-wrap: wrap;
           gap: 12px;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
         }
         
         .navbar-left {
@@ -3419,7 +3668,7 @@
         }
         
         .navbar-title {
-          font-size: 18px;
+          font-size: 25px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -3427,6 +3676,38 @@
         
         .navbar-tabs {
           display: none; /* 手機版隱藏標籤，改用底部導航 */
+        }
+        
+        /* 主內容區域為固定頁首留出空間 */
+        .main-content {
+          padding-top: 80px;
+          padding-bottom: 80px;
+          height: calc(100vh - 80px - 80px);
+          overflow: hidden;
+        }
+        
+        /* 首頁內容區域獨立滾動 */
+        #homepage {
+          height: 100%;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          padding: 20px 16px;
+        }
+        
+        /* 首頁卡片容器調整 */
+        #homepage .mode-cards {
+          padding-top: 20px;
+          padding-bottom: 20px;
+        }
+        
+        /* 首頁標題區域調整 */
+        #homepage .homepage-title {
+          margin-top: 40px;
+          margin-bottom: 16px;
+        }
+        
+        #homepage .homepage-subtitle {
+          margin-bottom: 20px;
         }
         
         .navbar-right {
@@ -3619,19 +3900,54 @@
         }
         
         /* 一鍵生成手機版 */
-        .mode1-container {
+        .mode1-page {
           flex-direction: column;
           gap: 20px;
+          padding: 0 8px;
+          max-width: 100%;
+          overflow-x: hidden;
         }
         
-        .settings-section {
+        .mode1-left {
           width: 100%;
-          padding: 20px;
+          max-width: 100%;
+          padding: 16px;
+          box-sizing: border-box;
         }
+        
+        .mode1-right {
+          width: 100%;
+          max-width: 100%;
+          padding: 16px;
+          box-sizing: border-box;
+        }
+        
+        
         
         .results-section {
           width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
         }
+        
+        /* 結果區塊手機版優化 */
+        .results-container {
+          max-width: 100%;
+          overflow-x: hidden;
+        }
+        
+        .result-content {
+          max-width: 100%;
+          overflow-x: hidden;
+          word-wrap: break-word;
+        }
+        
+        .result-body {
+          max-width: 100%;
+          overflow-x: hidden;
+          word-wrap: break-word;
+        }
+        
         
         .form-group {
           margin-bottom: 16px;
@@ -3645,43 +3961,100 @@
         .form-group input,
         .form-group select,
         .form-group textarea {
-          padding: 12px;
+          padding: 10px;
           font-size: 16px; /* 防止iOS縮放 */
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         
         .generate-btn {
-          padding: 12px 24px;
+          padding: 10px 20px;
           font-size: 16px;
           width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         
         .result-content {
-          padding: 16px;
+          padding: 12px;
+          max-width: 100%;
+          overflow-x: hidden;
+          word-wrap: break-word;
         }
         
         .result-header h3 {
           font-size: 18px;
+          max-width: 100%;
+          overflow-x: hidden;
+          word-wrap: break-word;
         }
         
         .result-body {
           font-size: 14px;
           line-height: 1.6;
+          max-width: 100%;
+          overflow-x: hidden;
+          word-wrap: break-word;
         }
         
         .result-actions {
           flex-direction: column;
           gap: 8px;
+          max-width: 100%;
         }
         
         .save-btn, .regenerate-btn {
-          padding: 12px 20px;
+          padding: 10px 16px;
           font-size: 14px;
           width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         
         /* AI顧問手機版 */
         .mode2-container {
           padding: 16px;
+        }
+        
+        /* 手機版說明按鈕 */
+        .instructions-toggle-btn {
+          top: 70px;
+          right: 16px;
+          padding: 6px 12px;
+          font-size: 13px;
+        }
+        
+        .btn-text {
+          font-size: 12px;
+        }
+        
+        /* 手機版抽屜背景遮罩 */
+        .drawer-overlay {
+          z-index: 999;
+        }
+        
+        /* 手機版說明抽屜 */
+        .instructions-drawer {
+          width: 100%;
+          right: -100%;
+        }
+        
+        .drawer-header {
+          padding: 16px;
+        }
+        
+        .drawer-header h3 {
+          font-size: 16px;
+        }
+        
+        .drawer-content {
+          padding: 16px;
+        }
+        
+        .drawer-content p {
+          font-size: 13px;
+          margin-bottom: 12px;
         }
         
         .ai-instructions {
@@ -3706,11 +4079,13 @@
         }
         
         .chat-container {
-          height: calc(100vh - 120px);
+          height: calc(100vh - 180px);
           min-height: 500px;
           display: flex !important;
           flex-direction: column !important;
           overflow: visible !important;
+          margin-bottom: 120px;
+          margin-top: 20px !important;
         }
         
         #chatContainer {
@@ -3725,7 +4100,8 @@
           padding: 16px;
           flex: 1;
           overflow-y: auto;
-          max-height: none;
+          max-height: calc(100vh - 350px);
+          min-height: 300px;
         }
         
         .message {
@@ -3827,25 +4203,55 @@
           opacity: 1 !important;
           height: auto !important;
           position: relative !important;
-          z-index: 999 !important;
+          z-index: 100 !important;
         }
         
         .mode2 .quick-buttons {
-          min-height: 60px !important;
-          background: #f8fafc !important;
-          border-top: 1px solid #e5e7eb !important;
-          padding: 16px !important;
-          flex-direction: column !important;
-          gap: 8px !important;
+          min-height: auto !important;
+          background: transparent !important;
+          border-top: none !important;
+          padding: 0 !important;
+          flex-direction: row !important;
+          gap: 4px !important;
+          margin-bottom: 6px !important;
+          position: relative !important;
+          bottom: auto !important;
+          left: auto !important;
+          right: auto !important;
+          z-index: auto !important;
+          flex-wrap: nowrap !important;
+          justify-content: space-between !important;
         }
         
         .mode2 .input-row {
-          min-height: 80px !important;
+          min-height: auto !important;
           background: white !important;
           border-top: 1px solid #e5e7eb !important;
-          padding: 16px !important;
+          padding: 12px 16px !important;
           flex-direction: column !important;
-          gap: 12px !important;
+          gap: 6px !important;
+          position: fixed !important;
+          bottom: 80px !important;
+          left: 0 !important;
+          right: 0 !important;
+          z-index: 1001 !important;
+          box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .mode2 .input-container {
+          flex-direction: row !important;
+          gap: 8px !important;
+          align-items: flex-end !important;
+        }
+        
+        .mode2 .input-container button {
+          width: auto !important;
+          min-width: 80px !important;
+          flex-shrink: 0 !important;
+        }
+        
+        .mode2 .input-container textarea {
+          min-height: 10px !important;
         }
         
         /* 創作者資料庫手機版 */
@@ -3979,7 +4385,7 @@
           border-top: 1px solid #e5e7eb;
           padding: 8px 0;
           padding-bottom: calc(8px + var(--safe-area-inset-bottom));
-          z-index: 100;
+          z-index: 1000;
         }
         
         .bottom-nav-item {
@@ -4047,8 +4453,8 @@
       /* iOS Safari 特殊處理 */
       @supports (-webkit-touch-callout: none) {
         .chat-container {
-          height: calc(100vh - 200px);
-          height: calc(100dvh - 200px);
+          height: calc(100vh - 220px);
+          height: calc(100dvh - 220px);
         }
         
         .main-content {
@@ -4294,6 +4700,23 @@
           overflow-x: hidden !important;
         }
         
+        /* 一鍵生成模式防止水平滾動 */
+        #mode1 {
+          overflow-x: hidden !important;
+          max-width: 100vw !important;
+        }
+        
+        .mode1-page {
+          overflow-x: hidden !important;
+          max-width: 100% !important;
+        }
+        
+        .mode1-left,
+        .mode1-right {
+          overflow-x: hidden !important;
+          word-wrap: break-word !important;
+        }
+        
         .login-title {
           font-size: 24px;
         }
@@ -4456,46 +4879,58 @@
           <!-- 模式2：AI顧問對話頁面 -->
           <div id="mode2" class="page mode2">
             <div class="mode2-page">
-              <div class="chat-container">
-                <!-- AI 說明區塊 -->
-                <div class="ai-instructions">
-                  <div class="instructions-header" onclick="toggleInstructions()">
-                    <h3>如何使用 AI 短影音顧問 🚀</h3>
-                    <span class="instructions-toggle">▼</span>
-                  </div>
-                  <div class="instruction-list">
-                    <p><strong>💬 直接對話</strong><br>點擊下方快速按鈕或直接輸入問題，與AI進行深度對話討論</p>
-                    <p><strong>🎯 專業建議</strong><br>AI會根據你的需求提供帳號定位、選題建議和腳本創作指導</p>
-                    <p><strong>🔄 持續優化</strong><br>透過多輪對話不斷調整和完善內容，直到滿意為止</p>
-                    <p><strong>💡 小提醒：</strong>詳細描述你的需求能讓AI提供更精準的建議 🎯</p>
-                  </div>
+              <!-- 說明按鈕 -->
+              <div class="instructions-toggle-btn" onclick="toggleInstructionsDrawer()">
+                <span class="btn-icon">📋</span>
+                <span class="btn-text">使用說明</span>
+              </div>
+              
+              <!-- 說明抽屜背景遮罩 -->
+              <div id="drawerOverlay" class="drawer-overlay" onclick="toggleInstructionsDrawer()"></div>
+              
+              <!-- 說明抽屜 -->
+              <div id="instructionsDrawer" class="instructions-drawer">
+                <div class="drawer-header">
+                  <h3>如何使用 AI 短影音顧問 🚀</h3>
+                  <button class="drawer-close-btn" onclick="toggleInstructionsDrawer()">✕</button>
                 </div>
+                <div class="drawer-content">
+                  <p><strong>💬 直接對話</strong><br>點擊下方快速按鈕或直接輸入問題，與AI進行深度對話討論</p>
+                  <p><strong>🎯 專業建議</strong><br>AI會根據你的需求提供帳號定位、選題建議和腳本創作指導</p>
+                  <p><strong>🔄 持續優化</strong><br>透過多輪對話不斷調整和完善內容，直到滿意為止</p>
+                  <p><strong>💡 小提醒：</strong>詳細描述你的需求能讓AI提供更精準的建議 🎯</p>
+                </div>
+              </div>
+              
+              <div class="chat-container">
                 
                 <!-- 聊天功能區域 -->
                 <div id="chatContainer">
                   <!-- 聊天訊息區域 -->
                   <div class="chat-messages" id="chatMessages">
-                    <div class="message ai">
-                      <div class="message-avatar">🤖</div>
-                      <div class="message-content">
+                    <div class="msg assistant">
+                      <div class="msg-avatar">🤖</div>
+                      <div class="msg-bubble">
                         <p>嗨！我是你的 AI短影音顧問 🤖</p>
-                        <p>想知道你今天想聊什麼～</p>
-                        <p>是想討論帳號定位、腳本選題，還是直接生成內容呢？🚀</p>
+                        <p>想聊什麼呢？帳號定位、選題還是腳本創作？</p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- 快速按鈕區域 -->
-                  <div class="quick-buttons">
-                    <button class="quick-btn" data-text="我要如何開始？">我要如何開始？</button>
-                    <button class="quick-btn" data-text="我要怎麼帳號定位">我要怎麼帳號定位</button>
-                    <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
-                  </div>
-
                   <!-- 輸入區域 -->
                   <div class="input-row">
-                    <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
-                    <button id="sendBtn" class="send-btn">送出</button>
+                    <!-- 快速按鈕區域 -->
+                    <div class="quick-buttons">
+                      <button class="quick-btn" data-text="我要如何開始？">我要如何開始？</button>
+                      <button class="quick-btn" data-text="我要怎麼帳號定位">我要怎麼帳號定位</button>
+                      <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
+                    </div>
+                    
+                    <!-- 輸入欄位和送出按鈕 -->
+                    <div class="input-container">
+                      <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
+                      <button id="sendBtn" class="send-btn">送出</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -5081,22 +5516,44 @@
       }
       
       
-      // AI說明區塊控制函數
+      // AI說明區塊控制函數（舊版，保留以防需要）
       function toggleInstructions() {
         const instructionList = document.querySelector('.instruction-list');
         const toggleIcon = document.querySelector('.instructions-toggle');
         const chatMessages = document.getElementById('chatMessages');
         
-        instructionList.classList.toggle('collapsed');
+        if (instructionList && toggleIcon) {
+          instructionList.classList.toggle('show');
+          
+          if (instructionList.classList.contains('show')) {
+            toggleIcon.textContent = '▼';
+            // 顯示時恢復原始高度
+            if (chatMessages) chatMessages.style.minHeight = '600px';
+          } else {
+            toggleIcon.textContent = '▶';
+            // 隱藏時延長聊天訊息區高度
+            if (chatMessages) chatMessages.style.minHeight = '800px';
+          }
+        }
+      }
+      
+      // 抽屜式說明欄位控制函數
+      function toggleInstructionsDrawer() {
+        const drawer = document.getElementById('instructionsDrawer');
+        const overlay = document.getElementById('drawerOverlay');
         
-        if (instructionList.classList.contains('collapsed')) {
-          toggleIcon.textContent = '▶';
-          // 收起時延長聊天訊息區高度
-          chatMessages.style.minHeight = '800px';
-        } else {
-          toggleIcon.textContent = '▼';
-          // 展開時恢復原始高度
-          chatMessages.style.minHeight = '600px';
+        if (drawer && overlay) {
+          const isOpen = drawer.classList.contains('open');
+          
+          if (isOpen) {
+            // 關閉抽屜
+            drawer.classList.remove('open');
+            overlay.classList.remove('show');
+          } else {
+            // 打開抽屜
+            drawer.classList.add('open');
+            overlay.classList.add('show');
+          }
         }
       }
       
@@ -5286,9 +5743,37 @@
         // 移動原有內容到新容器
         moveExistingContent();
         
+        // 初始化手機版一鍵生成標籤切換
+        initializeMode1MobileTabs();
+        
         // 調試AI顧問模式元素
         setTimeout(debugAIConsultantElements, 2000);
       });
+      
+      // 初始化手機版一鍵生成標籤切換功能
+      function initializeMode1MobileTabs() {
+        const tabs = document.querySelectorAll('.mode1-mobile-tab');
+        const panels = document.querySelectorAll('.mode1-mobile-panel');
+        
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const targetTab = tab.getAttribute('data-tab');
+            
+            // 移除所有active類
+            tabs.forEach(t => t.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('show'));
+            
+            // 添加active類到點擊的標籤
+            tab.classList.add('active');
+            
+            // 顯示對應的面板
+            const targetPanel = document.getElementById(`mode1-mobile-${targetTab}`);
+            if (targetPanel) {
+              targetPanel.classList.add('show');
+            }
+          });
+        });
+      }
       
       // 檢查登入狀態
       function checkLoginStatus() {
@@ -5397,6 +5882,13 @@
             // 設置使用說明顯示控制
             setupInstructionsToggle();
           }
+          
+          // 複製到手機版容器
+          const mobileSettingsContainer = document.querySelector('#mode1-mobile-setup #userSettingsContainer');
+          if (mobileSettingsContainer) {
+            const mobileSettingsBlock = settingsBlock.cloneNode(true);
+            mobileSettingsContainer.appendChild(mobileSettingsBlock);
+          }
         }
         
         // 移動一鍵生成內容
@@ -5407,6 +5899,29 @@
           if (container) {
             container.appendChild(resultTabs);
             container.appendChild(resultsContainer);
+          }
+          
+          // 複製到手機版容器
+          const mobileContainer = document.getElementById('oneClickGenerationContainerMobile');
+          if (mobileContainer) {
+            const mobileResultTabs = resultTabs.cloneNode(true);
+            const mobileResultsContainer = resultsContainer.cloneNode(true);
+            
+            // 修正手機版按鈕的onclick事件
+            const mobileButtons = mobileResultsContainer.querySelectorAll('.generate-btn');
+            mobileButtons.forEach(btn => {
+              const text = btn.textContent.trim();
+              if (text.includes('帳號定位')) {
+                btn.setAttribute('onclick', 'generatePositioning()');
+              } else if (text.includes('選題')) {
+                btn.setAttribute('onclick', 'generateTopics()');
+              } else if (text.includes('腳本')) {
+                btn.setAttribute('onclick', 'generateScript()');
+              }
+            });
+            
+            mobileContainer.appendChild(mobileResultTabs);
+            mobileContainer.appendChild(mobileResultsContainer);
           }
         }
         
@@ -6629,11 +7144,11 @@
                     aiDiv.className = 'msg assistant';
                     aiDiv.id = 'ai-response';
                     
-                    // 添加 AI 標籤
-                    const aiLabel = document.createElement('div');
-                    aiLabel.className = 'msg-label';
-                    aiLabel.textContent = 'AIJob短影音顧問';
-                    aiDiv.appendChild(aiLabel);
+                    // 添加 AI 頭像
+                    const aiAvatar = document.createElement('div');
+                    aiAvatar.className = 'msg-avatar';
+                    aiAvatar.textContent = '🤖';
+                    aiDiv.appendChild(aiAvatar);
                     
                     // 添加氣泡
                     bubble = document.createElement('div');
@@ -6674,6 +7189,15 @@
       
       // 生成腳本功能
       async function generateScript() {
+        // 動態查找輸入元素，優先使用手機版
+        const platformEl = document.querySelector('#mode1-mobile-setup #platformSelect') || document.getElementById('platformSelect');
+        const topicEl = document.querySelector('#mode1-mobile-setup #topicInput') || document.getElementById('topicInput');
+        const positioningEl = document.querySelector('#mode1-mobile-setup #positioningInput') || document.getElementById('positioningInput');
+        
+        const platform = platformEl ? platformEl.value : '';
+        const topic = topicEl ? topicEl.value : '';
+        const positioning = positioningEl ? positioningEl.value : '';
+        
         // 檢查是否已完成帳號定位和選題（只檢查是否為預設提示文字）
         const positioningContent = document.getElementById('positioningContent').textContent.trim();
         const topicContent = document.getElementById('topicContent').textContent.trim();
@@ -6693,10 +7217,6 @@
           showToast('請先完成選題推薦', 3000);
           return;
         }
-        
-        const platform = platformSelect.value;
-        const topic = topicInput.value;
-        const positioning = positioningInput.value;
         
         if (!platform) {
           showToast('請先選擇平台', 3000);
@@ -6773,9 +7293,14 @@
       }
       // 一鍵生成帳號定位
       async function generatePositioning() {
-        const platform = platformSelect.value;
-        const topic = topicInput.value;
-        const positioning = positioningInput.value;
+        // 動態查找輸入元素，優先使用手機版
+        const platformEl = document.querySelector('#mode1-mobile-setup #platformSelect') || document.getElementById('platformSelect');
+        const topicEl = document.querySelector('#mode1-mobile-setup #topicInput') || document.getElementById('topicInput');
+        const positioningEl = document.querySelector('#mode1-mobile-setup #positioningInput') || document.getElementById('positioningInput');
+        
+        const platform = platformEl ? platformEl.value : '';
+        const topic = topicEl ? topicEl.value : '';
+        const positioning = positioningEl ? positioningEl.value : '';
         
         if (!platform) {
           showToast('請先選擇平台', 3000);
@@ -6895,6 +7420,15 @@
       
       // 一鍵生成選題
       async function generateTopics() {
+        // 動態查找輸入元素，優先使用手機版
+        const platformEl = document.querySelector('#mode1-mobile-setup #platformSelect') || document.getElementById('platformSelect');
+        const topicEl = document.querySelector('#mode1-mobile-setup #topicInput') || document.getElementById('topicInput');
+        const positioningEl = document.querySelector('#mode1-mobile-setup #positioningInput') || document.getElementById('positioningInput');
+        
+        const platform = platformEl ? platformEl.value : '';
+        const topic = topicEl ? topicEl.value : '';
+        const positioning = positioningEl ? positioningEl.value : '';
+        
         // 檢查是否已完成帳號定位（只檢查是否為預設提示文字）
         const positioningContent = document.getElementById('positioningContent').textContent.trim();
         const isDefaultText = positioningContent.includes('點擊「一鍵生成帳號定位」') || 
@@ -6904,10 +7438,6 @@
           showToast('請先完成帳號定位', 3000);
           return;
         }
-        
-        const platform = platformSelect.value;
-        const topic = topicInput.value;
-        const positioning = positioningInput.value;
         
         if (!platform) {
           showToast('請先選擇平台', 3000);
@@ -8396,9 +8926,21 @@
         const div = document.createElement('div');
         div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
         
-        const label = document.createElement('div');
-        label.className = 'msg-label';
-        label.textContent = role === 'user' ? '你' : 'AIJob短影音顧問';
+        // 創建頭像元素
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar';
+        
+        if (role === 'user') {
+          // 用戶頭像：使用 Gmail 頭像或默認頭像
+          const userAvatarImg = document.getElementById('userAvatar');
+          if (userAvatarImg && userAvatarImg.src && userAvatarImg.src !== '') {
+            avatar.innerHTML = `<img src="${userAvatarImg.src}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="用戶頭像">`;
+          } else {
+            avatar.textContent = '你';
+          }
+        } else {
+          avatar.textContent = '🤖';
+        }
         
         const bubble = document.createElement('div');
         bubble.className = 'msg-bubble';
@@ -8406,12 +8948,12 @@
         // 如果是 AI 回覆，清理 Markdown 格式
         if (role === 'assistant') {
           const cleanText = cleanMarkdownFormat(text);
-          bubble.innerHTML = cleanText;
+          bubble.innerHTML = `<p>${cleanText}</p>`;
         } else {
-          bubble.textContent = text;
+          bubble.innerHTML = `<p>${text}</p>`;
         }
         
-        div.appendChild(label);
+        div.appendChild(avatar);
         div.appendChild(bubble);
         chatEl.appendChild(div);
         chatEl.scrollTop = chatEl.scrollHeight;
@@ -8478,8 +9020,15 @@
 
         // 顯示 AI 回覆中的載入狀態
         const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'loading';
-        loadingDiv.innerHTML = '<div class="spinner"></div><span>AI回覆中...</span>';
+        loadingDiv.className = 'ai-loading';
+        loadingDiv.innerHTML = `
+          <span>AI正在思考中</span>
+          <div class="ai-loading-dots">
+            <div class="ai-loading-dot"></div>
+            <div class="ai-loading-dot"></div>
+            <div class="ai-loading-dot"></div>
+          </div>
+        `;
         assistantNode.bubble.appendChild(loadingDiv);
 
         sendBtn.disabled = true;
