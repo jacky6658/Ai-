@@ -3470,6 +3470,7 @@
         /* 首頁手機版 - 滿版設計 */
         .homepage {
           width: 100% !important;
+          max-width: 100vw !important;
           height: auto !important;
           min-height: calc(100vh - 60px) !important;
           min-height: calc(100dvh - 60px) !important;
@@ -3479,6 +3480,7 @@
           overflow-y: auto !important; /* 允許垂直滾動 */
           display: flex !important;
           flex-direction: column !important;
+          box-sizing: border-box !important;
         }
         
         .homepage-title {
@@ -3514,21 +3516,24 @@
         .mode-cards {
           display: flex !important;
           flex-direction: column !important;
-          gap: 12px !important;
-          padding: 0 12px !important;
+          gap: 8px !important;
+          padding: 0 16px !important;
           width: 100% !important;
+          max-width: 100% !important;
           height: auto !important;
-          overflow: visible !important;
+          overflow: hidden !important;
           flex: none !important;
-          margin-bottom: 20px !important;
+          margin: 0 0 20px 0 !important;
+          box-sizing: border-box !important;
         }
         
         .mode-card {
-          width: calc(100% - 24px) !important;
+          width: 100% !important;
+          max-width: 90% !important;
           height: auto !important;
-          min-height: 120px !important;
+          min-height: 100% !important;
           margin: 0 !important;
-          padding: 18px 14px !important;
+          padding: 16px 12px !important;
           border-radius: 12px !important;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
           background: white !important;
@@ -3547,10 +3552,10 @@
         }
         
         .mode-card h3 {
-          font-size: 16px !important;
-          margin-bottom: 6px !important;
+          font-size: 14px !important;
+          margin-bottom: 3px !important;
           font-weight: 600 !important;
-          line-height: 1.3 !important;
+          line-height: 1.1 !important;
           color: #1f2937 !important;
           text-align: center !important;
           width: 100% !important;
@@ -3559,8 +3564,8 @@
         }
         
         .mode-card p {
-          font-size: 13px !important;
-          line-height: 1.4 !important;
+          font-size: 11px !important;
+          line-height: 1.2 !important;
           color: #374151 !important;
           text-align: center !important;
           width: 100% !important;
@@ -3570,10 +3575,46 @@
           margin-bottom: 0 !important;
         }
         
-        /* 手機版模式卡片懸停效果 */
+        /* 確保模式卡片描述文字顯示 */
+        .mode-card-desc {
+          font-size: 11px !important;
+          line-height: 1.2 !important;
+          color: #374151 !important;
+          text-align: center !important;
+          width: 100% !important;
+          white-space: normal !important;
+          word-wrap: break-word !important;
+          display: block !important;
+          margin-bottom: 0 !important;
+        }
+        
+        /* 所有模式卡片標題字體統一調整 */
+        .mode-card:nth-child(1) .mode-card-title {
+          font-size: 20px !important;
+          font-weight: 700 !important;
+        }
+        .mode-card:nth-child(2) .mode-card-title {
+          font-size: 20px !important;
+          font-weight: 700 !important;
+        }
+        .mode-card:nth-child(3) .mode-card-title {
+          font-size: 20px !important;
+          font-weight: 700 !important;
+        }
+        
+        /* 手機版模式卡片懸停效果 - 更靈敏的設計 */
+        .mode-card {
+          transition: all 0.1s ease !important;
+        }
         .mode-card:active {
-          transform: scale(0.98) !important;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+          transform: scale(0.95) !important;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+          border-color: #3b82f6 !important;
+          background: #f0f9ff !important;
+        }
+        .mode-card:hover {
+          transform: scale(1.02) !important;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
           border-color: #3b82f6 !important;
         }
         
