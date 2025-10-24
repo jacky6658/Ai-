@@ -4,6 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>AIJob短影音智能體</title>
+    
+    <!-- Markdown 和語法高亮函式庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/css.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/html.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    <!-- Font Awesome 圖標庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
       :root { 
         color-scheme: light; 
@@ -144,6 +156,13 @@
         overflow-y: auto;
       }
       
+      /* mode2頁面特殊樣式 - 滿版顯示 */
+      .mode2 .page-content {
+        padding: 0;
+        max-width: none;
+        width: 100%;
+      }
+      
       /* 首頁樣式 */
       .homepage {
         display: flex;
@@ -255,6 +274,10 @@
         height: calc(100vh - 140px);
         min-height: 600px;
         position: relative;
+        max-width: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
       }
       
       /* 說明按鈕 */
@@ -848,21 +871,30 @@
         min-height: 400px;
       }
       
-      /* 聊天容器樣式調整 */
+      /* 聊天容器樣式調整 - ChatGPT 風格 */
       .chat-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        max-width: 800px !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        background: #f7f7f8 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
       }
       
       #chatMessages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px;
-        min-height: 400px;
-        background: #f8fafc;
-        transition: min-height 0.3s ease;
-        max-height: calc(100vh - 200px);
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding: 20px !important;
+        min-height: 500px !important;
+        background: #f7f7f8 !important;
+        scroll-behavior: smooth !important;
+        overscroll-behavior: contain !important;
+        display: flex !important;
+        flex-direction: column !important;
+        max-height: calc(100vh - 200px) !important;
+        padding-bottom: 120px !important; /* 為固定輸入框留出空間 */
       }
       
       /* 當說明收起時，聊天訊息區延長高度 */
@@ -870,55 +902,207 @@
         min-height: 600px;
       }
 
-      /* ===== AI顧問聊天訊息樣式（套用IP模式設計） ===== */
+      /* ===== AI顧問聊天訊息樣式 - ChatGPT 風格 ===== */
       
-      /* 聊天訊息容器 */
+      /* 聊天訊息容器 - 採用更簡潔的設計 */
       .message {
-        display: flex;
-        margin-bottom: 16px;
-        align-items: flex-start;
+        display: flex !important;
+        padding: 20px 0 !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
+      .message:last-child {
+        border-bottom: none !important;
+      }
+
+      /* 用戶訊息背景 */
+      .message.user {
+        background: white !important;
+      }
+
+      /* AI 訊息背景 */
+      .message.assistant {
+        background: #f7f7f8 !important;
+        border-top: 1px solid #e5e7eb !important;
       }
 
       .message-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        margin-right: 12px;
-        flex-shrink: 0;
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        border-radius: 4px !important;
+        background: #10a37f !important;
+        color: white !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        margin-right: 15px !important;
+        flex-shrink: 0 !important;
       }
 
       .user .message-avatar {
-        background: #3b82f6;
-        color: white;
+        background: #3b82f6 !important;
+        color: white !important;
       }
 
-      .ai .message-avatar {
-        background: #f3f4f6;
-        color: #374151;
+      .assistant .message-avatar {
+        background: #10a37f !important;
+        color: white !important;
       }
 
       .message-content {
-        flex: 1;
-        background: #f8fafc;
-        padding: 12px 16px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
+        flex: 1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        line-height: 1.6 !important;
+        color: #374151 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: pre-wrap !important;
       }
 
-      .user .message-content {
-        background: #dbeafe;
-        border-color: #3b82f6;
-        color: #1e40af;
+      /* 訊息內容的樣式重置 */
+      .message-content p:first-child {
+        margin-top: 0 !important;
+      }
+      .message-content p:last-child {
+        margin-bottom: 0 !important;
       }
 
-      .ai .message-content {
-        background: #f8fafc;
-        border-color: #e5e7eb;
-        color: #374151;
+      /* Markdown 渲染樣式 - ChatGPT 風格 */
+      .message-content pre {
+        background: #202123 !important;
+        color: #f8f8f2 !important;
+        padding: 10px !important;
+        border-radius: 6px !important;
+        overflow-x: auto !important;
+        position: relative !important;
+        margin: 15px 0 !important;
+      }
+
+      .message-content pre code {
+        display: block !important;
+        padding: 0 !important;
+        background: none !important;
+        color: inherit !important;
+      }
+
+      .message-content table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        margin: 15px 0 !important;
+      }
+
+      .message-content th, 
+      .message-content td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+        text-align: left !important;
+      }
+
+      .message-content th {
+        background-color: #f2f2f2 !important;
+      }
+
+      .message-content blockquote {
+        border-left: 4px solid #ccc !important;
+        padding-left: 15px !important;
+        margin: 15px 0 !important;
+        color: #666 !important;
+      }
+
+      .message-content ul, 
+      .message-content ol {
+        margin: 15px 0 !important;
+        padding-left: 20px !important;
+      }
+
+      .message-content h1,
+      .message-content h2,
+      .message-content h3,
+      .message-content h4,
+      .message-content h5,
+      .message-content h6 {
+        margin: 16px 0 8px 0 !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
+      }
+
+      .message-content p {
+        margin: 8px 0 !important;
+        line-height: 1.6 !important;
+      }
+
+      .message-content code {
+        background: #f1f3f4 !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+        font-size: 0.9em !important;
+      }
+
+      /* AI 思考中動畫 - ChatGPT 風格 */
+      .typing-indicator {
+        display: flex !important;
+        align-items: center !important;
+        font-style: italic !important;
+        color: #6b7280 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .typing-dots {
+        display: flex !important;
+        margin-left: 10px !important;
+      }
+
+      .typing-dot {
+        width: 6px !important;
+        height: 6px !important;
+        margin: 0 2px !important;
+        background-color: #3b82f6 !important;
+        border-radius: 50% !important;
+        animation: dot-flashing 1s infinite alternate !important;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s !important;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s !important;
+      }
+
+      @keyframes dot-flashing {
+        0% {
+          opacity: 0.2;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* 串流文字效果 */
+      .streaming-text {
+        position: relative;
+      }
+
+      .streaming-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        background: #374151;
+        animation: blink 1s infinite;
+        margin-left: 2px;
+      }
+
+      @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
       }
 
       .message-content p {
@@ -1081,8 +1265,9 @@
       /* 優化輸入框樣式 */
       #messageInput {
         flex: 1;
+        height: 44px; /* 固定高度與送出按鈕一致 */
         min-height: 44px;
-        max-height: 120px;
+        max-height: 44px; /* 限制最大高度與最小高度一致 */
         padding: 12px 16px;
         border: 1px solid #e5e7eb;
         border-radius: 22px;
@@ -1090,6 +1275,7 @@
         resize: none;
         outline: none;
         transition: border-color 0.2s;
+        line-height: 1.2; /* 調整行高確保文字垂直居中 */
       }
       
       #messageInput:focus {
@@ -1144,26 +1330,34 @@
         border-color: #3b82f6;
       }
 
-      /* 快速按鈕樣式（套用IP模式設計） */
+      /* ChatGPT 風格快速按鈕 */
       .quick-buttons { 
-        display: flex; 
-        gap: 8px; 
-        margin-bottom: 0; 
-        flex-wrap: wrap;
-        padding: 0;
-        background: transparent;
+        display: flex !important; 
+        gap: 8px !important; 
+        margin-bottom: 12px !important; 
+        flex-wrap: wrap !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        position: relative !important;
+        bottom: auto !important;
+        z-index: auto !important;
+        flex-shrink: 0 !important;
+        height: auto !important;
       }
 
       .quick-btn {
-        background: white;
-        border: 1px solid #d1d5db;
-        color: #374151;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.2s;
-        white-space: nowrap;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
+        color: #374151 !important;
+        padding: 8px 16px !important;
+        border-radius: 16px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        white-space: nowrap !important;
+        font-weight: 400 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
       }
 
       .quick-btn:hover {
@@ -1419,56 +1613,361 @@
         margin-right: 20px;
       }
       
+      
+      
+      
+      
+      /* 聊天訊息區域 */
+      #chatMessages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0;
+        padding-top: 80px;
+        padding-bottom: 150px;
+        min-height: calc(100vh - 200px);
+        background: #f7f7f8;
+        max-width: none;
+        width: 100%;
+      }
+      
+      /* 聊天訊息樣式 */
+      .message {
+        display: flex;
+        margin-bottom: 0;
+        align-items: flex-start;
+        padding: 20px 0;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .message:last-child {
+        border-bottom: none;
+      }
+
+      .message-avatar {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        border-radius: 50%;
+        background: transparent;
+        color: #374151;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+
+      .user .message-avatar {
+        background: transparent;
+      }
+
+      .message-content {
+        flex: 1;
+        padding: 20px 40px;
+        margin: 0;
+        line-height: 1.6;
+        color: #374151;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
+        max-width: none;
+        width: 100%;
+      }
+
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* 快速按鈕樣式 - 在輸入區域內 */
+      .quick-buttons {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        padding: 0;
+        margin-bottom: 6px;
+        background: transparent;
+        border: none;
+      }
+
+      .quick-btn {
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        padding: 8px 16px;
+        border-radius: 16px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-weight: 400;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .quick-btn:hover {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+      }
+      
+      /* 載入動畫樣式 */
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: #ffffff;
+        border-radius: 18px 18px 18px 4px;
+        border: 1px solid #e5e7eb;
+        margin: 8px 0;
+      }
+      
+      .typing-dots {
+        display: flex;
+        gap: 4px;
+      }
+      
+      .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #9ca3af;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+      }
+      
+      .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+      .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+      
+      @keyframes typing {
+        0%, 80%, 100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* 輸入區域 */
       .input-row {
+        padding: 20px;
+        background: #f7f7f8;
+        border: none;
+        flex-shrink: 0;
+        z-index: 100;
+        box-shadow: none;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        padding: 16px;
-        margin-top: 0;
-        border-top: 1px solid #e5e7eb;
-        background: white;
-        border-radius: 0 0 12px 12px;
+        gap: 8px;
+      }
+
+      /* 快速按鈕區域 */
+      .quick-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 20px;
+        background: #f7f7f8;
+        border: none;
+        z-index: 99;
+        justify-content: center;
       }
       
       .input-container {
         display: flex;
-        gap: 12px;
-        align-items: flex-end;
+        gap: 8px;
+        align-items: center;
         width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 8px 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.2s;
       }
-      
-      .input-container textarea {
-        flex: 1;
-        padding: 12px 16px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 14px;
-        resize: vertical;
-        min-height: 60px;
-        max-height: 200px;
-        line-height: 1.4;
-        font-family: inherit;
-        width: 100%;
-        max-width: none;
-      }
-      
-      .input-container textarea:focus {
-        outline: none;
+
+      .input-container:focus-within {
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
       
-      .input-container button {
-        padding: 12px 24px;
-        background: #3b82f6;
-        color: white;
+      .chat-input {
+        flex: 1;
         border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
+        resize: none;
+        outline: none;
+        padding: 8px 0;
+        font-size: 16px;
+        line-height: 1.5;
+        max-height: 200px;
+        overflow-y: auto;
+        background: transparent;
+        font-family: inherit;
+        min-height: 24px;
+      }
+      
+      .chat-input:focus {
+        outline: none;
+      }
+      
+      .send-btn {
+        background: #3b82f6;
+        border: none;
+        color: white;
         cursor: pointer;
-        transition: background 0.2s;
-        white-space: nowrap;
+        padding: 8px 12px;
+        font-size: 16px;
+        transition: all 0.2s;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+      }
+      
+      .send-btn:hover:not(:disabled) {
+        background: #2563eb;
+        transform: translateY(-1px);
+      }
+      
+      .send-btn:disabled {
+        color: #d1d5db;
+        cursor: not-allowed;
+      }
+
+      /* Markdown 渲染樣式 */
+      .message-content pre {
+        background: #202123;
+        color: #f8f8f2;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 16px 0;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .message-content pre code {
+        background: none;
+        padding: 0;
+        color: inherit;
+        font-size: inherit;
+      }
+
+      .message-content code {
+        background: #f1f3f4;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.9em;
+        color: #d63384;
+      }
+
+      .message-content table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+
+      .message-content th,
+      .message-content td {
+        border: 1px solid #e5e7eb;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .message-content th {
+        background: #f8f9fa;
+        font-weight: 600;
+      }
+
+      .message-content blockquote {
+        border-left: 4px solid #e5e7eb;
+        padding-left: 16px;
+        margin: 16px 0;
+        color: #6b7280;
+        font-style: italic;
+      }
+
+      .message-content ul,
+      .message-content ol {
+        margin: 16px 0;
+        padding-left: 24px;
+      }
+
+      .message-content li {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+
+      .message-content h1,
+      .message-content h2,
+      .message-content h3,
+      .message-content h4,
+      .message-content h5,
+      .message-content h6 {
+        margin: 24px 0 16px 0;
+        font-weight: 600;
+        line-height: 1.3;
+        color: #1f2937;
+      }
+
+      .message-content h1 { font-size: 1.5em; }
+      .message-content h2 { font-size: 1.3em; }
+      .message-content h3 { font-size: 1.1em; }
+
+      /* 載入動畫 */
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        font-style: italic;
+        color: #6b7280;
+        margin: 0;
+        padding: 0;
+      }
+
+      .typing-dots {
+        display: flex;
+        margin-left: 10px;
+      }
+
+      .typing-dot {
+        width: 6px;
+        height: 6px;
+        margin: 0 2px;
+        background-color: #3b82f6;
+        border-radius: 50%;
+        animation: dot-flashing 1s infinite alternate;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes dot-flashing {
+        0% {
+          opacity: 0.2;
+        }
+        100% {
+          opacity: 1;
+        }
       }
       
       .input-container button:hover {
@@ -3647,6 +4146,332 @@
         }
       }
       
+      /* 手機版抽屜導航樣式 */
+      .mobile-drawer-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #374151;
+        cursor: pointer;
+        padding: 8px;
+        margin-right: 12px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+
+      .mobile-drawer-toggle:hover {
+        background-color: #f3f4f6;
+      }
+
+      .mobile-drawer-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+      }
+
+      .mobile-drawer {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 280px;
+        height: 100%;
+        background: white;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-drawer.open {
+        left: 0;
+      }
+
+      .mobile-drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+      }
+
+      .mobile-drawer-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      .mobile-drawer-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+
+      .mobile-drawer-close:hover {
+        background-color: #e5e7eb;
+      }
+
+      .mobile-drawer-content {
+        padding: 20px 0;
+      }
+
+      .mobile-drawer-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        color: #374151;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        border-left: 3px solid transparent;
+      }
+
+      .mobile-drawer-item:hover {
+        background-color: #f8fafc;
+        color: #1f2937;
+      }
+
+      .mobile-drawer-item.active {
+        background-color: #eff6ff;
+        color: #3b82f6;
+        border-left-color: #3b82f6;
+      }
+
+      .mobile-drawer-icon {
+        font-size: 20px;
+        margin-right: 12px;
+        width: 24px;
+        text-align: center;
+      }
+
+      .mobile-drawer-text {
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      /* ChatGPT 風格響應式設計 */
+      @media (max-width: 768px) {
+        /* 手機版抽屜按鈕顯示 */
+        .mobile-drawer-toggle {
+          display: block !important;
+        }
+
+        /* 隱藏桌面版導航標籤 */
+        .navbar-tabs {
+          display: none !important;
+        }
+
+        /* 隱藏底部導覽列 */
+        .bottom-navbar {
+          display: none !important;
+        }
+
+        .chat-container {
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        .message {
+          padding: 15px 0 !important;
+          margin-bottom: 0 !important;
+        }
+        
+        .message-avatar {
+          width: 28px !important;
+          height: 28px !important;
+          min-width: 28px !important;
+          font-size: 14px !important;
+          margin-right: 12px !important;
+        }
+        
+        .message-content {
+          max-width: calc(100% - 40px) !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+        
+        .input-row {
+          padding: 20px !important;
+          background: #f7f7f8 !important;
+          border: none !important;
+          box-shadow: none !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 6px !important;
+          z-index: auto !important;
+        }
+        
+        .input-container {
+          background: white !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 12px !important;
+          padding: 8px 12px !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .input-container textarea {
+          font-size: 16px !important; /* 防止iOS縮放 */
+          padding: 8px 0 !important;
+          min-height: 24px !important;
+          max-height: 120px !important;
+          line-height: 1.5 !important;
+          resize: none !important;
+        }
+        
+        .input-container button {
+          background: #3b82f6 !important;
+          color: white !important;
+          border: none !important;
+          border-radius: 8px !important;
+          padding: 8px 12px !important;
+          font-size: 16px !important;
+          min-width: 40px !important;
+          height: 40px !important;
+        }
+        
+        .quick-buttons {
+          gap: 6px !important;
+          padding: 20px !important;
+          background: #f7f7f8 !important;
+          border: none !important;
+          z-index: auto !important;
+          display: flex !important;
+          flex-wrap: wrap !important;
+          justify-content: center !important;
+        }
+        
+        .quick-btn {
+          padding: 8px 16px !important;
+          font-size: 14px !important;
+          border-radius: 12px !important;
+          background: white !important;
+          border: 1px solid #d1d5db !important;
+          white-space: nowrap !important;
+          min-width: fit-content !important;
+          flex-shrink: 0 !important;
+        }
+        
+        
+        /* 手機版聊天容器調整 */
+        .chat-container {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        
+        .chat-messages {
+          flex: 1 !important;
+          padding: 0 !important;
+          padding-top: 80px !important; /* 添加頂部間距避免被頁首遮住 */
+          padding-bottom: 0 !important; /* 移除底部padding，讓訊息緊貼輸入區域 */
+          overflow-y: auto !important;
+          min-height: 0 !important;
+          max-width: none !important;
+          width: 100% !important;
+        }
+        
+        /* 手機版快速按鈕獨立顯示 - 已在上方定義 */
+        
+        .input-row {
+          padding: 15px !important;
+          margin-top: 0 !important;
+          background: white !important;
+          border: none !important;
+          box-shadow: none !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 6px !important;
+          z-index: auto !important;
+        }
+        
+        .message {
+          padding: 15px 0 !important;
+        }
+        
+        .message-content {
+          padding: 15px 20px !important;
+          max-width: none !important;
+          width: 100% !important;
+        }
+        
+        .message-avatar {
+          width: 28px !important;
+          height: 28px !important;
+          min-width: 28px !important;
+          font-size: 14px !important;
+          margin-right: 12px !important;
+        }
+        
+        .quick-btn {
+          padding: 6px 12px !important;
+          font-size: 13px !important;
+        }
+        
+        
+        .input-container {
+          padding: 6px 10px !important;
+          border-radius: 10px !important;
+        }
+        
+        .chat-input {
+          font-size: 16px !important; /* 防止iOS縮放 */
+          padding: 6px 0 !important;
+        }
+        
+        .send-btn {
+          font-size: 16px !important;
+          padding: 6px !important;
+        }
+      }
+      
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .chat-container {
+          max-width: 700px;
+        }
+      }
+      
+      @media (min-width: 1025px) {
+        .chat-container {
+          max-width: 800px;
+        }
+      }
+
+      /* 桌面版樣式 - 隱藏手機版抽屜 */
+      @media (min-width: 769px) {
+        .mobile-drawer-toggle {
+          display: none !important;
+        }
+        
+        .mobile-drawer {
+          display: none !important;
+        }
+        
+        .mobile-drawer-overlay {
+          display: none !important;
+        }
+        
+        .bottom-navbar {
+          display: none !important;
+        }
+      }
+      
       /* 響應式設計 - 手機版 */
       @media (max-width: 768px) {
         /* 頂部導航欄手機版 */
@@ -4100,17 +4925,19 @@
           flex-direction: column !important;
           flex: 1 !important;
           height: 100% !important;
-          overflow: hidden !important;
+          overflow: visible !important;
         }
         
         .chat-messages {
           padding: 16px;
           flex: 1;
           overflow-y: auto;
-          height: calc(100vh - 80px - 80px - 120px);
-          min-height: 300px;
-          max-height: calc(100vh - 80px - 80px - 120px);
+          height: calc(100vh - 160px); /* 簡化高度計算 */
+          min-height: 400px;
+          max-height: calc(100vh - 160px);
           -webkit-overflow-scrolling: touch;
+          scroll-behavior: smooth;
+          overscroll-behavior: contain;
         }
         
         .message {
@@ -4155,15 +4982,16 @@
           gap: 12px !important;
           display: flex !important;
           border-top: 1px solid #e5e7eb !important;
-          background: white !important;
-          border-radius: 0 0 12px 12px !important;
+          background: #f7f7f8 !important;
+          border-radius: 0 !important;
           flex-shrink: 0 !important;
-          position: relative !important;
-          z-index: 10 !important;
+          position: sticky !important;
+          bottom: 0 !important;
+          z-index: 100 !important;
           visibility: visible !important;
           opacity: 1 !important;
           height: auto !important;
-          min-height: 80px !important;
+          min-height: auto !important;
           margin: 0 !important;
         }
         
@@ -4174,7 +5002,10 @@
           border-radius: 25px !important;
           resize: none !important;
           border: 1px solid #d1d5db !important;
-          min-height: 60px !important;
+          height: 44px !important; /* 固定高度與送出按鈕一致 */
+          min-height: 44px !important;
+          max-height: 44px !important; /* 限制最大高度與最小高度一致 */
+          line-height: 1.2 !important; /* 調整行高確保文字垂直居中 */
         }
         
         .input-row .send-btn {
@@ -4218,33 +5049,45 @@
         .mode2 .quick-buttons {
           min-height: auto !important;
           background: transparent !important;
-          border-top: none !important;
+          border: none !important;
           padding: 0 !important;
           flex-direction: row !important;
-          gap: 4px !important;
-          margin-bottom: 6px !important;
+          gap: 8px !important;
+          margin-bottom: 12px !important;
           position: relative !important;
           bottom: auto !important;
           left: auto !important;
           right: auto !important;
           z-index: auto !important;
-          flex-wrap: nowrap !important;
-          justify-content: space-between !important;
+          flex-wrap: wrap !important;
+          justify-content: flex-start !important;
+          height: auto !important;
+          display: flex !important;
+        }
+        
+        /* 手機版快速按鈕文字對齊調整 */
+        .mode2 .quick-btn {
+          text-align: left !important; /* 強制文字左對齊 */
+          padding: 8px 12px !important; /* 調整左右padding，左邊少一點 */
         }
         
         .mode2 .input-row {
           min-height: auto !important;
           background: white !important;
-          border-top: 1px solid #e5e7eb !important;
+          border: 1px solid #e5e7eb !important;
           padding: 12px 16px !important;
           flex-direction: column !important;
-          gap: 6px !important;
+          gap: 0 !important;
           position: fixed !important;
           bottom: 80px !important;
-          left: 0 !important;
-          right: 0 !important;
+          left: 16px !important;
+          right: 16px !important;
           z-index: 1001 !important;
           box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+          margin: 0 !important;
+          height: auto !important; /* 完全自適應高度 */
+          border-radius: 12px !important;
+          max-height: none !important; /* 移除最大高度限制 */
         }
         
         .mode2 .input-container {
@@ -4260,7 +5103,11 @@
         }
         
         .mode2 .input-container textarea {
-          min-height: 10px !important;
+          height: 44px !important; /* 固定高度與送出按鈕一致 */
+          min-height: 44px !important;
+          max-height: 44px !important; /* 限制最大高度與最小高度一致 */
+          resize: none !important; /* 禁止調整大小保持固定高度 */
+          line-height: 1.2 !important; /* 調整行高確保文字垂直居中 */
         }
         
         /* 創作者資料庫手機版 */
@@ -4876,7 +5723,11 @@
         <!-- 頂部導航欄 -->
         <div class="top-navbar">
           <div class="navbar-left">
-            <div class="navbar-title clickable-title" onclick="switchPage('homepage')">AIJob短影音智能體</div>
+            <!-- 手機版抽屜按鈕 -->
+            <button class="mobile-drawer-toggle" onclick="toggleMobileDrawer()">
+              <span class="hamburger-icon">☰</span>
+            </button>
+            <div class="navbar-title clickable-title" onclick="switchPage('homepage')">AIJob短影音智能</div>
             <div class="navbar-tabs">
               <a href="#homepage" class="navbar-tab" onclick="switchPage('homepage'); return false;">首頁</a>
               <a href="#mode1" class="navbar-tab" onclick="switchPage('mode1'); return false;">一鍵生成</a>
@@ -5013,44 +5864,35 @@
                   <button class="drawer-close-btn" onclick="toggleInstructionsDrawer()">✕</button>
                 </div>
                 <div class="drawer-content">
-                  <p><strong>💬 直接對話</strong><br>點擊下方快速按鈕或直接輸入問題，與AI進行深度對話討論</p>
+                  <p><strong>💬 直接對話</strong><br>點擊下方按鈕開始與AI進行深度對話討論</p>
                   <p><strong>🎯 專業建議</strong><br>AI會根據你的需求提供帳號定位、選題建議和腳本創作指導</p>
                   <p><strong>🔄 持續優化</strong><br>透過多輪對話不斷調整和完善內容，直到滿意為止</p>
                   <p><strong>💡 小提醒：</strong>詳細描述你的需求能讓AI提供更精準的建議 🎯</p>
                 </div>
               </div>
               
-              <div class="chat-container">
-                
-                <!-- 聊天功能區域 -->
-                <div id="chatContainer">
-                  <!-- 聊天訊息區域 -->
-                  <div class="chat-messages" id="chatMessages">
-                    <div class="msg assistant">
-                      <div class="msg-avatar">🤖</div>
-                      <div class="msg-bubble">
-                        <p>嗨！我是你的 AI短影音顧問 🤖</p>
-                        <p>想聊什麼呢？帳號定位、選題還是腳本創作？</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 輸入區域 -->
-                  <div class="input-row">
-                    <!-- 快速按鈕區域 -->
-                    <div class="quick-buttons">
-                      <button class="quick-btn" data-text="我要如何開始？">我要如何開始？</button>
-                      <button class="quick-btn" data-text="我要怎麼帳號定位">我要怎麼帳號定位</button>
-                      <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
-                    </div>
-                    
-                    <!-- 輸入欄位和送出按鈕 -->
-                    <div class="input-container">
-                      <textarea id="messageInput" placeholder="輸入訊息...(Ctrl+Enter 送出、Enter換行)"></textarea>
-                      <button id="sendBtn" class="send-btn">送出</button>
-                    </div>
-                  </div>
+              <!-- 聊天訊息區域 -->
+              <div id="chatMessages" class="chat-messages">
+                <!-- 聊天訊息將在這裡動態插入 -->
+              </div>
+              
+              <!-- 快速按鈕區域 -->
+              <div class="quick-buttons" id="quickButtons">
+                <button class="quick-btn" data-text="我要如何開始？">我要如何開始？</button>
+                <button class="quick-btn" data-text="我要怎麼帳號定位">我要怎麼帳號定位</button>
+                <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
+              </div>
+              
+              <!-- 輸入區域 -->
+              <div class="input-row">
+                <div class="input-container">
+                  <textarea id="messageInput" class="chat-input" placeholder="向AI顧問提問..." rows="1"></textarea>
+                  <button id="sendBtn" class="send-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
                 </div>
+              </div>
+              
               </div>
             </div>
           </div>
@@ -6734,6 +7576,573 @@
         } catch (error) {
           console.error('Load scripts error:', error);
           content.innerHTML = '<div class="loading-text">載入失敗，請稍後再試</div>';
+        }
+      }
+      
+      // ===== ChatGPT 風格功能函數 =====
+      
+      // 初始化 Markdown 渲染器
+      function initMarkdownRenderer() {
+        if (typeof marked !== 'undefined') {
+          marked.setOptions({
+            highlight: function(code, lang) {
+              if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                return hljs.highlight(code, { language: lang }).value;
+              }
+              return code;
+            },
+            breaks: true,
+            gfm: true
+          });
+        }
+      }
+      
+      // Markdown 渲染函數
+      function renderMarkdown(text) {
+        if (typeof marked !== 'undefined') {
+          return marked.parse(text);
+        }
+        return text.replace(/\n/g, '<br>');
+      }
+      
+      // 創建 ChatGPT 風格的訊息元素
+      function createChatGPTMessage(role, content) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+        
+        if (role === 'user') {
+          // 載入Google用戶頭像
+          const userAvatarImg = document.getElementById('userAvatar');
+          if (userAvatarImg && userAvatarImg.src && userAvatarImg.src !== '') {
+            const img = document.createElement('img');
+            img.src = userAvatarImg.src;
+            img.alt = '用戶頭像';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            avatarDiv.appendChild(img);
+          } else {
+            avatarDiv.textContent = '👤';
+          }
+        } else {
+          avatarDiv.textContent = '🤖';
+        }
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (role === 'assistant') {
+          contentDiv.innerHTML = renderMarkdown(content);
+        } else {
+          contentDiv.textContent = content;
+        }
+        
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        
+        return messageDiv;
+      }
+      
+      // 創建載入動畫
+      function createTypingIndicator() {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message assistant';
+        
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+        avatarDiv.textContent = '🤖';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.innerHTML = `
+          <div class="typing-indicator">
+            <span>AI正在思考中</span>
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+        `;
+        
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        
+        return messageDiv;
+      }
+      
+      // 串流顯示文字
+      function streamText(element, text, speed = 30) {
+        return new Promise((resolve) => {
+          let index = 0;
+          element.innerHTML = '';
+          
+          const stream = () => {
+            if (index < text.length) {
+              element.innerHTML += text[index];
+              index++;
+              setTimeout(stream, speed);
+            } else {
+              // 添加閃爍游標
+              const cursor = document.createElement('span');
+              cursor.className = 'streaming-cursor';
+              element.appendChild(cursor);
+              resolve();
+            }
+          };
+          
+          stream();
+        });
+      }
+      
+      // 自動調整輸入框高度
+      function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+      }
+      
+      // 發送訊息函數（ChatGPT 風格，兼容現有後端）
+      async function sendMessageChatGPT(message) {
+        const chatMessages = document.getElementById('chatMessages');
+        if (!chatMessages) return;
+        
+        // 添加用戶訊息
+        const userMessage = createChatGPTMessage('user', message);
+        chatMessages.appendChild(userMessage);
+        
+        // 添加載入動畫
+        const typingIndicator = createTypingIndicator();
+        chatMessages.appendChild(typingIndicator);
+        
+        // 滾動到底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        try {
+          // 使用現有的後端API端點和參數
+          const endpoint = 'https://aivideobackend.zeabur.app/api/chat/stream';
+          const headers = { 'Content-Type': 'application/json' };
+          if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+          }
+          
+          // 安全地獲取設定值，避免未定義變數錯誤
+          const safeSettingsApplied = typeof settingsApplied !== 'undefined' ? settingsApplied : false;
+          const safeAppliedSettings = typeof appliedSettings !== 'undefined' ? appliedSettings : {};
+          const safeStyleInstruction = typeof styleInstruction !== 'undefined' ? styleInstruction : null;
+          
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              message: message,
+              platform: safeSettingsApplied ? safeAppliedSettings.platform : null,
+              topic: safeSettingsApplied ? safeAppliedSettings.topic : null,
+              duration: safeSettingsApplied ? safeAppliedSettings.duration : null,
+              style: safeStyleInstruction,
+              profile: safeSettingsApplied ? safeAppliedSettings.positioning : null,
+              history: [], // 保持現有的歷史記錄格式
+              user_id: currentUser?.user_id || null
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          // 移除載入動畫
+          chatMessages.removeChild(typingIndicator);
+          
+          // 創建AI回應容器
+          const aiMessage = createChatGPTMessage('assistant', '');
+          chatMessages.appendChild(aiMessage);
+          
+          const contentDiv = aiMessage.querySelector('.message-content');
+          
+          // 處理串流回應
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let fullContent = '';
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // 保留最後一行（可能不完整）
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') {
+                  // 移除閃爍游標
+                  const cursor = contentDiv.querySelector('.streaming-cursor');
+                  if (cursor) cursor.remove();
+                  
+                  // 檢查是否需要顯示結果區塊
+                  if (fullContent) {
+                    checkIfScriptRequest(fullContent);
+                  }
+                  return;
+                }
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.content) {
+                    fullContent += parsed.content;
+                    contentDiv.innerHTML = renderMarkdown(fullContent);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                  }
+                } catch (e) {
+                  // 忽略解析錯誤
+                }
+              }
+            }
+          }
+          
+        } catch (error) {
+          console.error('發送訊息錯誤:', error);
+          
+          // 移除載入動畫
+          if (chatMessages.contains(typingIndicator)) {
+            chatMessages.removeChild(typingIndicator);
+          }
+          
+          // 顯示錯誤訊息
+          const errorMessage = createChatGPTMessage('assistant', `抱歉，發生了錯誤：${error.message}`);
+          chatMessages.appendChild(errorMessage);
+        }
+        
+        // 滾動到底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      
+      // 強制清除快取並重新載入樣式
+      function forceReloadStyles() {
+        // 強制重新載入CSS
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach(link => {
+          const href = link.href;
+          link.href = href + '?v=' + Date.now();
+        });
+        
+        // 強制重新載入內聯樣式
+        const style = document.querySelector('style');
+        if (style) {
+          style.innerHTML = style.innerHTML;
+        }
+      }
+      
+      // ===== ChatGPT 風格 AI 顧問功能 =====
+      
+      // 初始化 Markdown 渲染器
+      function initMarkdownRenderer() {
+        if (typeof marked !== 'undefined') {
+          marked.setOptions({
+            renderer: new marked.Renderer(),
+            gfm: true,
+            breaks: true,
+            sanitize: false,
+            langPrefix: 'hljs language-',
+            highlight: function(code, lang) {
+              if (typeof hljs !== 'undefined' && hljs.getLanguage(lang)) {
+                return hljs.highlight(code, { language: lang }).value;
+              }
+              return code;
+            }
+          });
+        }
+      }
+
+      // 渲染 Markdown 內容
+      function renderMarkdown(text) {
+        if (typeof marked !== 'undefined') {
+          return marked.parse(text);
+        }
+        return text.replace(/\n/g, '<br>');
+      }
+
+      // 創建聊天訊息元素
+      function createMessage(role, content) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+        avatarDiv.textContent = role === 'user' ? 'U' : '🤖';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (role === 'assistant' && content) {
+          contentDiv.innerHTML = renderMarkdown(content);
+          // 對代碼塊進行語法高亮
+          if (typeof hljs !== 'undefined') {
+            contentDiv.querySelectorAll('pre code').forEach((block) => {
+              hljs.highlightElement(block);
+            });
+          }
+        } else if (role === 'user') {
+          contentDiv.textContent = content;
+        }
+        
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        
+        return messageDiv;
+      }
+
+      // 創建載入動畫
+      function createTypingIndicator() {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message assistant';
+        
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+        avatarDiv.textContent = '🤖';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.innerHTML = `
+          <div class="typing-indicator">
+            <span>AI正在思考中</span>
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+        `;
+        
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        
+        return messageDiv;
+      }
+
+      // 自動調整輸入框高度
+      function autoResizeTextarea() {
+        const textarea = document.getElementById('messageInput');
+        if (textarea) {
+          textarea.style.height = 'auto';
+          textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+          
+          // 更新發送按鈕狀態
+          const sendBtn = document.getElementById('sendBtn');
+          if (sendBtn) {
+            sendBtn.disabled = textarea.value.trim() === '';
+          }
+        }
+      }
+
+      // 發送訊息（整合原有後端和LLM設定）
+      async function sendMessage(message) {
+        if (!message || !message.trim()) return;
+        
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const quickButtons = document.getElementById('quickButtons');
+        
+        // 添加用戶訊息
+        const userMessage = createMessage('user', message);
+        chatMessages.appendChild(userMessage);
+        
+        // 隱藏快速按鈕
+        if (quickButtons) {
+          quickButtons.style.display = 'none';
+        }
+        
+        // 清空輸入框並禁用
+        messageInput.value = '';
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+        autoResizeTextarea();
+        
+        // 添加載入動畫
+        const typingIndicator = createTypingIndicator();
+        chatMessages.appendChild(typingIndicator);
+        
+        // 滾動到底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        try {
+          // 使用原有的後端API和LLM設定
+          const endpoint = 'https://aivideobackend.zeabur.app/api/chat/stream';
+          const headers = { 'Content-Type': 'application/json' };
+          if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+          }
+          
+          // 安全地獲取設定值
+          const safeSettingsApplied = typeof settingsApplied !== 'undefined' ? settingsApplied : false;
+          const safeAppliedSettings = typeof appliedSettings !== 'undefined' ? appliedSettings : {};
+          const safeStyleInstruction = typeof styleInstruction !== 'undefined' ? styleInstruction : null;
+          
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              message: message,
+              platform: safeSettingsApplied ? safeAppliedSettings.platform : null,
+              topic: safeSettingsApplied ? safeAppliedSettings.topic : null,
+              duration: safeSettingsApplied ? safeAppliedSettings.duration : null,
+              style: safeStyleInstruction,
+              profile: safeSettingsApplied ? safeAppliedSettings.positioning : null,
+              history: [], // 保持現有的歷史記錄格式
+              user_id: currentUser?.user_id || null
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          // 移除載入動畫
+          chatMessages.removeChild(typingIndicator);
+          
+          // 創建AI回應容器
+          const aiMessage = createMessage('assistant', '');
+          chatMessages.appendChild(aiMessage);
+          
+          const contentDiv = aiMessage.querySelector('.message-content');
+          
+          // 處理串流回應
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let fullContent = '';
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') {
+                  // 檢查是否需要顯示結果區塊
+                  if (fullContent) {
+                    checkIfScriptRequest(fullContent);
+                  }
+                  break;
+                }
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.content) {
+                    fullContent += parsed.content;
+                    contentDiv.innerHTML = renderMarkdown(fullContent);
+                    
+                    // 對代碼塊進行語法高亮
+                    if (typeof hljs !== 'undefined') {
+                      contentDiv.querySelectorAll('pre code').forEach((block) => {
+                        if (!block.classList.contains('hljs')) {
+                          hljs.highlightElement(block);
+                        }
+                      });
+                    }
+                    
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                  }
+                } catch (e) {
+                  // 忽略解析錯誤
+                }
+              }
+            }
+          }
+          
+        } catch (error) {
+          console.error('發送訊息錯誤:', error);
+          
+          // 移除載入動畫
+          if (chatMessages.contains(typingIndicator)) {
+            chatMessages.removeChild(typingIndicator);
+          }
+          
+          // 顯示錯誤訊息
+          const errorMessage = createMessage('assistant', `抱歉，發生了錯誤：${error.message}`);
+          chatMessages.appendChild(errorMessage);
+        }
+        
+        // 恢復輸入框和按鈕
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        
+        // 滾動到底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // 初始化 ChatGPT 風格功能
+      function initChatGPTFeatures() {
+        try {
+          // 只在AI顧問模式頁面才初始化
+          const currentPage = document.querySelector('.page.active');
+          if (!currentPage || currentPage.id !== 'mode2') {
+            return;
+          }
+          
+          
+          // 強制清除快取
+          forceReloadStyles();
+          
+          // 初始化 Markdown 渲染器
+          initMarkdownRenderer();
+        
+          // 設置輸入框事件監聽器
+          const messageInput = document.getElementById('messageInput');
+          const sendBtn = document.getElementById('sendBtn');
+          
+          if (messageInput) {
+            // 自動調整高度
+            messageInput.addEventListener('input', autoResizeTextarea);
+            
+            // 鍵盤事件：Enter換行，Ctrl+Enter發送
+            messageInput.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (message) {
+                  sendMessage(message);
+                }
+              }
+            });
+          }
+          
+          // 設置發送按鈕事件
+          if (sendBtn) {
+            sendBtn.addEventListener('click', () => {
+              const message = messageInput.value.trim();
+              if (message) {
+                sendMessage(message);
+              }
+            });
+          }
+          
+          // 設置快速按鈕事件
+          const quickButtons = document.getElementById('quickButtons');
+          if (quickButtons) {
+            const quickBtns = quickButtons.querySelectorAll('.quick-btn');
+            quickBtns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                const text = btn.getAttribute('data-text');
+                if (text) {
+                  sendMessage(text);
+                }
+              });
+            });
+          }
+        } catch (error) {
+          console.error('ChatGPT功能初始化錯誤:', error);
         }
       }
       
@@ -8709,6 +10118,12 @@
         // 聊天功能
         sendBtn.addEventListener('click', sendMessage);
         
+        // 輸入框事件監聽器
+        messageInput.addEventListener('input', autoResizeTextarea);
+        
+        // 初始化發送按鈕狀態
+        autoResizeTextarea();
+        
         // 快速按鈕功能
         document.querySelectorAll('.quick-btn').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -8788,13 +10203,7 @@
           hidePopupOverlay();
         });
         
-        // 鍵盤快捷鍵
-        messageInput.addEventListener('keydown', (e) => {
-          if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-          }
-        });
+        // 鍵盤快捷鍵 - 已移至 initChatGPTFeatures 中處理
       });
       
       // 登入功能
@@ -9050,6 +10459,60 @@
 
       // 這個事件監聽器已經合併到上面的 DOMContentLoaded 中
 
+      // 滾動到底部的函數
+      function scrollToBottom() {
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          // 使用 requestAnimationFrame 確保 DOM 更新後再滾動
+          requestAnimationFrame(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // 強制滾動到最底部
+            setTimeout(() => {
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+          });
+        }
+      }
+
+      // 強制滾動到底部的函數
+      function forceScrollToBottom() {
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          // 立即滾動到底部
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          // 延遲再次滾動確保到達底部
+          setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }, 50);
+          setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }, 200);
+        }
+      }
+
+      // 初始化聊天滾動功能
+      function initChatScroll() {
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          // 確保聊天區域可以滾動
+          chatMessages.style.overflowY = 'auto';
+          chatMessages.style.scrollBehavior = 'smooth';
+          
+          // 添加滾動事件監聽器
+          chatMessages.addEventListener('scroll', function() {
+            // 可以添加滾動相關的邏輯，比如顯示/隱藏滾動到底部按鈕
+          });
+          
+          // 確保初始狀態滾動到底部
+          forceScrollToBottom();
+          
+          // 延遲再次滾動確保到達底部
+          setTimeout(() => {
+            forceScrollToBottom();
+          }, 500);
+        }
+      }
+
       function append(role, text) {
         const div = document.createElement('div');
         div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
@@ -9084,7 +10547,9 @@
         div.appendChild(avatar);
         div.appendChild(bubble);
         chatEl.appendChild(div);
-        chatEl.scrollTop = chatEl.scrollHeight;
+        
+        // 確保滾動到底部
+        scrollToBottom();
         return { container: div, bubble: bubble };
       }
 
@@ -9128,7 +10593,9 @@
         } else {
           nodeObj.innerHTML = cleanText;
         }
-        chatEl.scrollTop = chatEl.scrollHeight;
+        
+        // 確保滾動到底部
+        scrollToBottom();
       }
 
       function canSubmit() {
@@ -11036,37 +12503,91 @@
         }
       }
 
-      // 在頁面載入時初始化模式3
-      document.addEventListener('DOMContentLoaded', function() {
-        // 現有的初始化代碼...
+      // 關閉聊天容器
+      function closeChatContainer() {
+      }
+
+      // 手機版抽屜控制函數
+      function toggleMobileDrawer() {
+        const drawer = document.getElementById('mobileDrawer');
+        const overlay = document.getElementById('mobileDrawerOverlay');
         
-        // 初始化模式3
-        initializeMode3();
+        if (drawer && overlay) {
+          const isOpen = drawer.classList.contains('open');
+          
+          if (isOpen) {
+            closeMobileDrawer();
+          } else {
+            openMobileDrawer();
+          }
+        }
+      }
+
+      function openMobileDrawer() {
+        const drawer = document.getElementById('mobileDrawer');
+        const overlay = document.getElementById('mobileDrawerOverlay');
+        
+        if (drawer && overlay) {
+          drawer.classList.add('open');
+          overlay.style.display = 'block';
+          document.body.style.overflow = 'hidden'; // 防止背景滾動
+        }
+      }
+
+      function closeMobileDrawer() {
+        const drawer = document.getElementById('mobileDrawer');
+        const overlay = document.getElementById('mobileDrawerOverlay');
+        
+        if (drawer && overlay) {
+          drawer.classList.remove('open');
+          overlay.style.display = 'none';
+          document.body.style.overflow = ''; // 恢復背景滾動
+        }
+      }
+
+
+      // 在頁面載入時初始化模式3
+      window.addEventListener('load', function() {
+        setTimeout(() => {
+          try {
+            initializeMode3();
+          } catch (error) {
+            console.error('初始化錯誤:', error);
+          }
+        }, 1000);
       });
     </script>
     
-    <!-- 底部導航欄（手機版） -->
-    <div class="bottom-navbar">
-      <a href="#homepage" class="bottom-nav-item" onclick="switchPage('homepage'); return false;">
-        <span>🏠</span>
-        <span>首頁</span>
-      </a>
-      <a href="#mode1" class="bottom-nav-item" onclick="switchPage('mode1'); return false;">
-        <span>⚡</span>
-        <span>一鍵生成</span>
-      </a>
-      <a href="#mode2" class="bottom-nav-item" onclick="switchPage('mode2'); return false;">
-        <span>💬</span>
-        <span>AI顧問</span>
-      </a>
-      <a href="#mode3" class="bottom-nav-item" onclick="switchPage('mode3'); return false;">
-        <span>🎭</span>
-        <span>IP人設</span>
-      </a>
-      <a href="#userDB" id="bottomUserDBTab" class="bottom-nav-item" onclick="switchPage('userDB'); return false;" style="display:none;">
-        <span>👤</span>
-        <span>資料庫</span>
+    <!-- 手機版抽屜導航 -->
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileDrawer()"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+      <div class="mobile-drawer-header">
+        <h3>選單</h3>
+        <button class="mobile-drawer-close" onclick="closeMobileDrawer()">✕</button>
+      </div>
+      <div class="mobile-drawer-content">
+        <a href="#homepage" class="mobile-drawer-item" onclick="switchPage('homepage'); closeMobileDrawer(); return false;">
+          <span class="mobile-drawer-icon">🏠</span>
+          <span class="mobile-drawer-text">首頁</span>
+        </a>
+        <a href="#mode1" class="mobile-drawer-item" onclick="switchPage('mode1'); closeMobileDrawer(); return false;">
+          <span class="mobile-drawer-icon">⚡</span>
+          <span class="mobile-drawer-text">一鍵生成</span>
+        </a>
+        <a href="#mode2" class="mobile-drawer-item" onclick="switchPage('mode2'); closeMobileDrawer(); return false;">
+          <span class="mobile-drawer-icon">💬</span>
+          <span class="mobile-drawer-text">AI顧問</span>
+        </a>
+        <a href="#mode3" class="mobile-drawer-item" onclick="switchPage('mode3'); closeMobileDrawer(); return false;">
+          <span class="mobile-drawer-icon">🎭</span>
+          <span class="mobile-drawer-text">IP人設</span>
+        </a>
+        <a href="#userDB" id="mobileUserDBTab" class="mobile-drawer-item" onclick="switchPage('userDB'); closeMobileDrawer(); return false;" style="display:none;">
+          <span class="mobile-drawer-icon">👤</span>
+          <span class="mobile-drawer-text">資料庫</span>
       </a>
     </div>
+    </div>
+
   </body>
 </html>
