@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <title>AIJob短影音智能體</title>
+    <title>ReelMind</title>
     
     <!-- Markdown 和語法高亮函式庫 -->
     <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
@@ -34,7 +34,9 @@
         -webkit-touch-callout: none;
         -webkit-user-select: none;
         user-select: none;
-        overflow-x: hidden;
+        overflow-x: hidden; /* 防止整個頁面左右滑動 */
+        width: 100%; /* 確保寬度固定 */
+        max-width: 100vw; /* 限制最大寬度為視窗寬度 */
       }
       
       /* 頁面容器 */
@@ -886,6 +888,7 @@
       #chatMessages {
         flex: 1 !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important; /* 防止水平滾動 */
         padding: 20px !important;
         min-height: 500px !important;
         background: #f7f7f8 !important;
@@ -895,6 +898,9 @@
         flex-direction: column !important;
         max-height: calc(100vh - 200px) !important;
         padding-bottom: 120px !important; /* 為固定輸入框留出空間 */
+        width: 100% !important; /* 確保寬度固定 */
+        max-width: 100% !important; /* 防止超出容器 */
+        box-sizing: border-box !important; /* 包含邊框在內 */
       }
       
       /* 當說明收起時，聊天訊息區延長高度 */
@@ -910,7 +916,10 @@
         padding: 20px 0 !important;
         border-bottom: 1px solid #e5e7eb !important;
         width: 100% !important;
+        max-width: 100% !important; /* 防止超出容器 */
         margin: 0 !important;
+        box-sizing: border-box !important; /* 包含邊框在內 */
+        overflow: hidden !important; /* 防止內容溢出 */
       }
 
       .message:last-child {
@@ -963,6 +972,9 @@
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
         white-space: pre-wrap !important;
+        max-width: 100% !important; /* 防止超出容器 */
+        overflow: hidden !important; /* 防止內容溢出 */
+        box-sizing: border-box !important; /* 包含邊框在內 */
       }
 
       /* 訊息內容的樣式重置 */
@@ -1161,8 +1173,8 @@
         padding: 16px;
         margin-top: 0;
         border-top: 1px solid #e5e7eb;
-        background: white;
-        border-radius: 0 0 12px 12px;
+        background: transparent;
+        border-radius: 0;
         display: flex;
         gap: 12px;
         align-items: flex-end;
@@ -1621,13 +1633,15 @@
       #chatMessages {
         flex: 1;
         overflow-y: auto;
-        padding: 0;
-        padding-top: 80px;
-        padding-bottom: 150px;
+        overflow-x: hidden; /* 防止水平滾動 */
+        padding: 16px 24px 140px 24px; /* 內距更貼近圖1 */
         min-height: calc(100vh - 200px);
-        background: #f7f7f8;
-        max-width: none;
+        background: #ffffff; /* 對話畫布白底 */
+        max-width: 100%;
         width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #e5e7eb; /* 細邊框 */
+        border-radius: 8px;       /* 略圓角 */
       }
       
       /* 聊天訊息樣式 */
@@ -1637,6 +1651,10 @@
         align-items: flex-start;
         padding: 20px 0;
         border-bottom: 1px solid #e5e7eb;
+        width: 100%; /* 確保寬度固定 */
+        max-width: 100%; /* 防止超出容器 */
+        box-sizing: border-box; /* 包含邊框在內 */
+        overflow: hidden; /* 防止內容溢出 */
       }
 
       .message:last-child {
@@ -1673,8 +1691,10 @@
         word-wrap: break-word;
         overflow-wrap: break-word;
         white-space: pre-wrap;
-        max-width: none;
+        max-width: 100%; /* 限制最大寬度 */
         width: 100%;
+        box-sizing: border-box; /* 包含邊框在內 */
+        overflow: hidden; /* 防止內容溢出 */
       }
 
       .message-content p:first-child {
@@ -1684,19 +1704,37 @@
         margin-bottom: 0;
       }
 
-      /* 快速按鈕樣式 - 在輸入區域內 */
-      .quick-buttons {
+      /* Mode2 頁面固定設計 - 防止左右滑動 */
+      .mode2 {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+      }
+      
+      .mode2-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      /* 快速按鈕列 */
+      .mode2.fig1 .quick-buttons {
         display: flex;
-        gap: 4px;
+        gap: 8px;
         flex-wrap: wrap;
-        padding: 0;
-        margin-bottom: 6px;
+        padding: 8px 0 12px 0; /* 與輸入框留白 */
+        margin: 0;
         background: transparent;
         border: none;
+        justify-content: flex-start;
       }
 
-      .quick-btn {
-        background: #ffffff;
+      .mode2.fig1 .quick-btn {
+        background: transparent;
         border: 1px solid #d1d5db;
         color: #374151;
         padding: 8px 16px;
@@ -1706,15 +1744,118 @@
         transition: all 0.2s ease;
         white-space: nowrap;
         font-weight: 400;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.9);
+        box-shadow: none;
+        backdrop-filter: none;
       }
 
-      .quick-btn:hover {
+      .mode2.fig1 .quick-btn:hover {
         background: #3b82f6;
         border-color: #3b82f6;
         color: white;
+      }
+
+      /* 輸入區域（貼近圖1：寬、扁、右側送出） */
+      .mode2.fig1 .input-row {
+        background: transparent;
+        border: none;
+        padding: 0; /* 由外層留白控制 */
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .mode2.fig1 .chat-input {
+        flex: 1;
+        height: 44px;
+        min-height: 44px;
+        max-height: 44px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        background: #ffffff;
+      }
+
+      .mode2.fig1 .send-btn {
+        height: 44px;
+        min-width: 44px;
+        border-radius: 10px;
+        background: #3b82f6;
+        color: #ffffff;
+        border: none;
+        padding: 0 18px;
+      }
+
+      /* 手機版微調 */
+      @media (max-width: 768px) {
+        .mode2.fig1 #chatMessages {
+          padding: 12px 12px 130px 12px !important;
+          border-radius: 8px !important;
+        }
+        .mode2.fig1 .quick-buttons { gap: 6px !important; }
+        .mode2.fig1 .chat-input { font-size: 15px !important; }
+      }
+
+      /* fig1 強制覆寫（提高優先級） */
+      .mode2.fig1 .mode2-page {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+      }
+
+      .mode2.fig1 #chatMessages {
+        padding: 80px 24px 140px 24px !important; /* 上方留出導航列高度，避免被遮住 */
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 8px !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important; /* 允許子元素正確捲動 */
+        height: auto !important;
+        -webkit-overflow-scrolling: touch !important; /* iOS 慣性捲動 */
+        overscroll-behavior: contain !important;
+        touch-action: pan-y !important;
+        scroll-padding-top: 80px !important; /* 滾動到頂時保留可視區 */
+      }
+
+      .mode2.fig1 .quick-buttons {
+        gap: 8px !important;
+        padding: 8px 0 12px 0 !important;
+        margin: 0 !important;
+        justify-content: flex-start !important;
+      }
+
+      .mode2.fig1 .input-row {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        gap: 12px !important;
+        align-items: center !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .mode2.fig1 .chat-input {
+        flex: 1 !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 10px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        background: #ffffff !important;
+      }
+
+      .mode2.fig1 .send-btn {
+        height: 44px !important;
+        min-width: 44px !important;
+        border-radius: 10px !important;
+        background: #3b82f6 !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 0 18px !important;
+        width: auto !important; /* 覆寫先前手機樣式的 100% 寬 */
       }
       
       /* 載入動畫樣式 */
@@ -5023,8 +5164,8 @@
           flex-direction: column !important;
           gap: 8px !important;
           padding: 16px !important;
-          background: #f8fafc !important;
-          border-top: 1px solid #e5e7eb !important;
+          background: transparent !important;
+          border: none !important;
           flex-shrink: 0 !important;
           position: relative !important;
           z-index: 10 !important;
@@ -5071,10 +5212,50 @@
           padding: 8px 12px !important; /* 調整左右padding，左邊少一點 */
         }
         
+        /* 手機版Mode2頁面固定設計 - 防止左右滑動 */
+        .mode2 {
+          width: 100% !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+          box-sizing: border-box !important;
+        }
+        
+      .mode2-page {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+        
+        .mode2 #chatMessages {
+          width: 100% !important;
+          max-width: 100% !important;
+          overflow-x: hidden !important;
+          box-sizing: border-box !important;
+        }
+        
+        .mode2 .message {
+          width: 100% !important;
+          max-width: 100% !important;
+          overflow-x: hidden !important;
+          box-sizing: border-box !important;
+        }
+        
+        .mode2 .message-content {
+          width: 100% !important;
+          max-width: 100% !important;
+          overflow-x: hidden !important;
+          box-sizing: border-box !important;
+        }
+        
         .mode2 .input-row {
           min-height: auto !important;
-          background: white !important;
-          border: 1px solid #e5e7eb !important;
+          background: transparent !important;
+          border: none !important;
           padding: 12px 16px !important;
           flex-direction: column !important;
           gap: 0 !important;
@@ -5083,10 +5264,10 @@
           left: 16px !important;
           right: 16px !important;
           z-index: 1001 !important;
-          box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+          box-shadow: none !important;
           margin: 0 !important;
           height: auto !important; /* 完全自適應高度 */
-          border-radius: 12px !important;
+          border-radius: 0 !important;
           max-height: none !important; /* 移除最大高度限制 */
         }
         
@@ -5702,7 +5883,7 @@
     <div id="loginPage" class="login-page">
       <div class="login-container">
         <div class="login-header">
-          <h1 class="login-title">AIJob短影音智能體</h1>
+          <h1 class="login-title">ReelMind體</h1>
           <p class="login-subtitle">您的個人化短影音創作專家</p>
           <p class="login-prompt">請登入以繼續</p>
         </div>
@@ -5727,7 +5908,7 @@
             <button class="mobile-drawer-toggle" onclick="toggleMobileDrawer()">
               <span class="hamburger-icon">☰</span>
             </button>
-            <div class="navbar-title clickable-title" onclick="switchPage('homepage')">AIJob短影音智能</div>
+            <div class="navbar-title clickable-title" onclick="switchPage('homepage')">ReelMind</div>
             <div class="navbar-tabs">
               <a href="#homepage" class="navbar-tab" onclick="switchPage('homepage'); return false;">首頁</a>
               <a href="#mode1" class="navbar-tab" onclick="switchPage('mode1'); return false;">一鍵生成</a>
@@ -5846,7 +6027,7 @@
           </div>
 
           <!-- 模式2：AI顧問對話頁面 -->
-          <div id="mode2" class="page mode2">
+          <div id="mode2" class="page mode2 fig1">
             <div class="mode2-page">
               <!-- 說明按鈕 -->
               <div class="instructions-toggle-btn" onclick="toggleInstructionsDrawer()">
@@ -5885,12 +6066,10 @@
               
               <!-- 輸入區域 -->
               <div class="input-row">
-                <div class="input-container">
-                  <textarea id="messageInput" class="chat-input" placeholder="向AI顧問提問..." rows="1"></textarea>
-                  <button id="sendBtn" class="send-btn" disabled>
-                    <i class="fas fa-paper-plane"></i>
-                  </button>
-                </div>
+                <textarea id="messageInput" class="chat-input" placeholder="向AI顧問提問..." rows="1"></textarea>
+                <button id="sendBtn" class="send-btn" disabled>
+                  <i class="fas fa-paper-plane"></i>
+                </button>
               </div>
               
               </div>
