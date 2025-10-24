@@ -945,8 +945,8 @@
       }
 
       .user .message-avatar {
-        background: #3b82f6 !important;
-        color: white !important;
+        background: transparent !important;
+        color: #374151 !important;
       }
 
       .assistant .message-avatar {
@@ -7874,7 +7874,25 @@
         
         const avatarDiv = document.createElement('div');
         avatarDiv.className = 'message-avatar';
-        avatarDiv.textContent = role === 'user' ? 'U' : '🤖';
+        
+        if (role === 'user') {
+          // 嘗試載入Google用戶頭像
+          const userAvatarImg = document.getElementById('userAvatar');
+          if (userAvatarImg && userAvatarImg.src && userAvatarImg.src !== '') {
+            const img = document.createElement('img');
+            img.src = userAvatarImg.src;
+            img.alt = '用戶頭像';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            avatarDiv.appendChild(img);
+          } else {
+            avatarDiv.textContent = '👤';
+          }
+        } else {
+          avatarDiv.textContent = '🤖';
+        }
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
