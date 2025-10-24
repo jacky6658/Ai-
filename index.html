@@ -1804,7 +1804,7 @@
       }
 
       .mode2.fig1 #chatMessages {
-        padding: 80px 24px 140px 24px !important; /* 上方留出導航列高度，避免被遮住 */
+        padding: 80px 24px 220px 24px !important; /* 增加底部留白，避免被底部固定區塊遮住 */
         background: #ffffff !important;
         border: 1px solid #e5e7eb !important;
         border-radius: 8px !important;
@@ -1822,6 +1822,11 @@
         padding: 8px 0 12px 0 !important;
         margin: 0 !important;
         justify-content: flex-start !important;
+        position: fixed !important;
+        left: 24px !important;
+        right: 24px !important;
+        bottom: 84px !important; /* 位於輸入列上方 */
+        z-index: 1000 !important;
       }
 
       .mode2.fig1 .input-row {
@@ -1833,6 +1838,11 @@
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
+        position: fixed !important;
+        left: 24px !important;
+        right: 24px !important;
+        bottom: 24px !important;
+        z-index: 1001 !important;
       }
 
       .mode2.fig1 .chat-input {
