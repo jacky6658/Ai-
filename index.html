@@ -1806,42 +1806,6 @@
 
       /* fig1 強制覆寫（提高優先級） */
       /* 鎖住整頁滾動：當 mode2.fig1 存在時，頁面不捲動，只讓聊天框捲動 */
-      html:has(#mode2.fig1) {
-        height: 100dvh !important;
-        overflow: hidden !important;
-        position: fixed !important;
-        width: 100% !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-      }
-      
-      body:has(#mode2.fig1) {
-        height: 100dvh !important;
-        overflow: hidden !important;
-        position: fixed !important;
-        width: 100% !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-
-      .app-container:has(#mode2.fig1),
-      .main-content:has(#mode2.fig1),
-      .page-content:has(#mode2.fig1) {
-        height: 100dvh !important;
-        overflow: hidden !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100% !important;
-      }
       .mode2.fig1 {
         height: 100dvh !important; /* 整頁固定高度 */
         overflow: hidden !important; /* 鎖住整頁，只讓對話框滾動 */
