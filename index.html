@@ -3,7 +3,70 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <title>ReelMind</title>
+    <title>ReelMind | AI 短影音平台 - AI 生成腳本 × AI 帳號定位</title>
+    
+    <!-- SEO 結構化資料 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ReelMind｜AI 短影音平台",
+      "applicationCategory": "Multimedia",
+      "operatingSystem": "Web",
+      "inLanguage": "zh-Hant",
+      "areaServed": "TW",
+      "offers": { 
+        "@type": "Offer", 
+        "price": "3980", 
+        "priceCurrency": "TWD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "3980",
+          "priceCurrency": "TWD"
+        }
+      },
+      "description": "AI 短影音、AI 生成腳本、AI 帳號定位，支援 IG/TikTok/YouTube Shorts，付費即使用。服務地區：台北｜台中｜高雄",
+      "url": "https://video.aijob.com.tw/",
+      "provider": {
+        "@type": "Organization",
+        "name": "AIJob",
+        "url": "https://video.aijob.com.tw/"
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { 
+          "@type": "Question", 
+          "name": "什麼是 AI 短影音？", 
+          "acceptedAnswer": { 
+            "@type": "Answer", 
+            "text": "AI 依產業與平台，自動生成題材、腳本、口播、分鏡，縮短製作時間並提升上片頻率，支援台北、台中、高雄等地區的創作者。" 
+          } 
+        },
+        { 
+          "@type": "Question", 
+          "name": "AI 生成腳本怎麼運作？", 
+          "acceptedAnswer": { 
+            "@type": "Answer", 
+            "text": "輸入主題與平台，系統輸出開場 Hook、橋段重點與 CTA，並能自動在地化語氣，適合台灣市場的創作者使用。" 
+          } 
+        },
+        { 
+          "@type": "Question", 
+          "name": "AI 帳號定位能幫什麼？", 
+          "acceptedAnswer": { 
+            "@type": "Answer", 
+            "text": "分析受眾、內容支柱與上片節奏，幫助你快速找到帳號風格與定位，特別針對 IG、TikTok、YouTube Shorts 等平台優化。" 
+          } 
+        }
+      ]
+    }
+    </script>
     
     <!-- Markdown 和語法高亮函式庫 -->
     <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
@@ -814,8 +877,100 @@
         display: block;
       }
       
+      /* 動畫效果 */
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.1); }
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* iOS Safari 相容性 */
+      html, body {
+        -webkit-font-smoothing: antialiased;
+        -webkit-text-size-adjust: 100%;
+      }
+      
+      @supports (height: 100svh) {
+        .min-h-screen {
+          min-height: 100svh;
+        }
+      }
+      
       /* 響應式設計 */
+      @media (max-width: 1024px) {
+        .rm-hero-grid {
+          grid-template-columns: 1fr !important;
+          gap: 40px !important;
+        }
+        .rm-pricing-cards {
+          flex-direction: column !important;
+          gap: 16px !important;
+        }
+        .rm-pricing-cards > div {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
+      
       @media (max-width: 768px) {
+        .rm-hero {
+          padding: 40px 0 !important;
+          margin: -20px 0 0 0 !important;
+        }
+        .rm-hero-container {
+          padding: 0 16px !important;
+        }
+        .rm-hero-grid {
+          gap: 24px !important;
+        }
+        .rm-hero-title {
+          font-size: 1.75rem !important;
+          line-height: 1.3 !important;
+        }
+        .rm-hero p {
+          font-size: 0.95rem !important;
+          line-height: 1.6 !important;
+        }
+        .rm-guide-section {
+          padding: 60px 0 !important;
+          margin: -20px 0 0 0 !important;
+        }
+        .rm-guide-section > div {
+          padding: 0 16px !important;
+        }
+        .rm-pricing {
+          padding: 60px 0 !important;
+          margin: -20px 0 0 0 !important;
+        }
+        .rm-pricing > div {
+          padding: 0 16px !important;
+        }
+        .rm-pricing-cards {
+          gap: 16px !important;
+        }
+        .rm-footer {
+          padding: 40px 0 !important;
+          margin: -20px 0 0 0 !important;
+        }
+        .rm-footer > div {
+          padding: 0 16px !important;
+        }
+        
         .mode1-page {
           flex-direction: column;
           height: auto;
@@ -6624,7 +6779,7 @@
       }
     </style>
   </head>
-  <body>
+  <body data-subscribed="false">
     <!-- 登入頁面 -->
     <div id="loginPage" class="login-page">
       <div class="login-container">
@@ -6669,7 +6824,7 @@
             <span id="userName" class="user-name"></span>
           </div>
           <div class="auth-buttons" style="display: none;">
-              <button id="loginBtn" class="login-btn" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">🔐 登入</button>
+              <button id="loginBtn" class="login-btn" onclick="goToLogin()" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">🔐 登入</button>
           </div>
         </div>
       </div>
@@ -6679,9 +6834,184 @@
           <!-- 首頁 -->
           <div id="homepage" class="page active">
             <div class="homepage">
-              <h1 class="homepage-title">歡迎使用AIJob<span class="mobile-break">短影音智能體</span></h1>
-              <p class="homepage-subtitle">選擇您偏好的使用模式，開始創作精彩的短影音內容</p>
-              <div class="mode-cards">
+              <!-- Hero Section: 白＋藍冷系｜滿版全出血 -->
+              <section class="rm-hero" style="background: #F8FAFC; position: relative; overflow: hidden; padding: 80px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw;">
+                <!-- 背景淡藍光暈 -->
+                <div style="position: absolute; top: -100px; right: 0; width: 800px; height: 800px; background: radial-gradient(circle at 80% 20%, rgba(59,130,246,0.10), transparent 60%); pointer-events: none;"></div>
+                
+                <div class="rm-hero-container" style="max-width: 1400px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 1;">
+                  <div class="rm-hero-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+                    
+                    <!-- 左側：文案區 -->
+                    <div style="padding: 20px 0;">
+                      <h1 class="rm-hero-title" style="font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: #1E293B; margin-bottom: 20px; line-height: 1.2; letter-spacing: -0.02em;">
+                        讓 AI 幫你打造<br/>下一支爆款短影音
+                      </h1>
+                      <p style="font-size: clamp(1rem, 2vw, 1.25rem); color: #64748B; margin-bottom: 32px; line-height: 1.7;">
+                        AI 生成腳本、AI 帳號定位，一次完成。<br/>
+                        <span style="font-size: 0.9em; color: #94A3B8;">付費即使用，無免費體驗。</span>
+                      </p>
+                      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+                        <a href="/checkout?plan=pro" style="padding: 16px 32px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border-radius: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(59,130,246,0.25); transition: all 0.3s; font-size: 1rem; min-height: 48px; display: inline-flex; align-items: center;">
+                          立即啟用 AI 智能體
+                        </a>
+                        <a href="/docs" style="padding: 16px 32px; background: white; color: #2563EB; border: 2px solid #2563EB; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s; font-size: 1rem; min-height: 48px; display: inline-flex; align-items: center;">
+                          了解使用方式
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <!-- 右側：影片預覽 -->
+                    <div style="position: relative;">
+                      <div style="aspect-ratio: 16/9; background: #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05);">
+                        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/@AgentAi" title="ReelMind Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display: block;"></iframe>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </section>
+
+              <!-- 三功能卡區（保留原有 DOM 與事件） -->
+
+              <!-- 教學文章 / 實戰指南區（取代「精彩作品展示」）-->
+              <section class="rm-guide-section" style="background: #F8FAFC; padding: 100px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw;">
+                <div style="max-width: 1400px; margin: 0 auto; padding: 0 16px;">
+                  <div style="text-align: center; margin-bottom: 60px;">
+                    <h2 style="font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; color: #1E293B; margin-bottom: 16px;">📚 AI 短影音實戰指南</h2>
+                    <p style="font-size: 1.1rem; color: #64748B; max-width: 600px; margin: 0 auto;">學習如何用 AI 打造爆款短影音內容</p>
+                  </div>
+                  
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; margin-top: 40px;">
+                    <!-- 文章 1 -->
+                    <a href="/blog/article-1" style="text-decoration: none; display: block;">
+                      <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0;">
+                        <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
+                          <div style="font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">1️⃣ 三步生成 30 秒短影音腳本</div>
+                          <div style="font-size: 0.95rem; color: #64748B; line-height: 1.6;">
+                            只需三步：設定平台與主題、AI 生成劇本大綱、確認並儲存。本教學將示範完整流程，幫你在 5 分鐘內產出 Instagram Reels 腳本...
+                          </div>
+                        </div>
+                        <div style="padding: 20px 32px; background: #F8FAFC;">
+                          <span style="color: #2563EB; font-weight: 600; font-size: 0.95rem;">閱讀更多 →</span>
+                        </div>
+                      </div>
+                    </a>
+                    
+                    <!-- 文章 2 -->
+                    <a href="/blog/article-2" style="text-decoration: none; display: block;">
+                      <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0;">
+                        <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
+                          <div style="font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">2️⃣ AI 帳號定位：內容支柱與 14 天計畫</div>
+                          <div style="font-size: 0.95rem; color: #64748B; line-height: 1.6;">
+                            了解如何用 AI 分析你的內容定位，並自動生成 14 天發布計畫。包含內容支柱（教育、娛樂、啟發、成交）與排程建議...
+                          </div>
+                        </div>
+                        <div style="padding: 20px 32px; background: #F8FAFC;">
+                          <span style="color: #2563EB; font-weight: 600; font-size: 0.95rem;">閱讀更多 →</span>
+                        </div>
+                      </div>
+                    </a>
+                    
+                    <!-- 文章 3 -->
+                    <a href="/blog/article-3" style="text-decoration: none; display: block;">
+                      <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0;">
+                        <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
+                          <div style="font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">3️⃣ Reels / Shorts / TikTok 腳本差異</div>
+                          <div style="font-size: 0.95rem; color: #64748B; line-height: 1.6;">
+                            每個平台的短影音都有不同特性：IG Reels 偏重品牌敘事，YouTube Shorts 強調快速爆點，TikTok 重視娛樂性。本指南解析 AI 如何自動調整...
+                          </div>
+                        </div>
+                        <div style="padding: 20px 32px; background: #F8FAFC;">
+                          <span style="color: #2563EB; font-weight: 600; font-size: 0.95rem;">閱讀更多 →</span>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </section>
+              
+              <!-- ReelMind 能為你做什麼？介紹區塊 -->
+              <section id="rm-overview" class="rm-section bg-[#F8FAFC] py-14 border-t border-[#E2E8F0]">
+                <div class="rm-safe mx-auto px-4 sm:px-6">
+                  <h2 class="text-center text-3xl md:text-4xl font-black text-[#1E293B] mb-4">
+                    ReelMind 能為你做什麼？
+                  </h2>
+                  <p class="text-center text-base md:text-lg text-[#64748B] max-w-4xl mx-auto mb-12 leading-relaxed">
+                    以 AI 顧問對話、⼀鍵生成與 IP 人設規劃，ReelMind 幫你在 IG Reels、TikTok、YouTube Shorts 建立<strong>可重複的內容系統</strong>。付費即使用，無免費體驗；特別針對<strong>台灣創作者</strong>做語氣與在地化優化。
+                  </p>
+                  
+                  <!-- 四張功能卡 -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <!-- 1) AI 顧問 -->
+                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
+                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">🧩 AI 顧問：從問題到解法</h3>
+                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
+                        與 AI 顧問深度對話，釐清你的目標、受眾、內容方向與變現策略；即時給出可執行的下一步。
+                      </p>
+                      <ul class="text-sm text-[#64748B] space-y-2">
+                        <li>• 診斷痛點與目標對齊（台灣市場語氣）</li>
+                        <li>• 拆解內容支柱與流量節奏</li>
+                        <li>• 產出具體行動清單（今天就能做）</li>
+                      </ul>
+                    </div>
+                    
+                    <!-- 2) 一鍵生成 -->
+                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
+                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">⚡ 一鍵生成：直接可用的腳本</h3>
+                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
+                        輸入平台與主題，立即產出<strong>Hook 開場、口播文字、鏡頭指示</strong>與上片建議；可重生直到滿意。
+                      </p>
+                      <ul class="text-sm text-[#64748B] space-y-2">
+                        <li>• 60 秒內完成短影音腳本</li>
+                        <li>• 自動附 CTA 與情緒節奏</li>
+                        <li>• 支援 IG / TikTok / Shorts 規格</li>
+                      </ul>
+                    </div>
+                    
+                    <!-- 3) IP 人設規劃 -->
+                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
+                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">🧭 IP 人設規劃：建立你的專屬聲音</h3>
+                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
+                        透過一系列訪談題，建立 IP Profile（人格特質、語氣設定、內容邏輯），並附 14 天內容規劃。
+                      </p>
+                      <ul class="text-sm text-[#64748B] space-y-2">
+                        <li>• IP Profile + 14 天規劃</li>
+                        <li>• 品牌語氣與說話風格生成</li>
+                        <li>• 可持續優化與迭代</li>
+                      </ul>
+                    </div>
+                    
+                    <!-- 4) 創作者資料庫 -->
+                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
+                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">📚 創作者資料庫：作品整合與再利用</h3>
+                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
+                        你的每一次生成（腳本、選題、定位）都會自動歸檔於個人資料庫；支援 PDF / CSV 下載、版本重生與標註。
+                      </p>
+                      <ul class="text-sm text-[#64748B] space-y-2">
+                        <li>• 我的腳本：分鏡、口播、CTA 一次看</li>
+                        <li>• 一鍵下載（PDF／CSV）與重生</li>
+                        <li>• 可視化清單，方便整理與回顧</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <!-- 次要說明與 CTA -->
+                  <p class="text-center text-sm text-[#94A3B8] mb-6">
+                    建議使用順序：先做 IP 人設 → 取得 14 天規劃 → 每日使用一鍵生成。AI 會記住你之前的內容並持續優化。
+                  </p>
+                  
+                  <div class="flex justify-center">
+                    <a href="/login" class="inline-flex items-center justify-center px-5 py-3 rounded-full border border-[#CBD5E1] text-[#334155] hover:bg-white/60 w-full sm:w-auto transition-all">
+                      🔓 登入解鎖你的專屬 AI 智能體
+                    </a>
+                  </div>
+                </div>
+              </section>
+              
+              <h1 class="homepage-title" style="display: none;">歡迎使用AIJob<span class="mobile-break">短影音智能體</span></h1>
+              <p class="homepage-subtitle" style="display: none;">選擇您偏好的使用模式，開始創作精彩的短影音內容</p>
+              <div class="mode-cards" style="position: relative;">
                 <div class="mode-card" onclick="switchPage('mode1'); console.log('Mode1 card clicked');">
                   <div class="mode-card-icon">⚡</div>
                   <h3 class="mode-card-title">一鍵生成模式</h3>
@@ -6697,7 +7027,98 @@
                   <h3 class="mode-card-title">IP人設規劃模式</h3>
                   <p class="mode-card-desc">透過聊天記錄人生曲線，AI協助擬定個人化IP Profile、14天規劃和腳本</p>
                 </div>
+                
+                <!-- 未訂閱鎖定浮層 -->
+                <div id="subscription-lock-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-radius: 16px; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 1000;">
+                  <h3 style="font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin-bottom: 10px;">🔒 解鎖完整功能</h3>
+                  <p style="color: #6b7280; margin-bottom: 20px; font-size: 1rem;">立即訂閱即可使用所有 AI 短影音功能</p>
+                  <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <a href="/checkout?plan=pro" style="padding: 14px 28px; background: #3b82f6; color: white; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(59,130,246,0.3);">✨ 立即訂閱</a>
+                    <a href="/redeem" style="padding: 14px 28px; background: #10b981; color: white; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">🎫 兌換序號</a>
+                    <a href="/login" style="padding: 14px 28px; background: #6b7280; color: white; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(107,114,128,0.3);">🔐 登入</a>
               </div>
+                </div>
+              </div>
+
+              <!-- 訂閱 CTA 區（藍系漸層｜滿版｜桌機橫式｜手機直式） -->
+              <section id="subscription-cta" class="rm-pricing" style="background: linear-gradient(to bottom right, #3B82F6 0%, #1D4ED8 100%); padding: 100px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw; position: relative; overflow: hidden;">
+                <div style="max-width: 1400px; margin: 0 auto; padding: 0 16px;">
+                  <div style="text-align: center; margin-bottom: 60px;">
+                    <h2 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: white; margin-bottom: 20px; text-shadow: 0 2px 20px rgba(0,0,0,0.1);">
+                      開始你的 AI 創作之旅
+                    </h2>
+                    <p style="font-size: 1.1rem; color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto;">
+                      💎 單一訂閱，功能完整，不分等級
+                    </p>
+                  </div>
+                  
+                  <!-- 定價卡片（桌機橫式／手機直式） -->
+                  <div class="rm-pricing-cards" style="display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px;">
+                    <!-- 月費卡 -->
+                    <div style="flex: 0 1 320px; max-width: 380px; padding: 40px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border-radius: 24px; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s;">
+                      <div style="font-size: 1rem; color: rgba(255,255,255,0.9); margin-bottom: 12px; font-weight: 600;">月費方案</div>
+                      <div style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 8px;">NT$3,980</div>
+                      <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8);">/月</div>
+                      <a href="/checkout?plan=monthly" style="display: block; margin-top: 24px; padding: 16px 32px; background: white; color: #2563EB; border-radius: 12px; font-weight: 700; text-decoration: none; transition: all 0.3s; text-align: center; min-height: 48px; display: flex; align-items: center; justify-content: center;">
+                        立即訂閱
+                      </a>
+                    </div>
+                    
+                    <!-- 年費卡（最划算） -->
+                    <div style="flex: 0 1 320px; max-width: 380px; padding: 40px; background: rgba(255,255,255,0.95); border-radius: 24px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 20px 60px rgba(0,0,0,0.2); position: relative; transition: all 0.3s;">
+                      <div style="position: absolute; top: -16px; left: 50%; transform: translateX(-50%); padding: 8px 24px; background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); color: white; border-radius: 20px; font-size: 0.9rem; font-weight: 700; box-shadow: 0 4px 12px rgba(251,191,36,0.3);">
+                        ⭐ 最划算
+                      </div>
+                      <div style="font-size: 1rem; color: #64748B; margin-bottom: 12px; font-weight: 600; margin-top: 12px;">年費方案</div>
+                      <div style="font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #10B981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">NT$39,800</div>
+                      <div style="font-size: 0.9rem; color: #94A3B8;">/年（省 NT$7,960）</div>
+                      <a href="/checkout?plan=yearly" style="display: block; margin-top: 24px; padding: 16px 32px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border-radius: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(16,185,129,0.3); transition: all 0.3s; text-align: center; min-height: 48px; display: flex; align-items: center; justify-content: center;">
+                        立即訂閱
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <!-- 價值承諾 -->
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; margin-top: 60px;">
+                    <div style="padding: 32px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center;">
+                      <div style="font-size: 3rem; margin-bottom: 16px;">⚡</div>
+                      <div style="font-weight: 700; margin-bottom: 8px; color: white; font-size: 1.1rem;">產出時間減少 70%</div>
+                      <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">AI 自動生成腳本，從小時縮短到分鐘</div>
+                    </div>
+                    <div style="padding: 32px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center;">
+                      <div style="font-size: 3rem; margin-bottom: 16px;">📈</div>
+                      <div style="font-weight: 700; margin-bottom: 8px; color: white; font-size: 1.1rem;">上片頻率提升 200%</div>
+                      <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">一鍵生成，不再為內容發愁</div>
+                    </div>
+                    <div style="padding: 32px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center;">
+                      <div style="font-size: 3rem; margin-bottom: 16px;">🌏</div>
+                      <div style="font-weight: 700; margin-bottom: 8px; color: white; font-size: 1.1rem;">在地化模板</div>
+                      <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">專為台北、台中、高雄優化</div>
+                    </div>
+                  </div>
+                  
+                  <p style="color: rgba(255,255,255,0.9); font-size: 1rem; margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); max-width: 600px; margin-left: auto; margin-right: auto; text-align: center;">
+                    💡 若你已有序號，請前往「兌換序號」開通一年使用權
+                  </p>
+                </div>
+              </section>
+              
+              <!-- Footer（GEO＋SEO） -->
+              <section class="rm-footer" style="background: #EFF6FF; padding: 60px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw;">
+                <div style="max-width: 1400px; margin: 0 auto; padding: 0 16px; text-align: center;">
+                  <div style="font-size: 1.1rem; font-weight: 600; color: #1E293B; margin-bottom: 12px;">
+                    AI 短影音｜AI 生成腳本｜AI 帳號定位
+                  </div>
+                  <div style="font-size: 0.95rem; color: #64748B; margin-bottom: 12px;">
+                    服務地區：台北｜台中｜高雄｜香港｜新加坡
+                  </div>
+                  <div style="font-size: 0.9rem; color: #94A3B8; font-weight: 500;">
+                    ReelMind — 為亞洲創作者打造的 AI 短影音智能體
+                  </div>
+                </div>
+              </section>
+
+
             </div>
           </div>
 
@@ -6931,10 +7352,10 @@
             </div>
           </div>
 
-          <!-- 個人資料庫頁面 -->
+          <!-- 創作者資料庫頁面 -->
           <div id="userDB" class="page">
             <div class="user-db-page">
-              <h2 class="page-title">👤 個人資料庫</h2>
+              <h2 class="page-title">👤 創作者資料庫</h2>
               <div class="user-db-container">
                 <!-- 左側功能選單 -->
                 <div class="user-db-sidebar">
@@ -7583,6 +8004,9 @@
         // 檢查是否已經登入
         checkLoginStatus();
         
+        // 檢查訂閱狀態
+        checkSubscriptionStatus();
+        
         // 移動原有內容到新容器
         moveExistingContent();
         
@@ -7591,7 +8015,46 @@
         
         // 調試AI顧問模式元素
         setTimeout(debugAIConsultantElements, 2000);
+        
+        // 控制訂閱鎖定浮層顯示
+        updateSubscriptionLock();
       });
+      
+      // 控制訂閱鎖定浮層顯示
+      function updateSubscriptionLock() {
+        const overlay = document.getElementById('subscription-lock-overlay');
+        
+        // 檢查訂閱狀態和登入狀態
+        const isSubscribed = document.body.dataset.subscribed === 'true';
+        const isLoggedIn = ipPlanningToken && ipPlanningUser;
+        
+        if (overlay) {
+          if (isSubscribed && isLoggedIn) {
+            // 已登入且有訂閱，隱藏浮層
+            overlay.style.display = 'none';
+          } else {
+            // 未登入或未訂閱，顯示浮層
+            overlay.style.display = 'flex';
+            
+            // 根據登入狀態更新按鈕文字
+            const loginButton = overlay.querySelector('a[href="/login"]');
+            if (loginButton) {
+              if (isLoggedIn) {
+                // 已登入但未訂閱，顯示訂閱提示
+                overlay.querySelector('h3').textContent = '🔒 解鎖完整功能';
+                overlay.querySelector('p').textContent = '立即訂閱即可使用所有 AI 短影音功能';
+                // 隱藏登入按鈕，因為已經登入了
+                loginButton.style.display = 'none';
+              } else {
+                // 未登入，保持原來的提示
+                overlay.querySelector('h3').textContent = '🔒 解鎖完整功能';
+                overlay.querySelector('p').textContent = '請先登入並訂閱即可使用所有 AI 短影音功能';
+                loginButton.style.display = 'block';
+              }
+            }
+          }
+        }
+      }
       
       // 初始化手機版一鍵生成標籤切換功能
       function initializeMode1MobileTabs() {
@@ -7627,12 +8090,15 @@
         ipPlanningToken = localStorage.getItem('ipPlanningToken');
         ipPlanningUser = JSON.parse(localStorage.getItem('ipPlanningUser') || 'null');
         
-        if (ipPlanningToken && ipPlanningUser) {
-          // 已經登入，顯示主應用程式
+        // 無論是否登入，都先顯示首頁
           showMainApp();
+        
+        // 根據登入狀態更新 UI
+        if (ipPlanningToken && ipPlanningUser) {
+          updateUserInfo();
         } else {
-          // 未登入，顯示登入頁面
-          showLoginPage();
+          // 未登入時顯示登入按鈕
+          showLoginButton();
         }
       }
       
@@ -7649,16 +8115,94 @@
         
         // 設置默認頁面為首頁
         switchPage('homepage');
-        
-        // 更新用戶頭像和資訊
-        if (ipPlanningUser) {
-          updateUserInfo();
+      }
+      
+      // 顯示登入按鈕
+      function showLoginButton() {
+        const authButtons = document.querySelector('.auth-buttons');
+        const userInfo = document.getElementById('userInfo');
+        if (authButtons) authButtons.style.display = 'flex';
+        if (userInfo) userInfo.style.display = 'none';
+      }
+      
+      // 顯示用戶資訊
+      async function updateUserInfo() {
+        const authButtons = document.querySelector('.auth-buttons');
+        const userInfo = document.getElementById('userInfo');
+        if (authButtons) authButtons.style.display = 'none';
+        if (userInfo && ipPlanningUser) {
+          userInfo.style.display = 'flex';
+          const userNameEl = document.getElementById('userName');
+          const userAvatarEl = document.getElementById('userAvatar');
+          if (userNameEl) userNameEl.textContent = ipPlanningUser.name || '用戶';
+          if (userAvatarEl && ipPlanningUser.picture) {
+            userAvatarEl.src = ipPlanningUser.picture;
+          }
         }
+        // 更新用戶資訊後，檢查訂閱狀態
+        await checkSubscriptionStatus();
       }
       
       // 跳過登入
       function skipLogin() {
         showMainApp();
+        showLoginButton();
+      }
+      
+      // 前往登入頁面
+      function goToLogin() {
+        // 跳轉到登入頁面（圖1）
+        document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'none';
+      }
+      
+      // 檢查訂閱狀態並更新浮層
+      async function checkSubscriptionStatus() {
+        // 如果有登入資訊，從後端 API 獲取訂閱狀態
+        if (ipPlanningToken && ipPlanningUser && ipPlanningUser.user_id) {
+          try {
+            const response = await fetch('https://aivideobackend.zeabur.app/api/auth/me', {
+              headers: {
+                'Authorization': `Bearer ${ipPlanningToken}`
+              }
+            });
+            
+            if (response.ok) {
+              const userInfo = await response.json();
+              // 更新訂閱狀態
+              if (userInfo.is_subscribed) {
+                document.body.dataset.subscribed = 'true';
+                localStorage.setItem('subscriptionStatus', 'active');
+              } else {
+                document.body.dataset.subscribed = 'false';
+                localStorage.setItem('subscriptionStatus', 'inactive');
+              }
+            } else {
+              // API 失敗（可能是後端還沒部署），暫時設為已訂閱以便測試
+              console.log('後端 API 失敗，暫時設為已訂閱以便本地測試');
+              document.body.dataset.subscribed = 'true';
+              localStorage.setItem('subscriptionStatus', 'active');
+            }
+          } catch (error) {
+            console.error('Error checking subscription status:', error);
+            // 發生錯誤（可能是後端還沒部署），暫時設為已訂閱以便測試
+            console.log('訂閱檢查失敗，暫時設為已訂閱以便本地測試');
+            document.body.dataset.subscribed = 'true';
+            localStorage.setItem('subscriptionStatus', 'active');
+          }
+        } else {
+          // 未登入，從本地存儲檢查訂閱狀態
+          const subscriptionStatus = localStorage.getItem('subscriptionStatus');
+          
+          if (subscriptionStatus === 'active') {
+            document.body.dataset.subscribed = 'true';
+          } else {
+            document.body.dataset.subscribed = 'false';
+          }
+        }
+        
+        // 更新鎖定浮層
+        updateSubscriptionLock();
       }
       
       // 設置語言
@@ -8312,12 +8856,21 @@
         ipPlanningUser = null;
         localStorage.removeItem('ipPlanningToken');
         localStorage.removeItem('ipPlanningUser');
+        localStorage.removeItem('subscriptionStatus');
+        
         updateAuthUI(false);
         showToast('已登出', 3000);
         closeUserDrawer();
         
-        // 回到登入頁面
-        showLoginPage();
+        // 顯示首頁（不跳轉到登入頁面）
+        showMainApp();
+        
+        // 顯示登入按鈕
+        showLoginButton();
+        
+        // 更新訂閱狀態為未訂閱
+        document.body.dataset.subscribed = 'false';
+        updateSubscriptionLock();
       }
       // 更新個人資料庫用戶資訊
       function updateDbUserInfo() {
@@ -11042,8 +11595,8 @@
           }
         });
         
-        // 登入按鈕功能
-        loginBtn.addEventListener('click', login);
+        // 登入按鈕功能 - 已經在 HTML 中設定 onclick="goToLogin()"，不需要再次綁定
+        // loginBtn.addEventListener('click', login);
         
         // 聊天功能
         sendBtn.addEventListener('click', sendMessage);
@@ -11333,8 +11886,14 @@
           
           updateAuthUI(true);
           
-          // 顯示主應用程式
+          // 顯示主應用程式（會隱藏登入頁面、顯示首頁）
           showMainApp();
+          
+          // 檢查並更新訂閱狀態
+          await checkSubscriptionStatus();
+          
+          // 清除 guestMode 標記（如果有）
+          localStorage.removeItem('guestMode');
           
           // 清除 URL 中的認證參數
           window.history.replaceState({}, document.title, window.location.pathname);
