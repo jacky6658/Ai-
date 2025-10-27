@@ -79,6 +79,9 @@
     <!-- Font Awesome 圖標庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
       :root { 
         color-scheme: light; 
@@ -219,6 +222,13 @@
         flex: 1;
         padding: 24px;
         overflow-y: auto;
+      }
+      
+      /* 手機版：移除左右 padding */
+      @media (max-width: 768px) {
+        .page-content {
+          padding: 12px 0;
+        }
       }
       
       /* mode2頁面特殊樣式 - 滿版顯示 */
@@ -6930,81 +6940,268 @@
                   </div>
                 </div>
               </section>
-              
-              <!-- ReelMind 能為你做什麼？介紹區塊 -->
-              <section id="rm-overview" class="rm-section bg-[#F8FAFC] py-14 border-t border-[#E2E8F0]">
-                <div class="rm-safe mx-auto px-4 sm:px-6">
-                  <h2 class="text-center text-3xl md:text-4xl font-black text-[#1E293B] mb-4">
-                    ReelMind 能為你做什麼？
-                  </h2>
-                  <p class="text-center text-base md:text-lg text-[#64748B] max-w-4xl mx-auto mb-12 leading-relaxed">
-                    以 AI 顧問對話、⼀鍵生成與 IP 人設規劃，ReelMind 幫你在 IG Reels、TikTok、YouTube Shorts 建立<strong>可重複的內容系統</strong>。付費即使用，無免費體驗；特別針對<strong>台灣創作者</strong>做語氣與在地化優化。
-                  </p>
-                  
-                  <!-- 四張功能卡 -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <!-- 1) AI 顧問 -->
-                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
-                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">🧩 AI 顧問：從問題到解法</h3>
-                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
-                        與 AI 顧問深度對話，釐清你的目標、受眾、內容方向與變現策略；即時給出可執行的下一步。
-                      </p>
-                      <ul class="text-sm text-[#64748B] space-y-2">
-                        <li>• 診斷痛點與目標對齊（台灣市場語氣）</li>
-                        <li>• 拆解內容支柱與流量節奏</li>
-                        <li>• 產出具體行動清單（今天就能做）</li>
-                      </ul>
+
+              <!-- ReelMind 能為你做什麼？全新設計版 -->
+              <section id="rm-overview-v2" style="background: white; padding: 100px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw; position: relative; overflow: hidden;">
+                <!-- 背景裝飾 -->
+                <div style="position: absolute; inset: 0; background: linear-gradient(to bottom right, #EFF6FF, white, #F0FDF4); opacity: 0.5;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 384px; height: 384px; background: #DBEAFE; border-radius: 50%; filter: blur(96px); opacity: 0.3;"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 384px; height: 384px; background: #D1FAE5; border-radius: 50%; filter: blur(96px); opacity: 0.3;"></div>
+                
+                <div style="max-width: 1400px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 10;">
+                  <!-- 標題區 - 全新設計 -->
+                  <div class="text-center mb-16 md:mb-24">
+                    <!-- 標籤徽章 -->
+                    <div class="inline-flex items-center gap-2.5 px-6 py-3 mb-6 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-100 rounded-full">
+                      <span class="text-xl animate-pulse">✨</span>
+                      <span class="text-sm md:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600">
+                        四項核心功能，一站式短影音創作
+                      </span>
                     </div>
                     
-                    <!-- 2) 一鍵生成 -->
-                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
-                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">⚡ 一鍵生成：直接可用的腳本</h3>
-                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
-                        輸入平台與主題，立即產出<strong>Hook 開場、口播文字、鏡頭指示</strong>與上片建議；可重生直到滿意。
-                      </p>
-                      <ul class="text-sm text-[#64748B] space-y-2">
-                        <li>• 60 秒內完成短影音腳本</li>
-                        <li>• 自動附 CTA 與情緒節奏</li>
-                        <li>• 支援 IG / TikTok / Shorts 規格</li>
-                      </ul>
-                    </div>
+                    <!-- 主標題 -->
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight">
+                      ReelMind 能為你做什麼？
+                    </h2>
                     
-                    <!-- 3) IP 人設規劃 -->
-                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
-                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">🧭 IP 人設規劃：建立你的專屬聲音</h3>
-                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
-                        透過一系列訪談題，建立 IP Profile（人格特質、語氣設定、內容邏輯），並附 14 天內容規劃。
-                      </p>
-                      <ul class="text-sm text-[#64748B] space-y-2">
-                        <li>• IP Profile + 14 天規劃</li>
-                        <li>• 品牌語氣與說話風格生成</li>
-                        <li>• 可持續優化與迭代</li>
-                      </ul>
-                    </div>
+                    <!-- 副標題 -->
+                    <p class="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4">
+                      以 <strong class="text-blue-600">AI 顧問對話</strong>、<strong class="text-emerald-600">一鍵生成</strong>與 <strong class="text-purple-600">IP 人設規劃</strong>，協助台灣創作者建立高效率的短影音內容系統。讓每次創作都有策略、每次發布都有轉換。
+                    </p>
                     
-                    <!-- 4) 創作者資料庫 -->
-                    <div class="bg-white rounded-2xl p-6 shadow-[0_8px_24px_rgba(2,6,23,0.08)]">
-                      <h3 class="text-xl font-bold text-[#1E293B] mb-3">📚 創作者資料庫：作品整合與再利用</h3>
-                      <p class="text-sm text-[#64748B] mb-4 leading-relaxed">
-                        你的每一次生成（腳本、選題、定位）都會自動歸檔於個人資料庫；支援 PDF / CSV 下載、版本重生與標註。
-                      </p>
-                      <ul class="text-sm text-[#64748B] space-y-2">
-                        <li>• 我的腳本：分鏡、口播、CTA 一次看</li>
-                        <li>• 一鍵下載（PDF／CSV）與重生</li>
-                        <li>• 可視化清單，方便整理與回顧</li>
-                      </ul>
+                    <!-- 裝飾線 -->
+                    <div class="flex items-center justify-center gap-4 mt-8">
+                      <div class="w-16 h-0.5 bg-gradient-to-r from-transparent to-blue-400"></div>
+                      <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <div class="w-24 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400"></div>
+                      <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                      <div class="w-16 h-0.5 bg-gradient-to-r from-emerald-400 to-transparent"></div>
                     </div>
                   </div>
                   
-                  <!-- 次要說明與 CTA -->
-                  <p class="text-center text-sm text-[#94A3B8] mb-6">
-                    建議使用順序：先做 IP 人設 → 取得 14 天規劃 → 每日使用一鍵生成。AI 會記住你之前的內容並持續優化。
-                  </p>
+                  <!-- 四張功能卡 - 全新網格設計 -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-16">
+                    
+                    <!-- 卡片 1: AI 顧問 -->
+                    <div class="group relative bg-white border-2 border-transparent hover:border-blue-200 rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform overflow-hidden">
+                      <!-- 背景光效 -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      <!-- 圖標區 -->
+                      <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                        <span class="text-4xl">🧩</span>
+                      </div>
+                      
+                      <!-- 內容區 -->
+                      <div class="relative z-10">
+                        <!-- 小標籤 -->
+                        <div class="inline-block px-3 py-1 mb-4 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+                          AI 顧問
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors">
+                          從問題到解法
+                        </h3>
+                        
+                        <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                          與 AI 顧問深度對話，釐清你的目標、受眾、內容方向與變現策略；即時給出可執行的下一步。
+                        </p>
+                        
+                        <!-- 列表 -->
+                        <ul class="space-y-3 mb-6">
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-blue-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">診斷痛點與目標對齊（台灣市場語氣）</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-blue-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">拆解內容支柱與流量節奏</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-blue-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">產出具體行動清單（今天就能做）</span>
+                          </li>
+                        </ul>
+                        
+                        <!-- 底部連結 -->
+                        <div class="flex items-center gap-2 text-xs font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <span>了解更多</span>
+                          <span class="text-lg">→</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 卡片 2: 一鍵生成 -->
+                    <div class="group relative bg-white border-2 border-transparent hover:border-emerald-200 rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform overflow-hidden">
+                      <!-- 背景光效 -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/0 to-emerald-50/100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      <!-- 圖標區 -->
+                      <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                        <span class="text-4xl">⚡</span>
+                      </div>
+                      
+                      <!-- 內容區 -->
+                      <div class="relative z-10">
+                        <!-- 小標籤 -->
+                        <div class="inline-block px-3 py-1 mb-4 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">
+                          一鍵生成
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-emerald-600 transition-colors">
+                          直接可用的腳本
+                        </h3>
+                        
+                        <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                          輸入平台與主題，立即產出<strong class="text-emerald-600">Hook 開場、口播文字、鏡頭指示</strong>與上片建議；可重生直到滿意。
+                        </p>
+                        
+                        <!-- 列表 -->
+                        <ul class="space-y-3 mb-6">
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-emerald-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">60 秒內完成短影音腳本</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-emerald-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">自動附 CTA 與情緒節奏</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-emerald-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">支援 IG / TikTok / Shorts 規格</span>
+                          </li>
+                        </ul>
+                        
+                        <!-- 底部連結 -->
+                        <div class="flex items-center gap-2 text-xs font-semibold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <span>了解更多</span>
+                          <span class="text-lg">→</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 卡片 3: IP 人設規劃 -->
+                    <div class="group relative bg-white border-2 border-transparent hover:border-purple-200 rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform overflow-hidden">
+                      <!-- 背景光效 -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-purple-50/0 to-purple-50/100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      <!-- 圖標區 -->
+                      <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                        <span class="text-4xl">🧭</span>
+                      </div>
+                      
+                      <!-- 內容區 -->
+                      <div class="relative z-10">
+                        <!-- 小標籤 -->
+                        <div class="inline-block px-3 py-1 mb-4 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
+                          IP 人設
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-purple-600 transition-colors">
+                          建立你的專屬聲音
+                        </h3>
+                        
+                        <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                          透過一系列訪談題，建立 IP Profile（人格特質、語氣設定、內容邏輯），並附 14 天內容規劃。
+                        </p>
+                        
+                        <!-- 列表 -->
+                        <ul class="space-y-3 mb-6">
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-purple-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">IP Profile + 14 天規劃</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-purple-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">品牌語氣與說話風格生成</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-purple-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">可持續優化與迭代</span>
+                          </li>
+                        </ul>
+                        
+                        <!-- 底部連結 -->
+                        <div class="flex items-center gap-2 text-xs font-semibold text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <span>了解更多</span>
+                          <span class="text-lg">→</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 卡片 4: 創作者資料庫 -->
+                    <div class="group relative bg-white border-2 border-transparent hover:border-orange-200 rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform overflow-hidden">
+                      <!-- 背景光效 -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-orange-50/0 to-orange-50/100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      <!-- 圖標區 -->
+                      <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                        <span class="text-4xl">📚</span>
+                      </div>
+                      
+                      <!-- 內容區 -->
+                      <div class="relative z-10">
+                        <!-- 小標籤 -->
+                        <div class="inline-block px-3 py-1 mb-4 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">
+                          創作者資料庫
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-orange-600 transition-colors">
+                          作品整合與再利用
+                        </h3>
+                        
+                        <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                          你的每一次生成（腳本、選題、定位）都會自動歸檔於個人資料庫；支援 PDF / CSV 下載、版本重生與標註。
+                        </p>
+                        
+                        <!-- 列表 -->
+                        <ul class="space-y-3 mb-6">
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-orange-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">我的腳本：分鏡、口播、CTA 一次看</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-orange-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">一鍵下載（PDF／CSV）與重生</span>
+                          </li>
+                          <li class="flex items-start gap-3 text-sm">
+                            <span class="text-orange-500 text-lg mt-0 flex-shrink-0">✓</span>
+                            <span class="text-gray-700">可視化清單，方便整理與回顧</span>
+                          </li>
+                        </ul>
+                        
+                        <!-- 底部連結 -->
+                        <div class="flex items-center gap-2 text-xs font-semibold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <span>了解更多</span>
+                          <span class="text-lg">→</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
                   
-                  <div class="flex justify-center">
-                    <a href="/login" class="inline-flex items-center justify-center px-5 py-3 rounded-full border border-[#CBD5E1] text-[#334155] hover:bg-white/60 w-full sm:w-auto transition-all">
-                      🔓 登入解鎖你的專屬 AI 智能體
-                    </a>
+                  <!-- 底部 CTA 區 - 全新設計 -->
+                  <div class="relative">
+                    <div class="bg-gradient-to-r from-yellow-50 via-orange-50 to-yellow-50 rounded-3xl p-8 md:p-12 border-2 border-yellow-200 shadow-xl">
+                      <!-- 建議文字 -->
+                      <div class="text-center mb-10">
+                        <p class="text-base md:text-lg text-gray-800 mb-2">
+                          <span class="text-2xl">💡</span>
+                        </p>
+                        <p class="text-base md:text-lg text-gray-800 font-medium">
+                          <strong class="text-orange-700">建議使用順序：</strong>先做 IP 人設 → 取得 14 天規劃 → 每日使用一鍵生成。AI 會記住你之前的內容並持續優化。
+                        </p>
+                      </div>
+                      
+                      <!-- CTA 按鈕 -->
+                      <div class="flex justify-center">
+                        <a href="/login" class="group inline-flex items-center gap-4 px-10 md:px-14 py-5 md:py-6 bg-gradient-to-r from-orange-500 via-orange-500 to-yellow-500 text-white rounded-2xl font-bold text-lg md:text-xl shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all duration-300 transform">
+                          <span class="text-2xl">🔓</span>
+                          <span>登入解鎖你的專屬 AI 智能體</span>
+                          <span class="text-3xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
