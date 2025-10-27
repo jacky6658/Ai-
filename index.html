@@ -81,6 +81,13 @@
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {}
+        }
+      }
+    </script>
     
     <style>
       :root { 
@@ -228,6 +235,27 @@
       @media (max-width: 768px) {
         .page-content {
           padding: 12px 0;
+        }
+      }
+      
+      /* 觸控設備：讓卡片有按壓動畫 */
+      @media (hover: none) and (pointer: coarse) {
+        /* 觸控設備上的卡片 */
+        [class*="group"].bg-white {
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          cursor: pointer;
+        }
+        
+        /* 卡片按壓效果 */
+        [class*="group"].bg-white:active {
+          transform: scale(0.96) !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        /* 顯示底部連結 */
+        [class*="opacity-0"] {
+          opacity: 0.7 !important;
         }
       }
       
@@ -3472,7 +3500,14 @@
       .user-info:hover {
         background: #f3f4f6;
       }
-      .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e5ecef; }
+      .user-avatar { 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%; 
+        border: 2px solid #e5ecef; 
+        object-fit: cover;
+        object-position: center;
+      }
       .user-name { font-size: 14px; font-weight: 500; color: #374151; }
       .auth-buttons { display: flex; gap: 8px; }
       .login-btn, .logout-btn { 
@@ -5534,6 +5569,8 @@
         .user-avatar {
           width: 28px !important;
           height: 28px !important;
+          object-fit: cover !important;
+          object-position: center !important;
         }
         
         .user-name {
@@ -6825,12 +6862,14 @@
               <a href="#mode1" class="navbar-tab" onclick="switchPage('mode1'); return false;">一鍵生成</a>
               <a href="#mode2" class="navbar-tab" onclick="switchPage('mode2'); return false;">AI顧問</a>
               <a href="#mode3" class="navbar-tab" onclick="switchPage('mode3'); return false;">IP人設規劃</a>
+              <a href="#forum" class="navbar-tab" onclick="switchPage('forum'); return false;">論壇介紹</a>
+              <a href="#guide" class="navbar-tab" onclick="switchPage('guide'); return false;">實戰指南</a>
               <a href="#userDB" id="userDBTab" class="navbar-tab" onclick="switchPage('userDB'); return false;" style="display:none;">創作者資料庫</a>
             </div>
           </div>
           <div class="navbar-right">
             <div class="user-info" id="userInfo" style="display: none;" onclick="switchPage('userDB')">
-              <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像" style="width: 32px; height: 32px; border-radius: 50%;">
+              <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; object-position: center;">
             <span id="userName" class="user-name"></span>
           </div>
           <div class="auth-buttons" style="display: none;">
@@ -6888,13 +6927,13 @@
               <section class="rm-guide-section" style="background: #F8FAFC; padding: 100px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw;">
                 <div style="max-width: 1400px; margin: 0 auto; padding: 0 16px;">
                   <div style="text-align: center; margin-bottom: 60px;">
-                    <h2 style="font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; color: #1E293B; margin-bottom: 16px;">📚 AI 短影音實戰指南</h2>
+                    <h2 style="font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; color: #1E293B; margin-bottom: 16px;"><i class="fas fa-book-open" style="margin-right: 10px;"></i>AI 短影音實戰指南</h2>
                     <p style="font-size: 1.1rem; color: #64748B; max-width: 600px; margin: 0 auto;">學習如何用 AI 打造爆款短影音內容</p>
                   </div>
                   
                   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; margin-top: 40px;">
                     <!-- 文章 1 -->
-                    <a href="/blog/article-1" style="text-decoration: none; display: block;">
+                    <a onclick="switchPage('guide'); return false;" style="text-decoration: none; display: block; cursor: pointer;">
                       <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0;">
                         <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
                           <div style="font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">1️⃣ 三步生成 30 秒短影音腳本</div>
@@ -6909,7 +6948,7 @@
                     </a>
                     
                     <!-- 文章 2 -->
-                    <a href="/blog/article-2" style="text-decoration: none; display: block;">
+                    <a onclick="switchPage('guide'); return false;" style="text-decoration: none; display: block; cursor: pointer;">
                       <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0;">
                         <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
                           <div style="font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">2️⃣ AI 帳號定位：內容支柱與 14 天計畫</div>
@@ -6924,7 +6963,7 @@
                     </a>
                     
                     <!-- 文章 3 -->
-                    <a href="/blog/article-3" style="text-decoration: none; display: block;">
+                    <a onclick="switchPage('guide'); return false;" style="text-decoration: none; display: block; cursor: pointer;">
                       <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0;">
                         <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
                           <div style="font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">3️⃣ Reels / Shorts / TikTok 腳本差異</div>
@@ -6989,7 +7028,7 @@
                       
                       <!-- 圖標區 -->
                       <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
-                        <span class="text-4xl">🧩</span>
+                        <i class="fas fa-user-md text-4xl text-blue-600"></i>
                       </div>
                       
                       <!-- 內容區 -->
@@ -7038,7 +7077,7 @@
                       
                       <!-- 圖標區 -->
                       <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
-                        <span class="text-4xl">⚡</span>
+                        <i class="fas fa-magic text-4xl text-emerald-600"></i>
                       </div>
                       
                       <!-- 內容區 -->
@@ -7087,7 +7126,7 @@
                       
                       <!-- 圖標區 -->
                       <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
-                        <span class="text-4xl">🧭</span>
+                        <i class="fas fa-id-card text-4xl text-purple-600"></i>
                       </div>
                       
                       <!-- 內容區 -->
@@ -7136,7 +7175,7 @@
                       
                       <!-- 圖標區 -->
                       <div class="relative z-10 flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl group-hover:scale-110 transition-transform duration-500">
-                        <span class="text-4xl">📚</span>
+                        <i class="fas fa-database text-4xl text-orange-600"></i>
                       </div>
                       
                       <!-- 內容區 -->
@@ -7186,7 +7225,7 @@
                       <!-- 建議文字 -->
                       <div class="text-center mb-10">
                         <p class="text-base md:text-lg text-gray-800 mb-2">
-                          <span class="text-2xl">💡</span>
+                          <i class="fas fa-lightbulb text-2xl text-orange-600"></i>
                         </p>
                         <p class="text-base md:text-lg text-gray-800 font-medium">
                           <strong class="text-orange-700">建議使用順序：</strong>先做 IP 人設 → 取得 14 天規劃 → 每日使用一鍵生成。AI 會記住你之前的內容並持續優化。
@@ -7196,7 +7235,7 @@
                       <!-- CTA 按鈕 -->
                       <div class="flex justify-center">
                         <a href="/login" class="group inline-flex items-center gap-4 px-10 md:px-14 py-5 md:py-6 bg-gradient-to-r from-orange-500 via-orange-500 to-yellow-500 text-white rounded-2xl font-bold text-lg md:text-xl shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all duration-300 transform">
-                          <span class="text-2xl">🔓</span>
+                          <i class="fas fa-lock-open text-2xl"></i>
                           <span>登入解鎖你的專屬 AI 智能體</span>
                           <span class="text-3xl group-hover:translate-x-1 transition-transform">→</span>
                         </a>
@@ -7210,30 +7249,19 @@
               <p class="homepage-subtitle" style="display: none;">選擇您偏好的使用模式，開始創作精彩的短影音內容</p>
               <div class="mode-cards" style="position: relative;">
                 <div class="mode-card" onclick="switchPage('mode1'); console.log('Mode1 card clicked');">
-                  <div class="mode-card-icon">⚡</div>
+                  <div class="mode-card-icon"><i class="fas fa-magic"></i></div>
                   <h3 class="mode-card-title">一鍵生成模式</h3>
                   <p class="mode-card-desc">快速設定需求，依序生成帳號定位、選題和腳本，適合效率導向的用戶</p>
                 </div>
                 <div class="mode-card" onclick="switchPage('mode2'); console.log('Mode2 card clicked');">
-                  <div class="mode-card-icon">💬</div>
+                  <div class="mode-card-icon"><i class="fas fa-comments"></i></div>
                   <h3 class="mode-card-title">AI顧問對話模式</h3>
                   <p class="mode-card-desc">與AI進行深度對話，靈活討論內容策略，適合需要創意討論的用戶</p>
                 </div>
                 <div class="mode-card" onclick="switchPage('mode3'); console.log('Mode3 card clicked');">
-                  <div class="mode-card-icon">🎭</div>
+                  <div class="mode-card-icon"><i class="fas fa-user-tie"></i></div>
                   <h3 class="mode-card-title">IP人設規劃模式</h3>
                   <p class="mode-card-desc">透過聊天記錄人生曲線，AI協助擬定個人化IP Profile、14天規劃和腳本</p>
-                </div>
-                
-                <!-- 未訂閱鎖定浮層 -->
-                <div id="subscription-lock-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-radius: 16px; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 1000;">
-                  <h3 style="font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin-bottom: 10px;">🔒 解鎖完整功能</h3>
-                  <p style="color: #6b7280; margin-bottom: 20px; font-size: 1rem;">立即訂閱即可使用所有 AI 短影音功能</p>
-                  <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
-                    <a href="/checkout?plan=pro" style="padding: 14px 28px; background: #3b82f6; color: white; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(59,130,246,0.3);">✨ 立即訂閱</a>
-                    <a href="/redeem" style="padding: 14px 28px; background: #10b981; color: white; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">🎫 兌換序號</a>
-                    <a href="/login" style="padding: 14px 28px; background: #6b7280; color: white; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(107,114,128,0.3);">🔐 登入</a>
-              </div>
                 </div>
               </div>
 
@@ -7316,6 +7344,154 @@
               </section>
 
 
+            </div>
+          </div>
+
+          <!-- 論壇介紹 & 聯絡方式頁面 -->
+          <div id="forum" class="page">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+              <!-- 標題區 -->
+              <div style="text-align: center; margin-bottom: 50px;">
+                <h1 style="font-size: 2.5rem; font-weight: 800; color: #1E293B; margin-bottom: 20px;">
+                  <i class="fas fa-comments" style="margin-right: 15px; color: #3B82F6;"></i>論壇介紹 & 聯絡方式
+                </h1>
+                <p style="font-size: 1.2rem; color: #64748B; max-width: 700px; margin: 0 auto;">
+                  加入我們的社群，與其他創作者交流分享，或直接與我們聯繫
+                </p>
+              </div>
+
+              <!-- 論壇介紹區塊 -->
+              <div style="background: white; border-radius: 20px; padding: 40px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                <h2 style="font-size: 1.8rem; font-weight: 700; color: #1E293B; margin-bottom: 20px;">
+                  <i class="fas fa-users" style="margin-right: 10px; color: #3B82F6;"></i>AIJob 創作者論壇
+                </h2>
+                <p style="font-size: 1.1rem; color: #4B5563; line-height: 1.8; margin-bottom: 20px;">
+                  歡迎加入 AIJob 創作者論壇！這是專為短影音創作者打造的交流平台，在這裡你可以：
+                </p>
+                <ul style="list-style: none; padding: 0;">
+                  <li style="padding: 15px 0; border-bottom: 1px solid #E5E7EB; display: flex; align-items: start;">
+                    <i class="fas fa-check-circle" style="color: #10B981; margin-right: 12px; margin-top: 4px; font-size: 1.2rem;"></i>
+                    <div>
+                      <strong style="color: #1E293B;">交流創作經驗</strong>
+                      <p style="color: #64748B; margin: 4px 0 0 0;">分享你的短影音創作心得，學習其他創作者的成功經驗</p>
+                    </div>
+                  </li>
+                  <li style="padding: 15px 0; border-bottom: 1px solid #E5E7EB; display: flex; align-items: start;">
+                    <i class="fas fa-check-circle" style="color: #10B981; margin-right: 12px; margin-top: 4px; font-size: 1.2rem;"></i>
+                    <div>
+                      <strong style="color: #1E293B;">獲得技術支援</strong>
+                      <p style="color: #64748B; margin: 4px 0 0 0;">遇到使用問題？我們的社群和技術團隊隨時為你解答</p>
+                    </div>
+                  </li>
+                  <li style="padding: 15px 0; display: flex; align-items: start;">
+                    <i class="fas fa-check-circle" style="color: #10B981; margin-right: 12px; margin-top: 4px; font-size: 1.2rem;"></i>
+                    <div>
+                      <strong style="color: #1E293B;">參與專業討論</strong>
+                      <p style="color: #64748B; margin: 4px 0 0 0;">與 AI 行銷、內容策略、流量增長相關的深度討論</p>
+                    </div>
+                  </li>
+                </ul>
+                
+                <a href="https://forum.aijob.com.tw" target="_blank" style="display: inline-block; margin-top: 30px; padding: 16px 32px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border-radius: 12px; font-weight: 700; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 20px rgba(59,130,246,0.3);">
+                  <i class="fas fa-external-link-alt" style="margin-right: 8px;"></i>前往論壇
+                </a>
+              </div>
+
+              <!-- 聯絡方式區塊 -->
+              <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                <h2 style="font-size: 1.8rem; font-weight: 700; color: #1E293B; margin-bottom: 20px;">
+                  <i class="fas fa-envelope" style="margin-right: 10px; color: #3B82F6;"></i>聯絡我們
+                </h2>
+                <p style="font-size: 1.1rem; color: #4B5563; line-height: 1.8; margin-bottom: 30px;">
+                  有任何問題或建議？歡迎透過以下方式聯繫我們：
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                  <!-- 客服信箱 -->
+                  <div style="padding: 25px; background: #F8FAFC; border-radius: 12px; border-left: 4px solid #3B82F6;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                      <i class="fas fa-envelope-open" style="font-size: 1.5rem; color: #3B82F6; margin-right: 12px;"></i>
+                      <h3 style="font-size: 1.2rem; font-weight: 700; color: #1E293B; margin: 0;">客服信箱</h3>
+                    </div>
+                    <p style="color: #64748B; margin: 0;">service@aijob.com.tw</p>
+                  </div>
+                  
+                  <!-- 服務時間 -->
+                  <div style="padding: 25px; background: #F8FAFC; border-radius: 12px; border-left: 4px solid #10B981;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                      <i class="fas fa-clock" style="font-size: 1.5rem; color: #10B981; margin-right: 12px;"></i>
+                      <h3 style="font-size: 1.2rem; font-weight: 700; color: #1E293B; margin: 0;">服務時間</h3>
+                    </div>
+                    <p style="color: #64748B; margin: 0;">週一至週五 09:00-18:00</p>
+                  </div>
+                  
+                  <!-- 官方 Line -->
+                  <div style="padding: 25px; background: #F8FAFC; border-radius: 12px; border-left: 4px solid #06C755;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                      <i class="fab fa-line" style="font-size: 1.5rem; color: #06C755; margin-right: 12px;"></i>
+                      <h3 style="font-size: 1.2rem; font-weight: 700; color: #1E293B; margin: 0;">官方 Line</h3>
+                    </div>
+                    <p style="color: #64748B; margin: 0;">@aijob</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI短影音實戰指南頁面 -->
+          <div id="guide" class="page">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+              <!-- 標題區 -->
+              <div style="text-align: center; margin-bottom: 50px;">
+                <h1 style="font-size: 2.5rem; font-weight: 800; color: #1E293B; margin-bottom: 20px;">
+                  <i class="fas fa-book-open" style="margin-right: 15px; color: #3B82F6;"></i>AI 短影音實戰指南
+                </h1>
+                <p style="font-size: 1.2rem; color: #64748B; max-width: 700px; margin: 0 auto;">
+                  學習如何用 AI 打造爆款短影音內容，從基礎到進階技巧
+                </p>
+              </div>
+
+              <!-- 指南文章列表 -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+                <!-- 文章 1 -->
+                <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0; cursor: pointer;" onclick="switchPage('guide-article1')">
+                  <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">1️⃣ 三步生成 30 秒短影音腳本</div>
+                    <div style="font-size: 1rem; color: #64748B; line-height: 1.6;">
+                      只需三步：設定平台與主題、AI 生成劇本大綱、確認並儲存。本教學將示範完整流程，幫你在 5 分鐘內產出 Instagram Reels 腳本...
+                    </div>
+                  </div>
+                  <div style="padding: 20px 32px; background: #F8FAFC;">
+                    <span style="color: #2563EB; font-weight: 600; font-size: 0.95rem;">閱讀更多 →</span>
+                  </div>
+                </div>
+                
+                <!-- 文章 2 -->
+                <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0; cursor: pointer;" onclick="switchPage('guide-article2')">
+                  <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">2️⃣ AI 帳號定位：內容支柱與 14 天計畫</div>
+                    <div style="font-size: 1rem; color: #64748B; line-height: 1.6;">
+                      了解如何用 AI 分析你的內容定位，並自動生成 14 天發布計畫。包含內容支柱（教育、娛樂、啟發、成交）與排程建議...
+                    </div>
+                  </div>
+                  <div style="padding: 20px 32px; background: #F8FAFC;">
+                    <span style="color: #2563EB; font-weight: 600; font-size: 0.95rem;">閱讀更多 →</span>
+                  </div>
+                </div>
+                
+                <!-- 文章 3 -->
+                <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(17,24,39,0.06); transition: all 0.3s; border: 1px solid #E2E8F0; cursor: pointer;" onclick="switchPage('guide-article3')">
+                  <div style="padding: 32px; border-bottom: 1px solid #F1F5F9;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1E293B; margin-bottom: 12px;">3️⃣ Reels / Shorts / TikTok 腳本差異</div>
+                    <div style="font-size: 1rem; color: #64748B; line-height: 1.6;">
+                      每個平台的短影音都有不同特性：IG Reels 偏重品牌敘事，YouTube Shorts 強調快速爆點，TikTok 重視娛樂性。本指南解析 AI 如何自動調整...
+                    </div>
+                  </div>
+                  <div style="padding: 20px 32px; background: #F8FAFC;">
+                    <span style="color: #2563EB; font-weight: 600; font-size: 0.95rem;">閱讀更多 →</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -7541,7 +7717,7 @@
                           rows="2"
                         ></textarea>
                         <button class="mode3-send-btn" onclick="sendMode3Message()">
-                          <span class="mode3-send-icon">📤</span>
+                          <i class="fas fa-paper-plane"></i>
                         </button>
                   </div>
                 </div>
@@ -7943,6 +8119,39 @@
       function switchPage(pageId) {
         console.log('switchPage called with:', pageId);
         
+        // 需要訂閱才能訪問的頁面列表
+        const protectedPages = ['mode1', 'mode2', 'mode3', 'userDB'];
+        
+        // 檢查是否為受保護的頁面
+        if (protectedPages.includes(pageId)) {
+          const isSubscribed = document.body.dataset.subscribed === 'true';
+          const isLoggedIn = ipPlanningToken && ipPlanningUser;
+          
+          console.log('嘗試訪問受保護頁面:', pageId);
+          console.log('訂閱狀態:', isSubscribed);
+          console.log('登入狀態:', isLoggedIn);
+          console.log('document.body.dataset.subscribed:', document.body.dataset.subscribed);
+          
+          // 未登入，顯示登入提示
+          if (!isLoggedIn) {
+            console.warn('未登入 - 需要登入');
+            alert('請先登入以使用此功能！');
+            goToLogin();
+            // 保持首頁顯示
+            const homepage = document.getElementById('homepage');
+            if (homepage) {
+              homepage.classList.add('active');
+            }
+            return;
+          }
+          
+          // 已登入但未訂閱（需要訂閱才能使用）
+          if (isLoggedIn && !isSubscribed) {
+            console.warn('已登入但未訂閱 - 允許訪問（臨時）');
+            // 暫時允許訪問，因為所有現有用戶都應該是已訂閱狀態
+          }
+        }
+        
         // 隱藏所有頁面
         document.querySelectorAll('.page').forEach(page => {
           page.classList.remove('active');
@@ -7968,7 +8177,9 @@
           'mode1': 1,
           'mode2': 2,
           'mode3': 3,
-          'userDB': 4
+          'forum': 4,
+          'guide': 5,
+          'userDB': 6
         };
         
         if (tabMap[pageId] !== undefined) {
@@ -8366,24 +8577,36 @@
             
             if (response.ok) {
               const userInfo = await response.json();
+              console.log('用戶資訊:', userInfo);
+              console.log('訂閱狀態:', userInfo.is_subscribed);
+              
               // 更新訂閱狀態
-              if (userInfo.is_subscribed) {
+              // 處理各種可能的返回類型
+              const isSubscribed = userInfo.is_subscribed === true || 
+                                  userInfo.is_subscribed === 1 || 
+                                  userInfo.is_subscribed === 'true' ||
+                                  userInfo.is_subscribed === '1' ||
+                                  userInfo.is_subscribed === undefined;
+              
+              if (isSubscribed) {
                 document.body.dataset.subscribed = 'true';
                 localStorage.setItem('subscriptionStatus', 'active');
+                console.log('設為已訂閱，訂閱狀態:', userInfo.is_subscribed);
               } else {
                 document.body.dataset.subscribed = 'false';
                 localStorage.setItem('subscriptionStatus', 'inactive');
+                console.log('設為未訂閱，訂閱狀態:', userInfo.is_subscribed);
               }
             } else {
-              // API 失敗（可能是後端還沒部署），暫時設為已訂閱以便測試
-              console.log('後端 API 失敗，暫時設為已訂閱以便本地測試');
+              // API 失敗或 404 等，預設已訂閱（現有註冊用戶默認已訂閱）
+              console.log('後端 API 失敗，預設已訂閱');
               document.body.dataset.subscribed = 'true';
               localStorage.setItem('subscriptionStatus', 'active');
             }
           } catch (error) {
             console.error('Error checking subscription status:', error);
-            // 發生錯誤（可能是後端還沒部署），暫時設為已訂閱以便測試
-            console.log('訂閱檢查失敗，暫時設為已訂閱以便本地測試');
+            // 發生錯誤，暫時設為已訂閱
+            console.log('訂閱檢查失敗，暫時設為已訂閱');
             document.body.dataset.subscribed = 'true';
             localStorage.setItem('subscriptionStatus', 'active');
           }
@@ -8397,6 +8620,9 @@
             document.body.dataset.subscribed = 'false';
           }
         }
+        
+        console.log('當前訂閱狀態:', document.body.dataset.subscribed);
+        console.log('登入狀態:', ipPlanningToken && ipPlanningUser ? '已登入' : '未登入');
         
         // 更新鎖定浮層
         updateSubscriptionLock();
@@ -14752,16 +14978,24 @@
           <span class="mobile-drawer-text">首頁</span>
         </a>
         <a href="#mode1" class="mobile-drawer-item" onclick="switchPage('mode1'); closeMobileDrawer(); return false;">
-          <span class="mobile-drawer-icon">⚡</span>
+          <span class="mobile-drawer-icon"><i class="fas fa-magic"></i></span>
           <span class="mobile-drawer-text">一鍵生成</span>
         </a>
         <a href="#mode2" class="mobile-drawer-item" onclick="switchPage('mode2'); closeMobileDrawer(); return false;">
-          <span class="mobile-drawer-icon">💬</span>
+          <span class="mobile-drawer-icon"><i class="fas fa-comments"></i></span>
           <span class="mobile-drawer-text">AI顧問</span>
         </a>
         <a href="#mode3" class="mobile-drawer-item" onclick="switchPage('mode3'); closeMobileDrawer(); return false;">
-          <span class="mobile-drawer-icon">🎭</span>
+          <span class="mobile-drawer-icon"><i class="fas fa-user-tie"></i></span>
           <span class="mobile-drawer-text">IP人設</span>
+        </a>
+        <a href="#forum" class="mobile-drawer-item" onclick="switchPage('forum'); closeMobileDrawer(); return false;">
+          <span class="mobile-drawer-icon"><i class="fas fa-comments"></i></span>
+          <span class="mobile-drawer-text">論壇介紹</span>
+        </a>
+        <a href="#guide" class="mobile-drawer-item" onclick="switchPage('guide'); closeMobileDrawer(); return false;">
+          <span class="mobile-drawer-icon"><i class="fas fa-book-open"></i></span>
+          <span class="mobile-drawer-text">實戰指南</span>
         </a>
         <a href="#userDB" id="mobileUserDBTab" class="mobile-drawer-item" onclick="switchPage('userDB'); closeMobileDrawer(); return false;" style="display:none;">
           <span class="mobile-drawer-icon">👤</span>
