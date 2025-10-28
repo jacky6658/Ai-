@@ -1,4 +1,39 @@
 # AIJob短影音智能體 - 前端
+# AIJob短影音智能體 - 前端
+
+## 📌 專案整合報告（前端 ReelMindfrontnd）
+
+### 一、專案總覽（角色與資料流）
+- **角色定位**：最終用戶介面，承載登入、聊天/生成、創作者資料庫（個人資料/我的腳本/帳號定位/選題記錄/使用統計/設定/幫助中心/帳單資訊）與導購頁 `subscription.html`。
+- **資料來源**：透過 REST/SSE 連線後端（FastAPI），資料儲存於 PostgreSQL（Zeabur）。
+- **關聯**：
+  - 登入：Google OAuth → 後端 `/api/auth/*` → `user_auth`
+  - 生成/對話/定位：`/api/*`（含 `/api/chat/stream`）→ `user_scripts`/`conversation_summaries` 等
+  - 帳單資訊：`/api/user/license/{id}`、`/api/user/orders/{id}`
+
+### 二、目前擁有功能（重點）
+- ✅ 創作者資料庫完整分區（含「帳單資訊」）、台灣時區顯示
+- ✅ 主題/語言切換初始化（語言鍵值表已掛載，動態內容持續擴充）
+- ✅ 首頁與資料庫的「訂閱」導流至 `subscription.html`（支援 `?plan=monthly|yearly`）
+- ✅ 個人資料顯示：註冊時間、訂閱狀態、到期（renewal）日期
+- ✅ 自動更新 `data-subscribed` 屬性供 UI 狀態使用
+
+### 三、系統架構與資料流（簡）
+- 前端（本專案）←→ 後端 API/SSE ←→ PostgreSQL（Zeabur 持久化）
+- 重要端點：`/api/auth/me`、`/api/chat/stream`、`/api/user/*`、`/api/admin/*`
+
+### 四、尚未解決/待辦（Front）
+- ⏳ 語言切換的動態內容覆蓋面擴充（目前已支援 `data-i18n` 雛形）
+- ⏳ 支付整合（ECPay/序號兌換）流程導入後，前端需接收回傳並展示訂單/發票狀態
+
+### 五、已解決重點（Front）
+- ✅ 註冊時間顯示未知：改為直接採後端格式化的 `created_at`（UTC+8）
+- ✅ 訂閱狀態混淆：登入與 `fetchUserInfo()`、`checkLoginStatus()` 均同步 `data-subscribed`
+- ✅ 導購連結一致化：首頁多處 CTA 與個資分頁「啟用訂閱」指向 `subscription.html`
+- ✅ 新增「帳單資訊」：整合 `licenses/orders` 顯示與購買記錄表格
+
+---
+（以下為原 README 內容）
 
 ## 專案簡介
 
