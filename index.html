@@ -7234,7 +7234,7 @@
                       
                       <!-- CTA 按鈕 -->
                       <div class="flex justify-center">
-                        <a href="/login" class="group inline-flex items-center gap-4 px-10 md:px-14 py-5 md:py-6 bg-gradient-to-r from-orange-500 via-orange-500 to-yellow-500 text-white rounded-2xl font-bold text-lg md:text-xl shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all duration-300 transform">
+                        <a href="subscription.html" class="group inline-flex items-center gap-4 px-10 md:px-14 py-5 md:py-6 bg-gradient-to-r from-orange-500 via-orange-500 to-yellow-500 text-white rounded-2xl font-bold text-lg md:text-xl shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all duration-300 transform">
                           <i class="fas fa-lock-open text-2xl"></i>
                           <span>登入解鎖你的專屬 AI 智能體</span>
                           <span class="text-3xl group-hover:translate-x-1 transition-transform">→</span>
@@ -7581,9 +7581,9 @@
                   <span>適用角色：創作者 / 行銷人 / 老闆</span>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: nowrap; margin-top: 18px; margin-bottom: 32px;">
-                  <button onclick="switchPage('homepage');" style="display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 14px; background: #2563eb; color: white; border: none; cursor: pointer; flex: 1;">
+                  <a href="subscription.html" style="display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 14px; background: #2563eb; color: white; border: none; cursor: pointer; flex: 1; text-decoration: none;">
                     登入解鎖 AI 生成
-                  </button>
+                  </a>
                   <a href="https://AIJobschool.short.gy/UUwpEG" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 14px; border: 1px solid #cbd5e1; color: #334155; background: white; text-decoration: none; cursor: pointer; flex: 1;">
                     加入 Discord 討論
                   </a>
@@ -7644,9 +7644,9 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 </div>
 
                 <div style="display: flex; gap: 10px; flex-wrap: nowrap; margin: 18px 0;">
-                  <button onclick="switchPage('homepage');" style="display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 14px; background: #2563eb; color: white; border: none; cursor: pointer; flex: 1;">
+                  <a href="subscription.html" style="display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 14px; background: #2563eb; color: white; border: none; cursor: pointer; flex: 1; text-decoration: none;">
                     立即登入，生成我的第一支腳本
-                  </button>
+                  </a>
                   <a href="https://AIJobschool.short.gy/UUwpEG" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 14px; border: 1px solid #cbd5e1; color: #334155; background: white; text-decoration: none; cursor: pointer; flex: 1;">
                     到 Discord 看大家怎麼改腳本
                   </a>
@@ -7926,6 +7926,10 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                       <span class="menu-icon">💡</span>
                       <span class="menu-text">選題記錄</span>
                     </div>
+                    <div class="menu-item" onclick="showDbSection('billingInfo')">
+                      <span class="menu-icon">📄</span>
+                      <span class="menu-text">帳單資訊</span>
+                    </div>
                     <div class="menu-item" onclick="showDbSection('settings')">
                       <span class="menu-icon">⚙️</span>
                       <span class="menu-text">設定</span>
@@ -7973,6 +7977,13 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                     <h3 class="section-title">💡 選題記錄</h3>
                     <div class="section-content">
                       <p>選題記錄功能開發中...</p>
+                    </div>
+                  </div>
+                  <!-- 帳單資訊 -->
+                  <div id="db-billingInfo" class="db-section">
+                    <h3 class="section-title">📄 帳單資訊</h3>
+                    <div class="section-content">
+                      <p>載入帳單資訊...</p>
                     </div>
                   </div>
                   <!-- 設定 -->
@@ -9737,6 +9748,9 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           case 'topicRecords':
             loadTopicHistoryForUserDB();
             break;
+          case 'billingInfo':
+            loadBillingInfoForUserDB();
+            break;
           case 'settings':
             // 設定頁面內容已在HTML中定義，無需動態載入
             break;
@@ -9747,6 +9761,165 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             // 幫助中心內容已在HTML中定義，無需動態載入
             break;
         }
+      }
+      
+      // 載入創作者資料庫的帳單資訊
+      async function loadBillingInfoForUserDB() {
+        const content = document.querySelector('#db-billingInfo .section-content');
+        
+        if (!ipPlanningToken || !ipPlanningUser || !ipPlanningUser.user_id) {
+          content.innerHTML = '<div class="loading-text">請先登入以查看帳單資訊</div>';
+          return;
+        }
+        
+        content.innerHTML = '<div class="loading-text">正在載入帳單資訊...</div>';
+        
+        try {
+          // 獲取授權資訊
+          const licenseResponse = await fetch(`https://aivideobackend.zeabur.app/api/user/license/${ipPlanningUser.user_id}`, {
+            headers: { 'Authorization': `Bearer ${ipPlanningToken}` }
+          });
+          
+          let licenseData = null;
+          if (licenseResponse.ok) {
+            licenseData = await licenseResponse.json();
+          }
+          
+          // 獲取訂單記錄
+          const ordersResponse = await fetch(`https://aivideobackend.zeabur.app/api/user/orders/${ipPlanningUser.user_id}`, {
+            headers: { 'Authorization': `Bearer ${ipPlanningToken}` }
+          });
+          
+          let orders = [];
+          if (ordersResponse.ok) {
+            const ordersData = await ordersResponse.json();
+            orders = ordersData.orders || [];
+          }
+          
+          // 顯示帳單資訊
+          displayBillingInfo(content, licenseData, orders);
+        } catch (error) {
+          console.error('載入帳單資訊錯誤:', error);
+          content.innerHTML = '<div class="loading-text">載入失敗，請稍後再試</div>';
+        }
+      }
+      
+      function displayBillingInfo(container, licenseData, orders) {
+        let html = '';
+        
+        // 授權資訊
+        if (licenseData && licenseData.tier !== 'none') {
+          const expiresAt = licenseData.expires_at ? new Date(licenseData.expires_at).toLocaleString('zh-TW', {
+            timeZone: 'Asia/Taipei',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : '未知';
+          
+          html += `
+            <div class="billing-section">
+              <h4>目前授權</h4>
+              <div class="detail-item">
+                <label>訂閱等級：</label>
+                <span>${licenseData.tier || 'personal'}</span>
+              </div>
+              <div class="detail-item">
+                <label>授權席次：</label>
+                <span>${licenseData.seats || 1} 席</span>
+              </div>
+              <div class="detail-item">
+                <label>到期日期：</label>
+                <span>${expiresAt}</span>
+              </div>
+              <div class="detail-item">
+                <label>授權狀態：</label>
+                <span style="color: ${licenseData.status === 'active' ? '#10b981' : '#ef4444'}">${licenseData.status === 'active' ? '✅ 有效' : '❌ 已過期'}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="billing-section">
+              <h4>目前授權</h4>
+              <p style="color: #ef4444;">尚未訂閱</p>
+              <button onclick="window.open('subscription.html', '_blank')" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;">
+                前往訂閱
+              </button>
+            </div>
+          `;
+        }
+        
+        // 購買記錄
+        if (orders.length > 0) {
+          html += `
+            <div class="billing-section" style="margin-top: 30px;">
+              <h4>購買記錄</h4>
+              <div class="orders-list">
+                ${orders.map(order => {
+                  const orderDate = order.created_at ? new Date(order.created_at).toLocaleString('zh-TW', {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : '未知';
+                  
+                  const paidDate = order.paid_at ? new Date(order.paid_at).toLocaleString('zh-TW', {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : '未付款';
+                  
+                  const expiresDate = order.expires_at ? new Date(order.expires_at).toLocaleString('zh-TW', {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                  }) : '未知';
+                  
+                  return `
+                    <div class="order-item" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; background: white;">
+                      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                        <div>
+                          <div style="font-weight: 700; margin-bottom: 4px;">訂單編號：${order.order_id}</div>
+                          <div style="font-size: 0.9rem; color: #64748b;">${orderDate}</div>
+                        </div>
+                        <span style="padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; 
+                          background: ${order.payment_status === 'paid' ? '#d1fae5' : '#fee2e2'}; 
+                          color: ${order.payment_status === 'paid' ? '#065f46' : '#991b1b'};">
+                          ${order.payment_status === 'paid' ? '✅ 已付款' : '⏳ 待付款'}
+                        </span>
+                      </div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem;">
+                        <div><strong>方案：</strong>${order.plan_type === 'monthly' ? '月費方案' : '年費方案'}</div>
+                        <div><strong>金額：</strong>NT$${order.amount?.toLocaleString() || 0}</div>
+                        <div><strong>付款方式：</strong>${order.payment_method || '未選擇'}</div>
+                        <div><strong>付款時間：</strong>${paidDate}</div>
+                        ${order.invoice_number ? `<div><strong>發票號碼：</strong>${order.invoice_number}</div>` : ''}
+                        ${order.expires_at ? `<div><strong>到期日期：</strong>${expiresDate}</div>` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="billing-section" style="margin-top: 30px;">
+              <h4>購買記錄</h4>
+              <p style="color: #64748b;">尚無購買記錄</p>
+            </div>
+          `;
+        }
+        
+        container.innerHTML = html;
       }
       
       // 載入個人資料庫的個人資料
@@ -9835,6 +10008,10 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               </div>
               ${ipPlanningUser.is_subscribed ? `
               <div class="detail-item">
+                <label>到期日期：</label>
+                <span>${renewalDate}</span>
+              </div>
+              <div class="detail-item">
                 <label>下次續費日期：</label>
                 <span>${renewalDate}</span>
               </div>
@@ -9845,7 +10022,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               </div>
               ` : `
               <div class="detail-actions">
-                <button class="btn btn-success" onclick="window.open('https://aivideonew.zeabur.app/', '_blank')" style="padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; background: #10b981; color: white;">
+                <button class="btn btn-success" onclick="window.open('subscription.html', '_blank')" style="padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; background: #10b981; color: white;">
                   ✨ 啟用訂閱
                 </button>
               </div>
