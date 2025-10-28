@@ -8105,8 +8105,40 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                           <h4>📞 聯絡我們</h4>
                           <p>如有問題，請聯繫客服：</p>
                           <ul>
-                            <li>Email: support@aijob.com</li>
-                            <li>Discord: <a href="https://AIJobschool.short.gy/UUwpEG" target="_blank">加入社群</a></li>
+                            <li><strong>LINE 官方帳號：</strong><a href="https://lin.ee/n3vK7m8" target="_blank">加入我們</a></li>
+                            <li><strong>Discord：</strong><a href="https://AIJobschool.short.gy/w74off" target="_blank">加入社群</a></li>
+                          </ul>
+                          <p style="margin-top: 10px;">
+                            <a href="#" onclick="showLegalPolicy()" style="color: #3b82f6; text-decoration: underline;">法律政策</a> | 
+                            <a href="#" onclick="showPrivacyPolicy()" style="color: #3b82f6; text-decoration: underline;">隱私政策</a>
+                          </p>
+                        </div>
+                        <div class="help-section">
+                          <h4>⚖️ 法律政策</h4>
+                          <p><strong>服務條款</strong></p>
+                          <p>使用本服務即表示您同意遵守以下條款：</p>
+                          <ul>
+                            <li>您承諾提供的資料真實、準確、完整</li>
+                            <li>您不得使用本服務從事任何違法或侵權活動</li>
+                            <li>您不得干擾或破壞服務的正常運行</li>
+                            <li>我們保留隨時修改服務條款的權利</li>
+                          </ul>
+                        </div>
+                        <div class="help-section">
+                          <h4>🔒 隱私政策</h4>
+                          <p><strong>資料收集與使用</strong></p>
+                          <ul>
+                            <li>我們僅收集必要的用戶資料（姓名、Email、頭像）用於提供服務</li>
+                            <li>所有用戶生成內容（腳本、對話、定位）均存儲在安全的資料庫中</li>
+                            <li>我們不會將您的資料出售或分享給第三方</li>
+                            <li>您有權隨時刪除或匯出自己的資料</li>
+                            <li>我們使用 SSL 加密保護資料傳輸安全</li>
+                          </ul>
+                          <p><strong>個人資料保護法遵守</strong></p>
+                          <ul>
+                            <li>依據台灣個資法，您有權要求查閱、更正、刪除個人資料</li>
+                            <li>如發現資料外洩，我們將立即通知並採取補救措施</li>
+                            <li>如有疑慮，請聯繫客服</li>
                           </ul>
                         </div>
                       </div>
@@ -8733,6 +8765,9 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         
         // 控制訂閱鎖定浮層顯示
         updateSubscriptionLock();
+        
+        // 初始化設定功能
+        initializeSettings();
       });
       
       // 控制訂閱鎖定浮層顯示
@@ -9725,9 +9760,12 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         }
         
         if (ipPlanningUser) {
-          // 格式化日期顯示
-          let registrationTime = '未知';
-          if (ipPlanningUser.created_at) {
+          // 直接使用後端已格式化的日期（台灣時區）
+          let registrationTime = ipPlanningUser.created_at || '未知';
+          
+          // 如果 created_at 是格式化後的字符串（例如 "2025/10/28 10:30"），直接使用
+          // 如果是原始的 ISO 字符串或 Date 對象，需要格式化
+          if (registrationTime !== '未知' && !registrationTime.includes('/')) {
             try {
               const date = new Date(ipPlanningUser.created_at);
               if (!isNaN(date.getTime())) {
@@ -9741,7 +9779,6 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 });
               }
             } catch (e) {
-              // 如果格式化失敗，使用原始值
               registrationTime = ipPlanningUser.created_at;
             }
           }
@@ -10928,6 +10965,87 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         setTimeout(() => {
           location.reload();
         }, 1000);
+      }
+      
+      // 初始化設定功能
+      function initializeSettings() {
+        // 載入保存的設定
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedLanguage = localStorage.getItem('language') || 'zh-TW';
+        
+        // 應用主題
+        applyTheme(savedTheme);
+        
+        // 設置下拉框的值
+        const themeSelect = document.getElementById('theme');
+        if (themeSelect) {
+          themeSelect.value = savedTheme;
+          themeSelect.addEventListener('change', function() {
+            const theme = this.value;
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
+            showToast('主題已切換', 2000);
+          });
+        }
+        
+        // 設置語言下拉框的值
+        const languageSelect = document.getElementById('language');
+        if (languageSelect) {
+          languageSelect.value = savedLanguage;
+          languageSelect.addEventListener('change', function() {
+            const language = this.value;
+            localStorage.setItem('language', language);
+            showToast('語言已切換（功能開發中）', 2000);
+          });
+        }
+      }
+      
+      // 應用主題
+      function applyTheme(theme) {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme') || 'light';
+        
+        if (theme === 'auto') {
+          // 自動模式：根據系統設定
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark-mode');
+          } else {
+            html.setAttribute('data-theme', 'light');
+            document.body.classList.remove('dark-mode');
+          }
+        } else {
+          html.setAttribute('data-theme', theme);
+          if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+          } else {
+            document.body.classList.remove('dark-mode');
+          }
+        }
+      }
+      
+      // 顯示法律政策
+      function showLegalPolicy() {
+        alert('法律政策\n\n' +
+          '使用本服務即表示您同意遵守以下條款：\n\n' +
+          '1. 您承諾提供的資料真實、準確、完整\n' +
+          '2. 您不得使用本服務從事任何違法或侵權活動\n' +
+          '3. 您不得干擾或破壞服務的正常運行\n' +
+          '4. 我們保留隨時修改服務條款的權利\n\n' +
+          '詳細內容請查看幫助中心的法律政策部分。');
+      }
+      
+      // 顯示隱私政策
+      function showPrivacyPolicy() {
+        alert('隱私政策\n\n' +
+          '資料收集與使用：\n' +
+          '• 我們僅收集必要的用戶資料（姓名、Email、頭像）用於提供服務\n' +
+          '• 所有用戶生成內容均存儲在安全的資料庫中\n' +
+          '• 我們不會將您的資料出售或分享給第三方\n\n' +
+          '個資法遵守：\n' +
+          '• 您有權要求查閱、更正、刪除個人資料\n' +
+          '• 如有資料外洩，我們將立即通知並採取補救措施\n\n' +
+          '詳細內容請查看幫助中心的隱私政策部分。');
       }
       
       // 結果區塊功能
