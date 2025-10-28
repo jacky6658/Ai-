@@ -11095,9 +11095,64 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         }
       }
       
+      // 選題記錄本地存取函式
+      function getTopicRecords() {
+        try {
+          const key = `user_topics_${ipPlanningUser?.user_id || 'guest'}`;
+          const data = localStorage.getItem(key);
+          return data ? JSON.parse(data) : [];
+        } catch (e) { return []; }
+      }
+      
+      function setTopicRecords(list) {
+        const key = `user_topics_${ipPlanningUser?.user_id || 'guest'}`;
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+      
+      // 解析選題內容為五大欄位
+      function parseTopicSections(text) {
+        const sections = { hot: '', suggestions: '', strategies: '', planning: '', timeline: '' };
+        const markers = [
+          { key: 'hot', kws: ['熱門選題方向', '熱門方向', '選題方向', '📌'] },
+          { key: 'suggestions', kws: ['選題具體建議', '具體建議', '具體選題'] },
+          { key: 'strategies', kws: ['選題策略和技巧', '策略和技巧', '策略技巧', '策略'] },
+          { key: 'planning', kws: ['內容規劃建議', '內容規劃', '規劃建議'] },
+          { key: 'timeline', kws: ['執行時程建議', '時程建議', '執行時程', '時程'] }
+        ];
+        
+        const lines = text.split('\n');
+        let currentKey = null;
+        
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          
+          // 檢查是否為標記行
+          const found = markers.find(m => m.kws.some(kw => trimmed.includes(kw)));
+          if (found) {
+            currentKey = found.key;
+            continue;
+          }
+          
+          // 將內容加入對應欄位
+          if (currentKey) {
+            sections[currentKey] += (sections[currentKey] ? '\n' : '') + trimmed;
+          }
+        }
+        
+        return sections;
+      }
+      
       // 載入個人資料庫的選題記錄
       async function loadTopicHistoryForUserDB() {
         const content = document.querySelector('#db-topicRecords .section-content');
+        
+        // 優先讀取本地結構化記錄
+        const localRecords = getTopicRecords();
+        if (localRecords.length > 0) {
+          displayTopicRecordsForUserDB(localRecords);
+          return;
+        }
         
         if (!ipPlanningToken || !ipPlanningUser || !ipPlanningUser.user_id) {
           content.innerHTML = '<div class="loading-text">請先登入以查看選題記錄</div>';
@@ -11140,21 +11195,149 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         }
         
         container.innerHTML = records.map((record, index) => {
-          const date = formatTaiwanTime(record.created_at);
+          const date = formatTaiwanTime(record.created_at || record.date);
+          const sections = record.sections || {};
+          
           return `
-            <div class="topic-item">
+            <div class="topic-item" data-topic-id="${record.id}">
               <div class="topic-header">
-                <span class="topic-number">記錄 ${index + 1}</span>
+                <span class="topic-number">${record.name || `選題記錄 ${index + 1}`}</span>
                 <span class="topic-date">${date}</span>
               </div>
-              <div class="topic-content">${record.summary || '無摘要'}</div>
-              <div class="topic-meta">
-                <span class="topic-mode">${record.mode || '選題討論'}</span>
-                <span class="topic-count">${record.message_count || 0} 條消息</span>
+              <div class="topic-actions" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                <button class="action-btn" onclick="viewTopicRecord('${record.id}')">查看完整結果</button>
+                <button class="action-btn" onclick="downloadTopicPDF('${record.id}')">下載PDF</button>
+                <button class="action-btn" onclick="downloadTopicCSV('${record.id}')">下載CSV</button>
+                <button class="action-btn" onclick="renameTopicRecord('${record.id}')">重新命名</button>
+                <button class="action-btn delete-btn" onclick="deleteTopicRecord('${record.id}')">刪除</button>
               </div>
             </div>
           `;
         }).join('');
+      }
+      
+      // 查看選題記錄詳細內容
+      function viewTopicRecord(id) {
+        const all = getTopicRecords();
+        const record = all.find(r => r.id === id);
+        if (!record) return showToast('找不到此記錄', 3000);
+        
+        const s = record.sections || {};
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+              <h3>${record.name || '選題紀錄'}</h3>
+              <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+            </div>
+            <div class="modal-body" style="user-select: text !important;">
+              ${renderTopicSection('熱門選題方向', s.hot)}
+              ${renderTopicSection('選題具體建議', s.suggestions)}
+              ${renderTopicSection('選題策略和技巧', s.strategies)}
+              ${renderTopicSection('內容規劃建議', s.planning)}
+              ${renderTopicSection('執行時程建議', s.timeline)}
+            </div>
+          </div>`;
+        document.body.appendChild(modal);
+      }
+      
+      function renderTopicSection(title, body) {
+        const safe = (body || '-').replace(/\n/g, '<br>');
+        return `<div style="margin-bottom:16px;">
+          <div style="font-weight:700;margin-bottom:6px;">${title}</div>
+          <div style="border:1px solid #eee;border-radius:8px;padding:10px;">${safe}</div>
+        </div>`;
+      }
+      
+      // 下載選題PDF
+      async function downloadTopicPDF(id) {
+        const all = getTopicRecords();
+        const record = all.find(r => r.id === id);
+        if (!record) { showToast('找不到此記錄', 3000); return; }
+        
+        // 載入 jsPDF
+        if (!window.jspdf) {
+          const s = document.createElement('script');
+          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+          await new Promise(r => { s.onload = r; document.head.appendChild(s); });
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        pdf.setFontSize(16);
+        pdf.text(record.name || '選題紀錄', 20, 20);
+        
+        const s = record.sections || {};
+        const add = (label, text, y) => {
+          pdf.setFontSize(12); pdf.text(label, 20, y);
+          pdf.setFontSize(10);
+          const lines = pdf.splitTextToSize(text || '-', 160);
+          let yPos = y + 8;
+          lines.forEach(line => {
+            if (yPos > 260) { pdf.addPage(); yPos = 20; }
+            pdf.text(line, 20, yPos);
+            yPos += 6;
+          });
+          return yPos + 4;
+        };
+        
+        let y = 30;
+        y = add('熱門選題方向', s.hot, y);
+        y = add('選題具體建議', s.suggestions, y);
+        y = add('選題策略和技巧', s.strategies, y);
+        y = add('內容規劃建議', s.planning, y);
+        y = add('執行時程建議', s.timeline, y);
+        
+        pdf.save(`${record.name || 'topic'}.pdf`);
+        showToast('PDF下載成功', 2000);
+      }
+      
+      // 下載選題CSV
+      function downloadTopicCSV(id) {
+        const all = getTopicRecords();
+        const record = all.find(r => r.id === id);
+        if (!record) { showToast('找不到此記錄', 3000); return; }
+        
+        const s = record.sections || {};
+        let csv = '欄位,內容\n';
+        csv += `"熱門選題方向","${(s.hot || '').replace(/"/g, '""')}"\n`;
+        csv += `"選題具體建議","${(s.suggestions || '').replace(/"/g, '""')}"\n`;
+        csv += `"選題策略和技巧","${(s.strategies || '').replace(/"/g, '""')}"\n`;
+        csv += `"內容規劃建議","${(s.planning || '').replace(/"/g, '""')}"\n`;
+        csv += `"執行時程建議","${(s.timeline || '').replace(/"/g, '""')}"\n`;
+        
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${record.name || 'topic'}.csv`;
+        a.click();
+        showToast('CSV下載成功', 2000);
+      }
+      
+      // 重新命名選題記錄
+      function renameTopicRecord(id) {
+        const all = getTopicRecords();
+        const idx = all.findIndex(x => x.id === id);
+        if (idx < 0) return;
+        
+        const newName = prompt('輸入新的名稱：', all[idx].name || '選題紀錄');
+        if (!newName) return;
+        
+        all[idx].name = newName.trim();
+        setTopicRecords(all);
+        displayTopicRecordsForUserDB(all);
+        showToast('名稱已更新', 2000);
+      }
+      
+      // 刪除選題記錄
+      function deleteTopicRecord(id) {
+        if (!confirm('確定刪除此選題紀錄？')) return;
+        
+        const all = getTopicRecords().filter(x => x.id !== id);
+        setTopicRecords(all);
+        displayTopicRecordsForUserDB(all);
+        showToast('已刪除', 2000);
       }
       
       // 載入使用統計
@@ -12135,8 +12318,30 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               localStorage.setItem('saved_positioning', content);
               showToast('儲存失敗（網路）— 已先暫存本地，稍後再試', 4000);
             }
+          } else if (type === 'topics') {
+            // 解析選題內容為五大欄位
+            const sections = parseTopicSections(content);
+            const topicRecord = {
+              id: `topic_${Date.now()}`,
+              user_id: ipPlanningUser.user_id,
+              name: `選題記錄 ${new Date().toLocaleDateString('zh-TW')}`,
+              created_at: new Date().toISOString(),
+              sections: sections
+            };
+            
+            // 儲存到 localStorage
+            const existingRecords = getTopicRecords();
+            existingRecords.unshift(topicRecord);
+            setTopicRecords(existingRecords);
+            
+            showToast('選題已解析並儲存', 2000);
+            
+            // 自動刷新選題記錄顯示
+            if (document.querySelector('#db-topicRecords .section-content')) {
+              displayTopicRecordsForUserDB(existingRecords);
+            }
           } else {
-            // 其他類型暫時儲存到 localStorage
+            // 腳本等其他類型暫時儲存到 localStorage
             localStorage.setItem(`saved_${type}`, content);
             showToast(`${type === 'topics' ? '選題' : '腳本'}已儲存`, 2000);
           }
