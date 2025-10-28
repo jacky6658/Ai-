@@ -9939,14 +9939,21 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         }
         
         if (ipPlanningUser) {
-          // 直接使用後端已格式化的日期（台灣時區）
-          let registrationTime = ipPlanningUser.created_at || '未知';
+          // 取得註冊時間：盡可能容錯多種後端欄位命名
+          const createdRaw = (
+            ipPlanningUser.created_at_formatted ||
+            ipPlanningUser.created_at ||
+            ipPlanningUser.createdAt ||
+            ipPlanningUser.registered_at ||
+            ipPlanningUser.registration_time ||
+            ipPlanningUser.created
+          );
+          let registrationTime = createdRaw || '未知';
           
-          // 如果 created_at 是格式化後的字符串（例如 "2025/10/28 10:30"），直接使用
-          // 如果是原始的 ISO 字符串或 Date 對象，需要格式化
-          if (registrationTime !== '未知' && !registrationTime.includes('/')) {
+          // 如果是 ISO 字串或 Date 物件，轉為台灣時區顯示
+          if (registrationTime !== '未知' && (registrationTime.includes('T') || registrationTime.includes('-') || registrationTime instanceof Date)) {
             try {
-              const date = new Date(ipPlanningUser.created_at);
+              const date = new Date(registrationTime);
               if (!isNaN(date.getTime())) {
                 registrationTime = date.toLocaleString('zh-TW', {
                   timeZone: 'Asia/Taipei',
@@ -9958,20 +9965,21 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 });
               }
             } catch (e) {
-              registrationTime = ipPlanningUser.created_at;
+              registrationTime = String(registrationTime);
             }
           }
           
           // 訂閱狀態
-          const subscriptionStatus = ipPlanningUser.is_subscribed ? 
+          const isSubscribed = (ipPlanningUser.is_subscribed === true || ipPlanningUser.is_subscribed === 1 || ipPlanningUser.is_subscribed === '1' || ipPlanningUser.is_subscribed === 'true');
+          const subscriptionStatus = isSubscribed ? 
             '<span style="color: #10b981; font-weight: bold;">✅ 已訂閱</span>' : 
             '<span style="color: #ef4444; font-weight: bold;">❌ 未訂閱</span>';
           
           // 自動續費日期（下個月同一天）
           let renewalDate = '未知';
-          if (ipPlanningUser.created_at && ipPlanningUser.is_subscribed) {
+          if (createdRaw && isSubscribed) {
             try {
-              const createdDate = new Date(ipPlanningUser.created_at);
+              const createdDate = new Date(createdRaw);
               const renewal = new Date(createdDate);
               renewal.setMonth(renewal.getMonth() + 1);
               renewalDate = renewal.toLocaleString('zh-TW', {
@@ -10009,7 +10017,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 <label>訂閱狀態：</label>
                 <span>${subscriptionStatus}</span>
               </div>
-              ${ipPlanningUser.is_subscribed ? `
+              ${isSubscribed ? `
               <div class="detail-item">
                 <label>到期日期：</label>
                 <span>${renewalDate}</span>
