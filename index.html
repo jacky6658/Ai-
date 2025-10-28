@@ -8446,7 +8446,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
     <div id="toast" class="toast" style="display: none;"></div>
     <script>
       // 頁面控制函數
-      function switchPage(pageId) {
+      async function switchPage(pageId) {
         console.log('switchPage called with:', pageId);
         
         // 需要訂閱才能訪問的頁面列表
@@ -8455,15 +8455,23 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         // 檢查是否為受保護的頁面
         if (protectedPages.includes(pageId)) {
           const isSubscribed = document.body.dataset.subscribed === 'true';
-          const isLoggedIn = ipPlanningToken && ipPlanningUser;
+          let isLoggedIn = ipPlanningToken && ipPlanningUser;
           
           console.log('嘗試訪問受保護頁面:', pageId);
           console.log('訂閱狀態:', isSubscribed);
           console.log('登入狀態:', isLoggedIn);
           console.log('document.body.dataset.subscribed:', document.body.dataset.subscribed);
           
-          // 未登入，顯示登入提示
-          if (!isLoggedIn) {
+          // 若已拿到 token 但使用者資料尚未載入，先嘗試取回一次
+          if (ipPlanningToken && !ipPlanningUser) {
+            try {
+              await fetchUserInfo();
+              isLoggedIn = !!ipPlanningUser;
+            } catch (_) {}
+          }
+
+          // 未登入，顯示登入提示（僅當沒有 token 時）
+          if (!isLoggedIn && !ipPlanningToken) {
             console.warn('未登入 - 需要登入');
             alert('請先登入以使用此功能！');
             goToLogin();
