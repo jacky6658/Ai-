@@ -12073,11 +12073,16 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 // 重新載入帳號定位列表
                 await loadPositioningRecords();
               } else {
-                throw new Error('儲存失敗');
+                let errorText = '';
+                try { errorText = await response.text(); } catch(_) {}
+                localStorage.setItem('saved_positioning', content);
+                showToast('儲存失敗（伺服器）— 已先暫存本地，稍後再試', 4000);
+                console.error('Positioning save failed:', response.status, errorText);
               }
             } catch (error) {
               console.error('儲存錯誤:', error);
-              showToast('儲存失敗，請稍後再試', 3000);
+              localStorage.setItem('saved_positioning', content);
+              showToast('儲存失敗（網路）— 已先暫存本地，稍後再試', 4000);
             }
           } else {
             // 其他類型暫時儲存到 localStorage
