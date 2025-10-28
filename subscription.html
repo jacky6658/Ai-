@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>訂閱 ReelMind｜付費即使用，無免費體驗</title>
+<meta name="description" content="ReelMind 單一訂閱制：AI 顧問、AI 一鍵生成、IP 人設規劃與創作者資料庫。付費即使用，無免費體驗。支援綠界 ECPay。">
+<meta name="theme-color" content="#2563EB" />
+<style>
+:root{
+  --bg:#F8FAFC; --ink:#0F172A; --sub:#475569; --line:#E2E8F0; --card:#FFFFFF;
+  --blue:#2563EB; --blue-deep:#1D4ED8; --ok:#16A34A; --warn:#F59E0B; --red:#DC2626;
+  --shadow:0 16px 40px rgba(2,6,23,.08); --r:16px;
+}
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{font-family:ui-sans-serif,system-ui,-apple-system,"Noto Sans TC","PingFang TC",Segoe UI,Roboto,Arial}
+a{text-decoration:none;color:inherit}
+.wrap{width:100%} .safe{max-width:1120px;margin:0 auto;padding:0 16px}
+.hero{padding:56px 0 24px;background:
+  radial-gradient(900px 320px at 90% -10%, rgba(37,99,235,.12), transparent 60%),
+  radial-gradient(600px 260px at 8% -10%, rgba(59,130,246,.10), transparent 60%);
+  border-bottom:1px solid var(--line)}
+.h1{font-size:32px;line-height:1.2;margin:0 0 6px}
+.lead{color:var(--sub);margin:0}
+.badge{display:inline-flex;gap:8px;align-items:center;background:#E0F2FE;color:#075985;padding:8px 12px;border-radius:999px;font-weight:800;font-size:12px;margin-bottom:10px}
+.notice{display:flex;gap:8px;align-items:center;color:#0F172A;background:#FEF3C7;border:1px solid #FDE68A;border-radius:12px;padding:8px 12px;margin-top:12px;font-weight:700}
+.grid{display:grid;gap:16px}
+@media(min-width:980px){.cols-2{grid-template-columns:1.1fr 1fr}}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--line)}
+.card .body{padding:18px}
+.h2{font-size:22px;font-weight:900;margin:0 0 8px}
+.h3{font-size:18px;font-weight:900;margin:0 0 6px}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0}
+.sub{color:var(--sub)}
+.list{padding-left:18px;margin:8px 0} .list li{margin:6px 0;color:var(--sub)}
+.kv{display:flex;align-items:center;gap:8px}
+.price{font-size:34px;font-weight:900}
+.switch{display:flex;gap:8px;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:999px;padding:6px}
+.switch button{height:40px;padding:0 14px;border-radius:999px;border:none;font-weight:800;color:#334155;background:transparent;cursor:pointer}
+.switch button.active{background:var(--card);box-shadow:0 6px 16px rgba(2,6,23,.08)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.input{width:100%;height:44px;border:1px solid #CBD5E1;border-radius:10px;padding:10px 12px;font-size:14px}
+.select{width:100%;height:44px;border:1px solid #CBD5E1;border-radius:10px;padding:10px 12px;background:#fff}
+.textarea{width:100%;min-height:88px;border:1px solid #CBD5E1;border-radius:12px;padding:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 18px;border-radius:999px;font-weight:900;cursor:pointer}
+.btn.blue{background:var(--blue);color:#fff}.btn.blue:hover{background:var(--blue-deep)}
+.btn.ghost{border:1px solid #CBD5E1;background:#fff;color:#334155}
+.payrow{display:grid;gap:10px}
+.paybtn{width:100%;height:48px;border:1px solid #CBD5E1;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;gap:8px;cursor:pointer}
+.sum{background:#0B1220;color:#E5E7EB;border-radius:14px;padding:12px}
+.sum .line{display:flex;justify-content:space-between;margin:6px 0}
+.faq{background:#FFF;border:1px solid var(--line);border-radius:16px;padding:14px}
+.ft{padding:24px 0;color:#64748B;text-align:center;border-top:1px solid var(--line);font-size:14px}
+.small{font-size:12px;color:#64748B}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero wrap">
+  <div class="safe">
+    <span class="badge">單一訂閱制 · 不分等級 · 付費即使用</span>
+    <h1 class="h1">訂閱 ReelMind，解鎖你的 AI 創作系統</h1>
+    <p class="lead">包含 AI 顧問、AI 一鍵生成、IP 人設規劃與創作者資料庫。支援 ECPay（綠界）付款。</p>
+    <div class="notice">⚠️ 無免費體驗｜成功付款即開通使用權</div>
+  </div>
+</header>
+
+<main class="wrap" style="padding:28px 0">
+  <div class="safe grid cols-2">
+
+    <!-- 左：方案與付款 -->
+    <section class="card">
+      <div class="body">
+        <div class="kv" style="justify-content:space-between">
+          <h2 class="h2">選擇方案</h2>
+          <div class="switch" role="tablist" aria-label="plan switch">
+            <button id="mPlan" class="active" onclick="setPlan('monthly')" aria-selected="true">月費方案</button>
+            <button id="yPlan" onclick="setPlan('yearly')" aria-selected="false">年費方案</button>
+          </div>
+        </div>
+
+        <div id="planBox" style="margin-top:10px">
+          <div class="h3" id="planName">月費方案</div>
+          <div class="price" id="planPrice">NT$3,980</div>
+          <div class="sub" id="planDesc">每月訂閱，可隨時續訂；不分等級、功能完整。</div>
+          <div class="hr"></div>
+          <ul class="list">
+            <li>AI 顧問對話：定位 / 節奏 / 變現 Q&A</li>
+            <li>AI 一鍵生成：Hook、口播、分鏡、CTA</li>
+            <li>IP 人設規劃：Profile + 14 天內容規劃</li>
+            <li>創作者資料庫：PDF / CSV 下載、版本重生</li>
+          </ul>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="h3">付款方式</div>
+        <div class="payrow" style="margin-top:8px">
+          <!-- 把這些改成你實際的付款連結或觸發 JS -->
+          <a class="paybtn" href="#" onclick="pay('ecpay')">
+            <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Ecpay_logo.svg/120px-Ecpay_logo.svg.png" style="height:18px" />
+            綠界 ECPay（信用卡）
+          </a>
+          <a class="paybtn" href="#" onclick="pay('card')">信用卡（備用）</a>
+          <a class="paybtn" href="#" onclick="pay('redeem')">兌換序號</a>
+        </div>
+
+        <div class="small" style="margin-top:10px">付款即代表同意<a href="#terms" class="link">服務條款與退費政策</a>。</div>
+      </div>
+    </section>
+
+    <!-- 右：帳務資訊 / 訂單摘要 -->
+    <section class="card">
+      <div class="body">
+        <h2 class="h2">帳務資訊</h2>
+        <div class="row">
+          <input class="input" placeholder="姓名（或公司抬頭）" id="name" />
+          <input class="input" placeholder="電子信箱（收據與通知）" id="email" type="email" />
+          <input class="input" placeholder="手機（選填）" id="phone" />
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <select class="select" id="invoiceType">
+            <option value="personal">發票：個人</option>
+            <option value="company">發票：公司（統編）</option>
+          </select>
+          <input class="input" placeholder="統一編號（選擇公司時填寫）" id="vat" />
+        </div>
+
+        <textarea class="textarea" id="note" placeholder="備註（選填）" style="margin-top:8px"></textarea>
+
+        <div class="hr"></div>
+
+        <div class="h3">訂單摘要</div>
+        <div class="sum" aria-live="polite">
+          <div class="line"><span id="sumPlan">月費方案</span><b id="sumPrice">NT$3,980</b></div>
+          <div class="line"><span>手續費</span><b id="fee">NT$0</b></div>
+          <div class="line" style="border-top:1px dashed #334155;margin-top:8px;padding-top:8px">
+            <span><b>應付金額</b></span><b id="total">NT$3,980</b>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn blue" onclick="checkout()">前往付款</button>
+          <a class="btn ghost" href="/login">已訂閱？登入使用</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FAQ / 條款 -->
+  <div class="safe" style="margin-top:18px">
+    <section class="faq" id="terms">
+      <h2 class="h2">常見問題與條款</h2>
+      <p><b>Q：是否有免費試用？</b><br/>A：沒有。付費即使用，無免費體驗。</p>
+      <p><b>Q：訂閱包含哪些功能？</b><br/>A：AI 顧問、AI 一鍵生成、IP 人設規劃與創作者資料庫；不分等級、功能完整。</p>
+      <p><b>Q：如何開立發票？</b><br/>A：付款後將於 3–5 個工作日寄送電子發票至你的信箱。</p>
+      <p class="small">退費政策：數位服務一經啟用恕不退款（法規另有規定者除外）。若扣款或開通發生問題，請來信 <a href="mailto:hello@aijob.com.tw">hello@aijob.com.tw</a>。</p>
+    </section>
+  </div>
+</main>
+
+<footer class="ft">© 2025 ReelMind · AI 短影音｜AI 腳本生成｜AI 顧問｜IP 人設規劃 · 台灣</footer>
+
+<script>
+  // 價格設定（如未來調整，改這裡即可）
+  const price = { monthly: 3980, yearly: 39800 };
+  let current = 'monthly';
+
+  function format(n){ return 'NT$' + n.toLocaleString('zh-Hant-TW'); }
+
+  function setPlan(p){
+    current = p;
+    document.getElementById('mPlan').classList.toggle('active', p==='monthly');
+    document.getElementById('yPlan').classList.toggle('active', p==='yearly');
+
+    const name = p==='monthly' ? '月費方案' : '年費方案（省 NT$7,960）';
+    const desc = p==='monthly'
+      ? '每月訂閱，可隨時續訂；不分等級、功能完整。'
+      : '一次結清 12 個月；不分等級、功能完整。';
+    document.getElementById('planName').textContent = name;
+    document.getElementById('planPrice').textContent = format(price[p]);
+    document.getElementById('planDesc').textContent = desc;
+    document.getElementById('sumPlan').textContent = name;
+    document.getElementById('sumPrice').textContent = format(price[p]);
+    document.getElementById('total').textContent = format(price[p]);
+  }
+
+  // 從 URL 參數讀取方案
+  function getUrlParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
+  function checkout(){
+    // 這裡接你的金流導轉（ex: ECPay 產生訂單 → 導向付款頁）
+    const plan = current;
+    const payload = {
+      plan,
+      amount: price[plan],
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
+      invoiceType: document.getElementById('invoiceType').value,
+      vat: document.getElementById('vat').value,
+      note: document.getElementById('note').value
+    };
+    // 前端簡單檢查
+    if(!payload.name || !payload.email){
+      alert('請填寫姓名與電子信箱'); return;
+    }
+    // TODO: 送到你的後端建立訂單，後端呼叫綠界交易 API，回傳導向 URL
+    console.log('訂單資料（範例）', payload);
+    alert('已讀取訂單資料。請在接上金流 API 後導向至 ECPay 付款頁。');
+  }
+
+  function pay(kind){
+    if(kind==='redeem'){
+      const code = prompt('請輸入序號進行兌換：');
+      if(!code) return;
+      // TODO: 呼叫你的後端兌換 API
+      alert('已送出序號：' + code + '（請接上後端驗證與開通邏輯）');
+      return;
+    }
+    // 其他支付方式可以共用 checkout()
+    checkout();
+  }
+
+  // 初始化：從 URL 參數讀取方案，如果沒有則預設為月費
+  const urlPlan = getUrlParam('plan');
+  const initialPlan = urlPlan === 'yearly' ? 'yearly' : 'monthly';
+  setPlan(initialPlan);
+</script>
+
+</body>
+</html>
