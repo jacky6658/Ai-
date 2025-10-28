@@ -8500,6 +8500,16 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         if (targetPage) {
           targetPage.classList.add('active');
           console.log('Switched to page:', pageId);
+          // 進入個人資料庫時，預設載入個人資料分區，避免需要再點一次
+          if (pageId === 'userDB') {
+            // 若使用者資訊尚未到位但已有 token，先嘗試拉取
+            if (ipPlanningToken && !ipPlanningUser) {
+              try { await fetchUserInfo(); } catch (_) {}
+            }
+            // 立即刷新左側頭像/名稱與個資內容
+            updateDbUserInfo();
+            showDbSection('personalInfo');
+          }
         } else {
           console.error('Page not found:', pageId);
         }
