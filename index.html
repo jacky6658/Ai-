@@ -7999,15 +7999,15 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                         <div class="setting-group">
                           <h4>🎨 顯示偏好</h4>
                           <div class="setting-item">
-                            <label for="theme">主題</label>
+                            <label for="theme" data-i18n="theme">主題</label>
                             <select id="theme">
-                              <option value="light" selected>淺色模式</option>
-                              <option value="dark">深色模式</option>
-                              <option value="auto">自動</option>
+                              <option value="light" selected data-i18n="light-mode">淺色模式</option>
+                              <option value="dark" data-i18n="dark-mode">深色模式</option>
+                              <option value="auto" data-i18n="auto-mode">自動</option>
                             </select>
                           </div>
                           <div class="setting-item">
-                            <label for="language">語言</label>
+                            <label for="language" data-i18n="language">語言</label>
                             <select id="language">
                               <option value="zh-TW" selected>繁體中文</option>
                               <option value="zh-CN">简体中文</option>
@@ -8019,11 +8019,11 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                         <div class="setting-group">
                           <h4>📊 數據管理</h4>
                           <div class="setting-item">
-                            <button class="btn btn-secondary" onclick="exportUserData()">📥 匯出我的資料</button>
+                            <button class="btn btn-secondary" onclick="exportUserData()" data-i18n="export-data">📥 匯出我的資料</button>
                             <span class="setting-desc">匯出所有腳本、對話、定位記錄</span>
                           </div>
                           <div class="setting-item">
-                            <button class="btn btn-danger" onclick="clearUserData()">🗑️ 清除本地快取</button>
+                            <button class="btn btn-danger" onclick="clearUserData()" data-i18n="clear-cache">🗑️ 清除本地快取</button>
                             <span class="setting-desc">清除本地暫存數據</span>
                           </div>
                         </div>
@@ -8841,13 +8841,16 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         ipPlanningUser = JSON.parse(localStorage.getItem('ipPlanningUser') || 'null');
         
         // 無論是否登入，都先顯示首頁
-          showMainApp();
+        showMainApp();
         
         // 根據登入狀態更新 UI
         if (ipPlanningToken && ipPlanningUser) {
+          // 更新訂閱狀態
+          document.body.dataset.subscribed = ipPlanningUser.is_subscribed ? 'true' : 'false';
           updateUserInfo();
         } else {
           // 未登入時顯示登入按鈕
+          document.body.dataset.subscribed = 'false';
           showLoginButton();
         }
       }
@@ -10973,8 +10976,9 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         const savedTheme = localStorage.getItem('theme') || 'light';
         const savedLanguage = localStorage.getItem('language') || 'zh-TW';
         
-        // 應用主題
+        // 應用主題和語言
         applyTheme(savedTheme);
+        applyLanguage(savedLanguage);
         
         // 設置下拉框的值
         const themeSelect = document.getElementById('theme');
@@ -10995,7 +10999,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           languageSelect.addEventListener('change', function() {
             const language = this.value;
             localStorage.setItem('language', language);
-            showToast('語言已切換（功能開發中）', 2000);
+            applyLanguage(language);
+            showToast('語言已切換', 2000);
           });
         }
       }
@@ -11022,6 +11027,150 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             document.body.classList.remove('dark-mode');
           }
         }
+      }
+      
+      // 應用語言
+      function applyLanguage(language) {
+        const html = document.documentElement;
+        html.setAttribute('lang', language);
+        
+        // 定義翻譯對照表
+        const translations = {
+          'zh-TW': {
+            'app-title': 'ReelMind - AI 短影音智能體',
+            'login-button': '使用 Google 登入',
+            'logout-button': '登出',
+            'redeem-code': '兌換序號',
+            'personal-profile': '個人資料',
+            'my-scripts': '我的腳本',
+            'account-positioning': '帳號定位',
+            'topic-records': '選題記錄',
+            'settings': '設定',
+            'usage-stats': '使用統計',
+            'help-center': '幫助中心',
+            'name': '姓名',
+            'email': 'Email',
+            'user-id': '用戶ID',
+            'registration-time': '註冊時間',
+            'subscription-status': '訂閱狀態',
+            'subscribed': '已訂閱',
+            'not-subscribed': '未訂閱',
+            'enable-subscription': '啟用訂閱',
+            'cancel-subscription': '取消自動續費',
+            'next-renewal': '下次續費日期',
+            'theme': '主題',
+            'language': '語言',
+            'light-mode': '淺色模式',
+            'dark-mode': '深色模式',
+            'auto-mode': '自動',
+            'export-data': '匯出我的資料',
+            'clear-cache': '清除本地快取',
+            'loading': '載入中...',
+            'success': '成功',
+            'error': '錯誤',
+            'confirm': '確認',
+            'cancel': '取消'
+          },
+          'zh-CN': {
+            'app-title': 'ReelMind - AI 短视频智能体',
+            'login-button': '使用 Google 登录',
+            'logout-button': '登出',
+            'redeem-code': '兑换序号',
+            'personal-profile': '个人资料',
+            'my-scripts': '我的脚本',
+            'account-positioning': '账号定位',
+            'topic-records': '选题记录',
+            'settings': '设置',
+            'usage-stats': '使用统计',
+            'help-center': '帮助中心',
+            'name': '姓名',
+            'email': 'Email',
+            'user-id': '用户ID',
+            'registration-time': '注册时间',
+            'subscription-status': '订阅状态',
+            'subscribed': '已订阅',
+            'not-subscribed': '未订阅',
+            'enable-subscription': '启用订阅',
+            'cancel-subscription': '取消自动续费',
+            'next-renewal': '下次续费日期',
+            'theme': '主题',
+            'language': '语言',
+            'light-mode': '浅色模式',
+            'dark-mode': '深色模式',
+            'auto-mode': '自动',
+            'export-data': '导出我的资料',
+            'clear-cache': '清除本地缓存',
+            'loading': '加载中...',
+            'success': '成功',
+            'error': '错误',
+            'confirm': '确认',
+            'cancel': '取消'
+          },
+          'en': {
+            'app-title': 'ReelMind - AI Short Video Agent',
+            'login-button': 'Login with Google',
+            'logout-button': 'Logout',
+            'redeem-code': 'Redeem Code',
+            'personal-profile': 'Personal Profile',
+            'my-scripts': 'My Scripts',
+            'account-positioning': 'Account Positioning',
+            'topic-records': 'Topic Records',
+            'settings': 'Settings',
+            'usage-stats': 'Usage Statistics',
+            'help-center': 'Help Center',
+            'name': 'Name',
+            'email': 'Email',
+            'user-id': 'User ID',
+            'registration-time': 'Registration Time',
+            'subscription-status': 'Subscription Status',
+            'subscribed': 'Subscribed',
+            'not-subscribed': 'Not Subscribed',
+            'enable-subscription': 'Enable Subscription',
+            'cancel-subscription': 'Cancel Auto-renewal',
+            'next-renewal': 'Next Renewal Date',
+            'theme': 'Theme',
+            'language': 'Language',
+            'light-mode': 'Light Mode',
+            'dark-mode': 'Dark Mode',
+            'auto-mode': 'Auto',
+            'export-data': 'Export My Data',
+            'clear-cache': 'Clear Local Cache',
+            'loading': 'Loading...',
+            'success': 'Success',
+            'error': 'Error',
+            'confirm': 'Confirm',
+            'cancel': 'Cancel'
+          }
+        };
+        
+        // 更新頁面標題
+        if (translations[language] && translations[language]['app-title']) {
+          document.title = translations[language]['app-title'];
+        }
+        
+        // 更新所有帶有 data-i18n 屬性的元素
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+          const key = element.getAttribute('data-i18n');
+          if (translations[language] && translations[language][key]) {
+            element.textContent = translations[language][key];
+          }
+        });
+        
+        // 更新所有帶有 data-i18n-placeholder 屬性的元素
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+          const key = element.getAttribute('data-i18n-placeholder');
+          if (translations[language] && translations[language][key]) {
+            element.placeholder = translations[language][key];
+          }
+        });
+        
+        // 更新所有帶有 data-i18n-title 屬性的元素
+        document.querySelectorAll('[data-i18n-title]').forEach(element => {
+          const key = element.getAttribute('data-i18n-title');
+          if (translations[language] && translations[language][key]) {
+            element.title = translations[language][key];
+          }
+        });
       }
       
       // 顯示法律政策
@@ -13050,6 +13199,9 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             ipPlanningUser.user_id = generateUserId();
             console.log('為用戶生成新ID:', ipPlanningUser.user_id);
           }
+          
+          // 更新訂閱狀態
+          document.body.dataset.subscribed = ipPlanningUser.is_subscribed ? 'true' : 'false';
           
           localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
           updateAuthUI(true);
