@@ -2702,6 +2702,7 @@
         background: #f8f9fa;
         border: 1px solid #e5e7eb;
         border-radius: 8px;
+        user-select: text;
         margin-bottom: 12px;
         overflow: hidden;
       }
@@ -2892,9 +2893,20 @@
         background: #f8f9fa;
         border: 1px solid #e9ecef;
         border-radius: 8px;
+        user-select: text;
         padding: 16px;
         margin-bottom: 12px;
         transition: all 0.2s ease;
+      }
+      
+      /* 允許所有內容區域可複製 */
+      .topic-item,
+      .script-content,
+      .record-content,
+      .detail-content,
+      .section-content,
+      .db-section * {
+        user-select: text !important;
       }
       
       .positioning-record-item:hover {
@@ -3662,7 +3674,7 @@
       
       /* 設定區塊樣式 */
       .settings-block { background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px; margin-bottom:16px; }
-      .settings-block h3 { margin:0 0 16px; color:#2563eb; font-size:16px; cursor:pointer; user-select:none; display:flex; align-items:center; gap:8px; }
+      .settings-block h3 { margin:0 0 16px; color:#2563eb; font-size:16px; cursor:pointer; user-select:text; display:flex; align-items:center; gap:8px; }
       .settings-block h3:hover { color:#1d4ed8; }
       .settings-toggle { font-size:12px; transition:transform 0.2s ease; }
       .settings-content { transition:all 0.3s ease; overflow:hidden; }
