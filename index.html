@@ -13826,7 +13826,17 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
 
       async function recordConversationMessage(conversationType, role, content) {
         try {
-          if (!ipPlanningUser?.user_id || !content) return;
+          if (!content) return;
+          // 兼容舊資料：若 user_id 未就緒但有 id，或完全沒有則臨時產生
+          if (!ipPlanningUser) ipPlanningUser = {};
+          if (!ipPlanningUser.user_id) {
+            if (ipPlanningUser.id) {
+              ipPlanningUser.user_id = ipPlanningUser.id;
+            } else if (typeof generateUserId === 'function') {
+              ipPlanningUser.user_id = generateUserId();
+            }
+            try { localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser)); } catch(_) {}
+          }
           const sessionId = getCurrentSessionId(conversationType);
           const res = await fetch('https://aivideobackend.zeabur.app/api/memory/long-term', {
             method: 'POST',
