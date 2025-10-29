@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>ReelMind | AI 短影音平台 - AI 生成腳本 × AI 帳號定位</title>
     
+    <!-- Favicon: 使用 SVG data URI，避免 404 錯誤 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎬%3C/text%3E%3C/svg%3E" />
+    
     <!-- SEO 結構化資料 -->
     <script type="application/ld+json">
     {
@@ -13196,9 +13199,6 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             console.error('DEBUG: Popup window blocked or failed to open');
             hidePopupOverlay();
             showPopupError('請允許彈跳視窗以完成登入', true);
-            if (typeof localStorageCheckInterval !== 'undefined') {
-              clearInterval(localStorageCheckInterval);
-            }
             window.removeEventListener('message', authMessageHandler);
             window.removeEventListener('storage', storageHandler);
             if (popupTimeout) {
