@@ -6916,10 +6916,10 @@
                         <span style="font-size: 0.9em; color: #94A3B8;">付費即使用，無免費體驗。</span>
                       </p>
                       <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
-                        <a href="/checkout?plan=pro" style="padding: 16px 24px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border-radius: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(59,130,246,0.25); transition: all 0.3s; font-size: 0.9rem; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
+                        <a href="subscription.html" style="padding: 16px 24px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border-radius: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(59,130,246,0.25); transition: all 0.3s; font-size: 0.9rem; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
                           立即啟用<br>AI 智能體
                         </a>
-                        <a href="/docs" style="padding: 16px 24px; background: white; color: #2563EB; border: 2px solid #2563EB; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s; font-size: 0.9rem; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
+                        <a href="#features" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'}); return false;" style="padding: 16px 24px; background: white; color: #2563EB; border: 2px solid #2563EB; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s; font-size: 0.9rem; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
                           了解使用方式
                         </a>
                       </div>
@@ -6996,7 +6996,7 @@
               </section>
 
               <!-- ReelMind 能為你做什麼？全新設計版 -->
-              <section id="rm-overview-v2" style="background: white; padding: 100px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw; position: relative; overflow: hidden;">
+              <section id="features" style="background: white; padding: 100px 0; margin: -20px calc(-50vw + 50%) 0 calc(-50vw + 50%); width: 100vw; max-width: 100vw; position: relative; overflow: hidden;">
                 <!-- 背景裝飾 -->
                 <div style="position: absolute; inset: 0; background: linear-gradient(to bottom right, #EFF6FF, white, #F0FDF4); opacity: 0.5;"></div>
                 <div style="position: absolute; top: 0; left: 0; width: 384px; height: 384px; background: #DBEAFE; border-radius: 50%; filter: blur(96px); opacity: 0.3;"></div>
@@ -13765,8 +13765,17 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           
           // 立即更新個人資料顯示
           updatePersonalInfo();
+        } else if (response.status === 401) {
+          console.log('Token 已過期，清除登入資料');
+          localStorage.removeItem('ipPlanningToken');
+          localStorage.removeItem('ipPlanningUser');
+          ipPlanningToken = null;
+          ipPlanningUser = null;
+          showLoginButton();
+          throw new Error('Token expired, please login again');
         } else {
-          throw new Error('Failed to fetch user info');
+          console.error('獲取用戶資訊失敗:', response.status, response.statusText);
+          throw new Error(`Failed to fetch user info: ${response.status}`);
         }
       }
 
