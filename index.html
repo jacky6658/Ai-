@@ -9984,6 +9984,11 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             await fetchUserInfo();
           } catch (error) {
             console.error('載入用戶信息失敗:', error);
+            // 如果是認證錯誤，顯示登入提示
+            if (error.message.includes('Token expired') || error.message.includes('401')) {
+              content.innerHTML = '<div class="loading-text">請重新登入以查看個人資料</div>';
+              return;
+            }
           }
         }
         
@@ -10128,6 +10133,14 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               displayScriptsForUserDB(data.scripts);
               return;
             }
+          } else if (response.status === 401) {
+            console.log('認證失敗，清除登入資料');
+            localStorage.removeItem('ipPlanningToken');
+            localStorage.removeItem('ipPlanningUser');
+            ipPlanningToken = null;
+            ipPlanningUser = null;
+            content.innerHTML = '<div class="loading-text">請重新登入以查看腳本記錄</div>';
+            return;
           }
         } catch (error) {
           console.log('後端載入失敗，嘗試本地:', error);
@@ -10959,7 +10972,12 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             const data = await response.json();
             displayPositioningRecordsForUserDB(data.records || []);
           } else if (response.status === 401) {
-            content.innerHTML = '<div class="loading-text">請先登入</div>';
+            console.log('認證失敗，清除登入資料');
+            localStorage.removeItem('ipPlanningToken');
+            localStorage.removeItem('ipPlanningUser');
+            ipPlanningToken = null;
+            ipPlanningUser = null;
+            content.innerHTML = '<div class="loading-text">請重新登入以查看帳號定位記錄</div>';
           } else if (response.status === 404) {
             content.innerHTML = '<div class="loading-text">帳號定位功能即將上線，請稍後再試</div>';
           } else {
