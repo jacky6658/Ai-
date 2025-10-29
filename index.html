@@ -70,12 +70,13 @@
     
     <!-- Markdown 和語法高亮函式庫 -->
     <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/css.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/html.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    <!-- Highlight.js: 使用瀏覽器 UMD 版本（/build/ 而非 /lib/）避免 module is not defined 錯誤 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+    <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/javascript.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/python.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/css.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/html.min.js"></script>
     <!-- Font Awesome 圖標庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
@@ -8751,6 +8752,24 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         
         // 檢查訂閱狀態
         checkSubscriptionStatus();
+        
+        // 確保 Highlight.js 載入後初始化（因為使用了 defer）
+        function initializeHighlightJS() {
+          if (typeof hljs !== 'undefined') {
+            console.log('DEBUG: Highlight.js loaded, initializing...');
+            try {
+              hljs.highlightAll();
+              // 初始化 Markdown 渲染器
+              initMarkdownRenderer();
+            } catch (e) {
+              console.warn('DEBUG: Highlight.js initialization error:', e);
+            }
+          } else {
+            // 如果還沒載入，延遲重試
+            setTimeout(initializeHighlightJS, 100);
+          }
+        }
+        initializeHighlightJS();
         
         // 移動原有內容到新容器
         moveExistingContent();
