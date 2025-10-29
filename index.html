@@ -13894,13 +13894,21 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         try {
           // 改為傳 user_id 給後端，不依賴過期的 Authorization
           if (!ipPlanningUser || !ipPlanningUser.user_id) return false;
-          const r = await fetch('https://aivideobackend.zeabur.app/api/auth/refresh', {
+          let r = await fetch('https://aivideobackend.zeabur.app/api/auth/refresh', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ user_id: ipPlanningUser.user_id })
           });
+          // 若路徑不存在（404），嘗試兼容路徑
+          if (r.status === 404) {
+            r = await fetch('https://aivideobackend.zeabur.app/api/auth/token/refresh', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user_id: ipPlanningUser.user_id })
+            });
+          }
           if (!r.ok) {
             // 401 代表 refresh 失效，但不在這裡清除 token（避免影響正在進行的對話）
             return false;
