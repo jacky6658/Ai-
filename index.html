@@ -8993,25 +8993,36 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       // 檢查登入狀態
       function checkLoginStatus() {
         try {
+          console.log('checkLoginStatus: 開始檢查登入狀態');
+          
           ipPlanningToken = localStorage.getItem('ipPlanningToken');
           ipPlanningUser = JSON.parse(localStorage.getItem('ipPlanningUser') || 'null');
           
+          console.log('checkLoginStatus: Token 存在:', !!ipPlanningToken);
+          console.log('checkLoginStatus: User 存在:', !!ipPlanningUser);
+          
           // 無論是否登入，都先顯示首頁
+          console.log('checkLoginStatus: 調用 showMainApp()');
           showMainApp();
           
           // 根據登入狀態更新 UI
           if (ipPlanningToken && ipPlanningUser) {
+            console.log('checkLoginStatus: 用戶已登入，更新用戶資訊');
             // 更新訂閱狀態
             document.body.dataset.subscribed = ipPlanningUser.is_subscribed ? 'true' : 'false';
             updateUserInfo();
           } else {
+            console.log('checkLoginStatus: 用戶未登入，顯示登入按鈕');
             // 未登入時顯示登入按鈕
             document.body.dataset.subscribed = 'false';
             showLoginButton();
           }
+          
+          console.log('checkLoginStatus: 完成');
         } catch (error) {
           console.error('checkLoginStatus 錯誤:', error);
           // 發生錯誤時，至少顯示首頁
+          console.log('checkLoginStatus: 發生錯誤，強制顯示首頁');
           showMainApp();
         }
       }
@@ -9043,11 +9054,32 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       
       // 顯示主應用程式
       function showMainApp() {
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        
-        // 設置默認頁面為首頁
-        switchPage('homepage');
+        try {
+          console.log('showMainApp: 開始顯示主應用程式');
+          
+          const loginPage = document.getElementById('loginPage');
+          const appContainer = document.getElementById('appContainer');
+          
+          if (loginPage) {
+            loginPage.style.display = 'none';
+            console.log('showMainApp: 隱藏登入頁面');
+          } else {
+            console.error('showMainApp: 找不到 loginPage 元素');
+          }
+          
+          if (appContainer) {
+            appContainer.style.display = 'block';
+            console.log('showMainApp: 顯示主應用程式');
+          } else {
+            console.error('showMainApp: 找不到 appContainer 元素');
+          }
+          
+          // 設置默認頁面為首頁
+          switchPage('homepage');
+          console.log('showMainApp: 設置首頁完成');
+        } catch (error) {
+          console.error('showMainApp 錯誤:', error);
+        }
       }
       
       // 顯示登入按鈕
