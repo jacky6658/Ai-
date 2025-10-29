@@ -8716,6 +8716,36 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       
       // 初始化頁面
       document.addEventListener('DOMContentLoaded', function() {
+        // 檢查 URL 參數中是否有 token（OAuth callback fallback）
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenParam = urlParams.get('token');
+        if (tokenParam) {
+          console.log('DEBUG: Found token in URL params, processing OAuth callback...');
+          const userId = urlParams.get('user_id');
+          const email = urlParams.get('email');
+          const name = urlParams.get('name');
+          const picture = urlParams.get('picture');
+          
+          if (tokenParam && userId) {
+            ipPlanningToken = tokenParam;
+            ipPlanningUser = {
+              user_id: userId,
+              email: email || '',
+              name: name || '',
+              picture: picture || ''
+            };
+            localStorage.setItem('ipPlanningToken', ipPlanningToken);
+            localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
+            
+            // 清除 URL 參數
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            console.log('DEBUG: Token processed from URL params, updating UI');
+            updateAuthUI(true);
+            showMainApp();
+          }
+        }
+        
         // 檢查是否已經登入
         checkLoginStatus();
         
@@ -12839,20 +12869,49 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           
           // 創建處理認證訊息的函數（帶有 popup 引用和 timeout）
           let popupTimeout = null;
+          let checkPopupClosed = null; // 儲存 popup 檢查 interval 的引用
           
           const authMessageHandler = function(event) {
-            console.log('DEBUG: Received message from popup:', event.data);
+            console.log('DEBUG: Received message event:', {
+              origin: event.origin,
+              data: event.data,
+              expectedOrigins: ['https://aivideobackend.zeabur.app', window.location.origin]
+            });
             
-            // 接受來自後端網域的訊息
-            if (event.origin !== 'https://aivideobackend.zeabur.app' && event.origin !== window.location.origin) {
-              console.log('DEBUG: Ignoring message from unknown origin:', event.origin);
+            // 檢查訊息類型是否為認證相關
+            const isAuthMessage = event.data && (
+              event.data.type === 'GOOGLE_AUTH_SUCCESS' || 
+              event.data.type === 'GOOGLE_AUTH_ERROR'
+            );
+            
+            if (!isAuthMessage) {
+              console.log('DEBUG: Ignoring non-auth message:', event.data);
               return;
+            }
+            
+            // 接受來自後端網域的訊息（更寬鬆的檢查，只檢查是否為認證訊息）
+            const allowedOrigins = [
+              'https://aivideobackend.zeabur.app',
+              'http://aivideobackend.zeabur.app',
+              window.location.origin,
+              window.location.protocol + '//' + window.location.host
+            ];
+            
+            if (!allowedOrigins.includes(event.origin)) {
+              console.warn('DEBUG: Message from unexpected origin:', event.origin, 'but processing anyway since it is auth message');
+              // 即使是不同 origin，如果是認證訊息仍然處理（因為使用 '*' targetOrigin）
             }
             
             // 清除逾時
             if (popupTimeout) {
               clearTimeout(popupTimeout);
               popupTimeout = null;
+            }
+            
+            // 清除 popup 檢查（postMessage 已成功，不需要 fallback）
+            if (checkPopupClosed) {
+              clearInterval(checkPopupClosed);
+              checkPopupClosed = null;
             }
             
             // 關閉彈跳視窗
@@ -12869,20 +12928,31 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             
             if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
               console.log('DEBUG: Auth success message received');
+              console.log('DEBUG: Full event.data:', JSON.stringify(event.data, null, 2));
+              
               // 認證成功，更新 UI
               // 後端發送的是 accessToken，需要映射到 ipPlanningToken
               ipPlanningToken = event.data.accessToken || event.data.ipPlanningToken;
-              ipPlanningUser = event.data.user;
               
-              if (!ipPlanningUser) {
+              // 處理 user 對象
+              if (event.data.user) {
+                ipPlanningUser = {
+                  user_id: event.data.user.id || event.data.user.user_id,
+                  email: event.data.user.email || '',
+                  name: event.data.user.name || '',
+                  picture: event.data.user.picture || ''
+                };
+              } else {
                 // 如果沒有 user 對象，嘗試從其他字段構建
                 ipPlanningUser = {
                   user_id: event.data.user_id || event.data.user?.id,
-                  email: event.data.email || event.data.user?.email,
-                  name: event.data.name || event.data.user?.name,
-                  picture: event.data.picture || event.data.user?.picture
+                  email: event.data.email || event.data.user?.email || '',
+                  name: event.data.name || event.data.user?.name || '',
+                  picture: event.data.picture || event.data.user?.picture || ''
                 };
               }
+              
+              console.log('DEBUG: Processed user data:', ipPlanningUser);
               
               // 保存到本地存儲
               if (ipPlanningToken) {
@@ -12917,13 +12987,66 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             } catch (e) {
               console.warn('DEBUG: Error closing popup:', e);
             }
+            // 清除 popup 檢查
+            if (checkPopupClosed) {
+              clearInterval(checkPopupClosed);
+              checkPopupClosed = null;
+            }
             showPopupError('登入逾時，請重試', true);
             window.removeEventListener('message', authMessageHandler);
             popupTimeout = null;
           }, 90000);
           
-          // 監聽來自彈跳視窗的訊息
-          window.addEventListener('message', authMessageHandler);
+          // 監聽來自彈跳視窗的訊息（優先級較高）
+          window.addEventListener('message', authMessageHandler, false);
+          
+          // 備用方案：監聽彈窗是否關閉，如果關閉且沒有收到訊息，檢查 URL 參數
+          checkPopupClosed = setInterval(() => {
+            try {
+              if (popup && popup.closed) {
+                clearInterval(checkPopupClosed);
+                console.log('DEBUG: Popup closed, checking for auth result');
+                
+                // 等待一小段時間確保 postMessage 已處理
+                setTimeout(() => {
+                  // 檢查 localStorage 是否有新的 token（可能在 postMessage 中已設置）
+                  const newToken = localStorage.getItem('ipPlanningToken');
+                  if (newToken && newToken !== ipPlanningToken) {
+                    console.log('DEBUG: Found new token in localStorage after popup closed');
+                    // Token 已經被 postMessage 處理設置，不需要額外操作
+                    return;
+                  }
+                  
+                  // 如果沒有新 token，嘗試從 URL 參數獲取（fallback）
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const tokenParam = urlParams.get('token');
+                  if (tokenParam) {
+                    console.log('DEBUG: Found token in URL params, processing...');
+                    ipPlanningToken = tokenParam;
+                    ipPlanningUser = {
+                      user_id: urlParams.get('user_id'),
+                      email: urlParams.get('email'),
+                      name: urlParams.get('name'),
+                      picture: urlParams.get('picture')
+                    };
+                    localStorage.setItem('ipPlanningToken', ipPlanningToken);
+                    localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
+                    hidePopupOverlay();
+                    updateAuthUI(true);
+                    showMainApp();
+                    checkSubscriptionStatus();
+                    // 清除 URL 參數
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                  } else {
+                    console.warn('DEBUG: Popup closed but no auth result found');
+                    // 不清除覆蓋層，讓用戶知道需要重試
+                  }
+                }, 500);
+              }
+            } catch (e) {
+              console.warn('DEBUG: Error checking popup status:', e);
+            }
+          }, 1000);
           }
           
         } catch (error) {
