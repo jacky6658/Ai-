@@ -13871,14 +13871,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             }
           });
           if (!r.ok) {
-            // 401 代表 refresh 也失效，清理並要求重新登入
-            if (r.status === 401) {
-              try {
-                localStorage.removeItem('ipPlanningToken');
-                localStorage.removeItem('ipPlanningUser');
-              } catch(_) {}
-              ipPlanningToken = null; ipPlanningUser = null;
-            }
+            // 401 代表 refresh 失效，但不在這裡清除 token（避免影響正在進行的對話）
             return false;
           }
           const data = await r.json();
@@ -13902,8 +13895,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           if (res.status === 401) {
             const refreshed = await tryRefreshTokenSafe();
             if (refreshed) return getSessionList(conversationType);
-            alert('登入已過期，請重新登入後再查看會話');
-            if (typeof goToLogin === 'function') goToLogin();
+            // 401 不一定代表登入失效，可能是尚未建立會話
+            console.warn('會話列表無法載入 (可能為首次使用，尚未建立會話)');
             return [];
           }
         } catch (_) {}
@@ -13923,8 +13916,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           if (res.status === 401) {
             const refreshed = await tryRefreshTokenSafe();
             if (refreshed) return loadChatHistory(conversationType, sessionId);
-            alert('登入已過期，請重新登入後再載入歷史');
-            if (typeof goToLogin === 'function') goToLogin();
+            // 401 不一定代表登入失效，可能是尚未建立歷史
+            console.warn('歷史載入失敗 (可能為首次使用，尚未建立歷史)');
             return [];
           }
         } catch (_) {}
