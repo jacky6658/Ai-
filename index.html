@@ -12934,8 +12934,12 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               console.warn('DEBUG: Error closing popup:', e);
             }
             
-            // 移除事件監聽器
-            window.removeEventListener('message', authMessageHandler);
+              // 清除定期檢查和移除事件監聽器
+              if (typeof localStorageCheckInterval !== 'undefined') {
+                clearInterval(localStorageCheckInterval);
+              }
+              window.removeEventListener('message', authMessageHandler);
+              window.removeEventListener('storage', storageHandler);
             
             if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
               console.log('DEBUG: Auth success message received');
@@ -13006,13 +13010,166 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             }
           };
           
+          // 處理 localStorage 更新的函數（作為 postMessage 的備用方案）
+          const storageHandler = function(event) {
+            console.log('DEBUG: 📦 Storage event received:', {
+              key: event.key,
+              newValue: event.newValue,
+              oldValue: event.oldValue,
+              url: event.url
+            });
+            
+            // 檢查是否是 token 更新
+            if (event.key === 'ipPlanningTokenUpdated' && event.newValue) {
+              console.log('DEBUG: ✅ Token updated in localStorage detected!');
+              
+              // 從 localStorage 讀取 token 和用戶資訊
+              const newToken = localStorage.getItem('ipPlanningToken');
+              const newUserStr = localStorage.getItem('ipPlanningUser');
+              
+              if (newToken && newToken !== ipPlanningToken) {
+                console.log('DEBUG: New token found in localStorage, processing...');
+                
+                // 清除逾時
+                if (popupTimeout) {
+                  clearTimeout(popupTimeout);
+                  popupTimeout = null;
+                }
+                
+                // 更新全域變數
+                ipPlanningToken = newToken;
+                if (newUserStr) {
+                  try {
+                    ipPlanningUser = JSON.parse(newUserStr);
+                  } catch (e) {
+                    console.warn('DEBUG: Failed to parse user data:', e);
+                  }
+                }
+                
+                // 關閉彈窗
+                try {
+                  if (popup) {
+                    popup.close();
+                  }
+                } catch (e) {
+                  console.warn('DEBUG: Error closing popup:', e);
+                }
+                
+                // 清除定期檢查和移除監聽器
+                if (typeof localStorageCheckInterval !== 'undefined') {
+                  clearInterval(localStorageCheckInterval);
+                }
+                window.removeEventListener('storage', storageHandler);
+                window.removeEventListener('message', authMessageHandler);
+                
+                // 隱藏彈窗覆蓋層
+                hidePopupOverlay();
+                console.log('DEBUG: Popup overlay hidden');
+                
+                // 更新認證 UI
+                updateAuthUI(true);
+                console.log('DEBUG: Auth UI updated');
+                
+                // 顯示主應用程式
+                showMainApp();
+                console.log('DEBUG: Main app shown');
+                
+                // 檢查並更新訂閱狀態
+                checkSubscriptionStatus();
+                console.log('DEBUG: Subscription status checked');
+                
+                // 顯示成功提示
+                showToast('登入成功！', 2000);
+                console.log('DEBUG: Login success flow completed (via localStorage)');
+              }
+            }
+          };
+          
           // 先註冊監聽器（關鍵：在開彈窗前註冊，確保不會遺漏訊息）
-          console.log('DEBUG: Registering message listener before opening popup');
+          console.log('DEBUG: Registering message and storage listeners before opening popup');
           window.addEventListener('message', authMessageHandler, false);
+          window.addEventListener('storage', storageHandler, false);
+          
+          // 額外的定期檢查機制（每 500ms 檢查一次 localStorage，作為 storage 事件的備用）
+          let localStorageCheckInterval = setInterval(function() {
+            const checkToken = localStorage.getItem('ipPlanningToken');
+            const checkUpdatedFlag = localStorage.getItem('ipPlanningTokenUpdated');
+            
+            if (checkToken && checkUpdatedFlag && checkToken !== ipPlanningToken) {
+              console.log('DEBUG: ✅ Token found in localStorage via polling check');
+              clearInterval(localStorageCheckInterval);
+              
+              // 觸發與 storageHandler 相同的處理邏輯
+              const checkUserStr = localStorage.getItem('ipPlanningUser');
+              
+              if (popupTimeout) {
+                clearTimeout(popupTimeout);
+                popupTimeout = null;
+              }
+              
+              ipPlanningToken = checkToken;
+              if (checkUserStr) {
+                try {
+                  ipPlanningUser = JSON.parse(checkUserStr);
+                } catch (e) {
+                  console.warn('DEBUG: Failed to parse user data:', e);
+                }
+              }
+              
+              try {
+                if (popup) {
+                  popup.close();
+                }
+              } catch (e) {
+                console.warn('DEBUG: Error closing popup:', e);
+              }
+              
+              window.removeEventListener('message', authMessageHandler);
+              window.removeEventListener('storage', storageHandler);
+              
+              hidePopupOverlay();
+              updateAuthUI(true);
+              showMainApp();
+              checkSubscriptionStatus();
+              showToast('登入成功！', 2000);
+              console.log('DEBUG: Login success flow completed (via localStorage polling)');
+            }
+          }, 500);
           
           // 設定逾時處理（90秒）
           popupTimeout = setTimeout(() => {
             console.warn('DEBUG: Popup timeout after 90 seconds');
+            
+            // 清除定期檢查
+            clearInterval(localStorageCheckInterval);
+            
+            // 檢查 localStorage 中是否有 token（最後的備用檢查）
+            const finalToken = localStorage.getItem('ipPlanningToken');
+            const finalUserStr = localStorage.getItem('ipPlanningUser');
+            
+            if (finalToken && finalToken !== ipPlanningToken) {
+              console.log('DEBUG: Found token in localStorage during timeout, processing...');
+              
+              // 處理 token（與 storageHandler 相同的邏輯）
+              ipPlanningToken = finalToken;
+              if (finalUserStr) {
+                try {
+                  ipPlanningUser = JSON.parse(finalUserStr);
+                } catch (e) {
+                  console.warn('DEBUG: Failed to parse user data:', e);
+                }
+              }
+              
+              hidePopupOverlay();
+              updateAuthUI(true);
+              showMainApp();
+              checkSubscriptionStatus();
+              showToast('登入成功！', 2000);
+              console.log('DEBUG: Login success flow completed (via localStorage timeout check)');
+            } else {
+              showPopupError('登入逾時，請重試', true);
+            }
+            
             try {
               if (popup) {
                 popup.close();
@@ -13020,8 +13177,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             } catch (e) {
               console.warn('DEBUG: Error closing popup:', e);
             }
-            showPopupError('登入逾時，請重試', true);
             window.removeEventListener('message', authMessageHandler);
+            window.removeEventListener('storage', storageHandler);
             popupTimeout = null;
           }, 90000);
           
@@ -13039,7 +13196,11 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             console.error('DEBUG: Popup window blocked or failed to open');
             hidePopupOverlay();
             showPopupError('請允許彈跳視窗以完成登入', true);
+            if (typeof localStorageCheckInterval !== 'undefined') {
+              clearInterval(localStorageCheckInterval);
+            }
             window.removeEventListener('message', authMessageHandler);
+            window.removeEventListener('storage', storageHandler);
             if (popupTimeout) {
               clearTimeout(popupTimeout);
             }

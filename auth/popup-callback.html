@@ -75,8 +75,27 @@
     
     console.log('DEBUG: Prepared message:', JSON.stringify(message, null, 2));
     
-    // 嘗試發送 postMessage
+    // 方案1：嘗試使用 postMessage（如果 window.opener 存在）
+    // 方案2：使用 localStorage + storage 事件作為備用（因為重定向可能導致 opener 丟失）
+    
     var postMessageSuccess = false;
+    
+    // 無論如何，先保存到 localStorage（作為備用方案）
+    try {
+      localStorage.setItem('ipPlanningToken', token);
+      if (user_id) localStorage.setItem('ipPlanningUser', JSON.stringify({
+        user_id: user_id,
+        email: email || '',
+        name: name || '',
+        picture: picture || ''
+      }));
+      // 設置一個標記，告訴主視窗 token 已更新
+      localStorage.setItem('ipPlanningTokenUpdated', Date.now().toString());
+      console.log('DEBUG: ✅ Token saved to localStorage');
+      console.log('DEBUG: localStorage keys:', Object.keys(localStorage).filter(k => k.startsWith('ipPlanning')));
+    } catch (e) {
+      console.error('DEBUG: ❌ Failed to save to localStorage:', e);
+    }
     
     // 只檢查 window.opener 是否存在，不檢查 closed（避免 COOP 錯誤）
     if (window.opener) {
@@ -152,9 +171,11 @@
         }
       }
     } else {
-      console.warn('DEBUG: ⚠️ window.opener is missing');
+      console.warn('DEBUG: ⚠️ window.opener is missing (可能因為重定向導致)');
       console.warn('DEBUG: window.opener:', window.opener);
-      console.warn('DEBUG: This might mean the popup was not opened from main window');
+      console.warn('DEBUG: 但 token 已保存到 localStorage，主視窗應能透過 storage 事件接收');
+      // 即使 opener 不存在，也標記為成功（因為已經保存到 localStorage）
+      postMessageSuccess = true;
     }
     
     // 延遲關閉，確保訊息已發送
