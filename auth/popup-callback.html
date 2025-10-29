@@ -34,6 +34,12 @@
   console.log('DEBUG: window.opener type:', typeof window.opener);
   console.log('DEBUG: Current URL:', window.location.href);
   
+  // 檢測是否為手機版（手機版是整頁跳轉，不是彈窗）
+  var isMobile = window.innerWidth <= 768 || 
+                 /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  console.log('DEBUG: Is mobile:', isMobile);
+  
   // 從 URL 參數或 hash 獲取 token
   var token =
     window.__TOKEN__ ||
@@ -59,6 +65,35 @@
   });
 
   if (token) {
+    // 無論如何，先保存到 localStorage
+    try {
+      localStorage.setItem('ipPlanningToken', token);
+      if (user_id) localStorage.setItem('ipPlanningUser', JSON.stringify({
+        user_id: user_id,
+        email: email || '',
+        name: name || '',
+        picture: picture || ''
+      }));
+      localStorage.setItem('ipPlanningTokenUpdated', Date.now().toString());
+      console.log('DEBUG: ✅ Token saved to localStorage');
+    } catch (e) {
+      console.error('DEBUG: ❌ Failed to save to localStorage:', e);
+    }
+    
+    // 手機版處理：直接跳轉回首頁（因為是整頁跳轉，不是彈窗）
+    if (isMobile || !window.opener) {
+      console.log('DEBUG: Mobile or no opener detected, redirecting to homepage');
+      document.querySelector('.container').innerHTML = '<h3>✅ 登入成功！</h3><p>正在跳轉...</p>';
+      
+      // 延遲一小段時間確保 localStorage 已保存，然後跳轉回首頁
+      setTimeout(function() {
+        // 直接跳轉到首頁根目錄
+        var homepageUrl = window.location.origin + '/';
+        console.log('DEBUG: Redirecting to homepage:', homepageUrl);
+        window.location.href = homepageUrl;
+      }, 300); // 縮短延遲時間，提升體驗
+      return; // 手機版直接結束，不處理 postMessage
+    }
     // 準備訊息對象
     var message = {
       type: 'GOOGLE_AUTH_SUCCESS',
@@ -75,27 +110,11 @@
     
     console.log('DEBUG: Prepared message:', JSON.stringify(message, null, 2));
     
+    // 桌面版（彈窗）處理：使用 postMessage 和 localStorage
     // 方案1：嘗試使用 postMessage（如果 window.opener 存在）
-    // 方案2：使用 localStorage + storage 事件作為備用（因為重定向可能導致 opener 丟失）
+    // 方案2：使用 localStorage + storage 事件作為備用
     
     var postMessageSuccess = false;
-    
-    // 無論如何，先保存到 localStorage（作為備用方案）
-    try {
-      localStorage.setItem('ipPlanningToken', token);
-      if (user_id) localStorage.setItem('ipPlanningUser', JSON.stringify({
-        user_id: user_id,
-        email: email || '',
-        name: name || '',
-        picture: picture || ''
-      }));
-      // 設置一個標記，告訴主視窗 token 已更新
-      localStorage.setItem('ipPlanningTokenUpdated', Date.now().toString());
-      console.log('DEBUG: ✅ Token saved to localStorage');
-      console.log('DEBUG: localStorage keys:', Object.keys(localStorage).filter(k => k.startsWith('ipPlanning')));
-    } catch (e) {
-      console.error('DEBUG: ❌ Failed to save to localStorage:', e);
-    }
     
     // 只檢查 window.opener 是否存在，不檢查 closed（避免 COOP 錯誤）
     if (window.opener) {
@@ -179,17 +198,27 @@
     }
     
     // 延遲關閉，確保訊息已發送
+    // 注意：如果 opener 丟失（因重定向），COOP 策略可能阻止 window.close()
+    // 但不影響功能，因為主視窗已通過 localStorage 接收 token
     setTimeout(function() {
-      try {
-        if (postMessageSuccess) {
-          console.log('DEBUG: Closing popup window after postMessage');
+      if (postMessageSuccess) {
+        console.log('DEBUG: Attempting to close popup window...');
+        try {
+          // 嘗試關閉窗口（可能因 COOP 失敗，但不影響功能）
           window.close();
-        } else {
-          console.warn('DEBUG: Keeping popup open because postMessage may have failed');
-          document.querySelector('.container').innerHTML = '<h3>⚠️ 請手動關閉此視窗</h3><p>認證資訊已保存</p>';
+          console.log('DEBUG: ✅ Popup close() called successfully');
+        } catch (e) {
+          // 靜默處理 COOP 錯誤（功能已正常完成）
+          if (e.message && e.message.includes('Cross-Origin-Opener-Policy')) {
+            console.log('DEBUG: ℹ️ Popup cannot self-close due to COOP (this is expected and harmless)');
+            document.querySelector('.container').innerHTML = '<h3>✅ 登入成功！</h3><p>認證資訊已保存，請手動關閉此視窗</p>';
+          } else {
+            console.warn('DEBUG: Unable to close window:', e.message || e);
+          }
         }
-      } catch (e) {
-        console.warn('DEBUG: Unable to close window:', e);
+      } else {
+        console.warn('DEBUG: Keeping popup open because postMessage may have failed');
+        document.querySelector('.container').innerHTML = '<h3>⚠️ 請手動關閉此視窗</h3><p>認證資訊已保存</p>';
       }
     }, 1500);
   } else {

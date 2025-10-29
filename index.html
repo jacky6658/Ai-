@@ -8750,6 +8750,45 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           }
         }
         
+        // 檢查 localStorage 中是否有新的 token（手機版跳轉回來後的處理）
+        // 如果發現 ipPlanningTokenUpdated 標記，表示剛剛完成登入
+        const tokenUpdatedFlag = localStorage.getItem('ipPlanningTokenUpdated');
+        const storedToken = localStorage.getItem('ipPlanningToken');
+        const storedUserStr = localStorage.getItem('ipPlanningUser');
+        
+        if (tokenUpdatedFlag && storedToken) {
+          // 檢查這個 token 是否是新的（與當前全域變數不同）
+          // 注意：此時全域變數可能還沒從 localStorage 載入（checkLoginStatus 尚未執行）
+          // 所以只要有 tokenUpdatedFlag，就表示是新的登入
+          const currentToken = ipPlanningToken || localStorage.getItem('ipPlanningToken');
+          const isNewToken = !currentToken || storedToken !== currentToken;
+          
+          if (isNewToken) {
+            console.log('DEBUG: ✅ New token found in localStorage (likely from mobile redirect)');
+            console.log('DEBUG: Token updated flag timestamp:', tokenUpdatedFlag);
+            
+            // 更新全域變數
+            ipPlanningToken = storedToken;
+            if (storedUserStr) {
+              try {
+                ipPlanningUser = JSON.parse(storedUserStr);
+              } catch (e) {
+                console.warn('DEBUG: Failed to parse stored user data:', e);
+              }
+            }
+            
+            // 清除標記（避免重複處理）
+            localStorage.removeItem('ipPlanningTokenUpdated');
+            
+            // 更新 UI
+            updateAuthUI(true);
+            showMainApp();
+            checkSubscriptionStatus();
+            
+            console.log('DEBUG: ✅ Login state updated from localStorage');
+          }
+        }
+        
         // 檢查是否已經登入
         checkLoginStatus();
         
