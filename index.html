@@ -12857,38 +12857,20 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             // 手機版：直接跳轉到Google登入頁面
             console.log('DEBUG: Mobile detected, redirecting to Google auth page');
             window.location.href = data.auth_url;
-          } else {
-            // 桌面版：使用彈跳視窗
-            console.log('DEBUG: Desktop detected, opening popup window');
-            
-            // 顯示彈跳視窗覆蓋層
-            showPopupOverlay('正在開啟 Google 登入視窗...');
-          
-          // 使用彈跳視窗進行 Google 認證
-          console.log('DEBUG: Opening popup window with URL:', data.auth_url);
-          const popup = window.open(
-            data.auth_url,
-            'googleAuth',
-            'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
-          );
-          
-          console.log('DEBUG: Popup window object:', popup);
-          
-          if (!popup) {
-            console.error('DEBUG: Popup window blocked or failed to open');
-            hidePopupOverlay();
-            showPopupError('請允許彈跳視窗以完成登入', true);
             return;
           }
           
-          console.log('DEBUG: Popup window opened successfully');
+          // 桌面版：使用彈跳視窗
+          console.log('DEBUG: Desktop detected, preparing popup login');
           
-          // 更新覆蓋層訊息
-          updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
+          // 顯示彈跳視窗覆蓋層
+          showPopupOverlay('正在開啟 Google 登入視窗...');
           
-          // 創建處理認證訊息的函數（帶有 popup 引用和 timeout）
+          // 先註冊監聽器，再開彈窗（確保訊息不會遺漏）
+          let popup = null;
           let popupTimeout = null;
           
+          // 定義認證訊息處理函數
           const authMessageHandler = function(event) {
             console.log('DEBUG: Received message event:', {
               origin: event.origin,
@@ -12928,9 +12910,9 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             
             // postMessage 已成功處理
             
-            // 關閉彈跳視窗
+            // 關閉彈跳視窗（不檢查 closed，避免 COOP 錯誤）
             try {
-              if (popup && !popup.closed) {
+              if (popup) {
                 popup.close();
               }
             } catch (e) {
@@ -13009,11 +12991,15 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             }
           };
           
+          // 先註冊監聽器（關鍵：在開彈窗前註冊，確保不會遺漏訊息）
+          console.log('DEBUG: Registering message listener before opening popup');
+          window.addEventListener('message', authMessageHandler, false);
+          
           // 設定逾時處理（90秒）
           popupTimeout = setTimeout(() => {
             console.warn('DEBUG: Popup timeout after 90 seconds');
             try {
-              if (popup && !popup.closed) {
+              if (popup) {
                 popup.close();
               }
             } catch (e) {
@@ -13024,14 +13010,31 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             popupTimeout = null;
           }, 90000);
           
-          // 監聽來自彈跳視窗的訊息（這是主要的通信方式）
-          window.addEventListener('message', authMessageHandler, false);
+          // 現在才打開彈窗
+          console.log('DEBUG: Opening popup window with URL:', data.auth_url);
+          popup = window.open(
+            data.auth_url,
+            'googleAuth',
+            'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+          );
           
-          // 注意：不再使用 setInterval 檢查 popup.closed（會觸發 COOP 錯誤）
-          // postMessage 機制應該能處理所有成功情況
-          // 如果 postMessage 失敗，後端會重定向到主頁面並帶 token 參數（已在 DOMContentLoaded 中處理）
+          console.log('DEBUG: Popup window object:', popup);
+          
+          if (!popup) {
+            console.error('DEBUG: Popup window blocked or failed to open');
+            hidePopupOverlay();
+            showPopupError('請允許彈跳視窗以完成登入', true);
+            window.removeEventListener('message', authMessageHandler);
+            if (popupTimeout) {
+              clearTimeout(popupTimeout);
+            }
+            return;
           }
           
+          console.log('DEBUG: Popup window opened successfully');
+          
+          // 更新覆蓋層訊息
+          updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
         } catch (error) {
           console.error('Login error:', error);
           hidePopupOverlay();

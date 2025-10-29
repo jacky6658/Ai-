@@ -1,0 +1,120 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Signing in…</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  .container {
+    text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+  h3 {
+    color: #27ae60;
+    margin: 0;
+  }
+</style>
+<div class="container">
+  <h3>✅ 登入成功！</h3>
+  <p>視窗即將自動關閉...</p>
+</div>
+<script>
+(function () {
+  console.log('DEBUG: popup-callback.html executing');
+  
+  // 從 URL 參數或 hash 獲取 token
+  var token =
+    window.__TOKEN__ ||
+    new URLSearchParams(location.search).get('token') ||
+    new URLSearchParams(location.hash.slice(1)).get('token');
+  
+  // 獲取用戶資訊
+  var user_id = new URLSearchParams(location.search).get('user_id') || 
+                new URLSearchParams(location.hash.slice(1)).get('user_id');
+  var email = new URLSearchParams(location.search).get('email') || 
+              new URLSearchParams(location.hash.slice(1)).get('email');
+  var name = new URLSearchParams(location.search).get('name') || 
+             new URLSearchParams(location.hash.slice(1)).get('name');
+  var picture = new URLSearchParams(location.search).get('picture') || 
+                new URLSearchParams(location.hash.slice(1)).get('picture');
+
+  console.log('DEBUG: Extracted data:', { token: token ? 'present' : 'missing', user_id, email, name, picture });
+
+  if (token) {
+    try {
+      if (window.opener) {
+        console.log('DEBUG: window.opener exists, sending postMessage');
+        var message = {
+          type: 'GOOGLE_AUTH_SUCCESS',
+          ipPlanningToken: token,
+          accessToken: token,
+          user: {
+            id: user_id,
+            user_id: user_id,
+            email: email || '',
+            name: name || '',
+            picture: picture || ''
+          }
+        };
+        
+        // 發送多次確保接收
+        window.opener.postMessage(message, '*');
+        console.log('DEBUG: First postMessage sent');
+        
+        setTimeout(function() {
+          try {
+            window.opener.postMessage(message, '*');
+            console.log('DEBUG: Second postMessage sent');
+          } catch (e) {
+            console.warn('DEBUG: Second postMessage failed:', e);
+          }
+        }, 100);
+        
+        setTimeout(function() {
+          try {
+            window.opener.postMessage(message, '*');
+            console.log('DEBUG: Third postMessage sent');
+          } catch (e) {
+            console.warn('DEBUG: Third postMessage failed:', e);
+          }
+        }, 500);
+      } else {
+        console.warn('DEBUG: No window.opener');
+      }
+    } catch (err) {
+      console.error('DEBUG: Error sending postMessage:', err);
+      try {
+        window.opener?.postMessage(
+          { type: 'GOOGLE_AUTH_ERROR', error: String(err) },
+          '*'
+        );
+      } catch (e) {
+        console.error('DEBUG: Failed to send error message:', e);
+      }
+    } finally {
+      // 延遲關閉，確保訊息已發送
+      setTimeout(function() {
+        try {
+          window.close();
+          console.log('DEBUG: Popup closed');
+        } catch (e) {
+          console.warn('DEBUG: Unable to close window:', e);
+        }
+      }, 1000);
+    }
+  } else {
+    console.warn('DEBUG: No token found in URL');
+    document.querySelector('.container').innerHTML = '<h3>⚠️ 登入完成，但未找到認證資訊</h3><p>請關閉此視窗</p>';
+  }
+})();
+</script>
+
