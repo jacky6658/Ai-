@@ -13886,17 +13886,17 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
 
       // 會話與歷史：僅提供最小可用 API（可由 UI 觸發）
       async function getSessionList(conversationType) {
-        if (!ipPlanningUser?.user_id) return [];
+        if (!ipPlanningUser?.user_id) {
+          console.warn('尚未建立 user_id，跳過會話列表');
+          return [];
+        }
         try {
           const res = await fetch(`https://aivideobackend.zeabur.app/api/memory/sessions?conversation_type=${encodeURIComponent(conversationType)}`, {
             headers: ipPlanningToken ? { 'Authorization': `Bearer ${ipPlanningToken}` } : {}
           });
           if (res.ok) return (await res.json()).sessions || [];
-          if (res.status === 401) {
-            const refreshed = await tryRefreshTokenSafe();
-            if (refreshed) return getSessionList(conversationType);
-            // 401 不一定代表登入失效，可能是尚未建立會話
-            console.warn('會話列表無法載入 (可能為首次使用，尚未建立會話)');
+          // 401 代表認證失敗或 API 端點不存在，靜默返回空陣列
+          if (res.status === 401 || res.status === 404) {
             return [];
           }
         } catch (_) {}
@@ -13904,7 +13904,10 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       }
 
       async function loadChatHistory(conversationType, sessionId) {
-        if (!ipPlanningUser?.user_id) return [];
+        if (!ipPlanningUser?.user_id) {
+          console.warn('尚未建立 user_id，跳過歷史載入');
+          return [];
+        }
         try {
           const url = new URL('https://aivideobackend.zeabur.app/api/memory/long-term');
           url.searchParams.set('conversation_type', conversationType);
@@ -13913,11 +13916,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             headers: ipPlanningToken ? { 'Authorization': `Bearer ${ipPlanningToken}` } : {}
           });
           if (res.ok) return (await res.json()).records || [];
-          if (res.status === 401) {
-            const refreshed = await tryRefreshTokenSafe();
-            if (refreshed) return loadChatHistory(conversationType, sessionId);
-            // 401 不一定代表登入失效，可能是尚未建立歷史
-            console.warn('歷史載入失敗 (可能為首次使用，尚未建立歷史)');
+          // 401/404 代表認證失敗或 API 端點不存在，靜默返回空陣列
+          if (res.status === 401 || res.status === 404) {
             return [];
           }
         } catch (_) {}
@@ -14830,6 +14830,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         
         // 添加用戶訊息
         addMode3Message('user', messageText);
+        try { await recordConversationMessage('ip_planning', 'user', messageText); } catch (_) {}
         
         // 添加載入訊息
         const loadingId = addMode3LoadingMessage();
@@ -14901,6 +14902,11 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                     assistantMessage += parsed.content;
                     console.log('更新訊息內容:', assistantMessage);
                     updateMode3Message(messageId, assistantMessage);
+                  } else if (data === '[DONE]') {
+                    // AI 回覆完成，儲存到長期記憶
+                    if (assistantMessage) {
+                      try { await recordConversationMessage('ip_planning', 'assistant', assistantMessage); } catch (_) {}
+                    }
                   }
                 } catch (e) {
                   console.error('JSON 解析錯誤:', e, '數據:', data);
