@@ -1,5 +1,4 @@
 # AIJob短影音智能體 - 前端
-# AIJob短影音智能體 - 前端
 
 ## 📌 專案整合報告（前端 ReelMindfrontnd）
 
