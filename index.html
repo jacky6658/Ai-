@@ -10013,6 +10013,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         // 添加用戶訊息
         const userMessage = createChatGPTMessage('user', message);
         chatMessages.appendChild(userMessage);
+        try { await recordConversationMessage('ip_planning', 'user', message); } catch (_) {}
         
         // 添加載入動畫
         const typingIndicator = createTypingIndicator();
@@ -10088,6 +10089,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                   if (fullContent) {
                     checkIfScriptRequest(fullContent);
                   }
+                  try { await recordConversationMessage('ip_planning', 'assistant', fullContent); } catch (_) {}
                   return;
                 }
                 
@@ -13117,6 +13119,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         if (!canSubmit()) return;
         lastMessage = message;
         const userNode = append('user', message);
+        try { await recordConversationMessage('ai_advisor', 'user', message); } catch (_) {}
         const assistantNode = append('assistant', '');
 
         // 顯示 AI 回覆中的載入狀態
@@ -13229,6 +13232,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 } else if (evt.type === 'end') {
                   history.push({ role: 'user', content: message });
                   history.push({ role: 'assistant', content: aiText });
+                  try { await recordConversationMessage('ai_advisor', 'assistant', aiText); } catch (_) {}
                   
                   // 檢查是否包含腳本結果，自動顯示結果區塊
                   checkAndUpdateResults(aiText);
@@ -13808,6 +13812,125 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         
         return isScriptRequest;
       }
+
+      // ====== 長期記憶與會話：最小增量實作（不影響既有功能） ======
+      function getCurrentSessionId(conversationType) {
+        const key = `session_${conversationType}`;
+        let sid = localStorage.getItem(key);
+        if (!sid) {
+          sid = `${conversationType}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+          localStorage.setItem(key, sid);
+        }
+        return sid;
+      }
+
+      async function recordConversationMessage(conversationType, role, content) {
+        try {
+          if (!ipPlanningUser?.user_id || !content) return;
+          const sessionId = getCurrentSessionId(conversationType);
+          const res = await fetch('https://aivideobackend.zeabur.app/api/memory/long-term', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(ipPlanningToken ? { 'Authorization': `Bearer ${ipPlanningToken}` } : {})
+            },
+            body: JSON.stringify({
+              conversation_type: conversationType,
+              session_id: sessionId,
+              message_role: role,
+              message_content: content,
+              metadata: null
+            })
+          });
+          if (res.status === 401) {
+            // 嘗試刷新再重送一次（不影響其他邏輯）
+            const ok = await tryRefreshTokenSafe();
+            if (ok) return recordConversationMessage(conversationType, role, content);
+          }
+        } catch (_) { /* 靜默失敗，不影響使用者體驗 */ }
+      }
+
+      async function tryRefreshTokenSafe() {
+        try {
+          if (!ipPlanningToken) return false;
+          const r = await fetch('https://aivideobackend.zeabur.app/api/auth/refresh', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${ipPlanningToken}`
+            }
+          });
+          if (!r.ok) return false;
+          const data = await r.json();
+          if (data?.access_token) {
+            ipPlanningToken = data.access_token;
+            localStorage.setItem('ipPlanningToken', ipPlanningToken);
+            return true;
+          }
+          return false;
+        } catch (_) { return false; }
+      }
+
+      // 會話與歷史：僅提供最小可用 API（可由 UI 觸發）
+      async function getSessionList(conversationType) {
+        if (!ipPlanningUser?.user_id) return [];
+        try {
+          const res = await fetch(`https://aivideobackend.zeabur.app/api/memory/sessions?conversation_type=${encodeURIComponent(conversationType)}`, {
+            headers: ipPlanningToken ? { 'Authorization': `Bearer ${ipPlanningToken}` } : {}
+          });
+          if (res.ok) return (await res.json()).sessions || [];
+          if (res.status === 401 && (await tryRefreshTokenSafe())) return getSessionList(conversationType);
+        } catch (_) {}
+        return [];
+      }
+
+      async function loadChatHistory(conversationType, sessionId) {
+        if (!ipPlanningUser?.user_id) return [];
+        try {
+          const url = new URL('https://aivideobackend.zeabur.app/api/memory/long-term');
+          url.searchParams.set('conversation_type', conversationType);
+          if (sessionId) url.searchParams.set('session_id', sessionId);
+          const res = await fetch(url.toString(), {
+            headers: ipPlanningToken ? { 'Authorization': `Bearer ${ipPlanningToken}` } : {}
+          });
+          if (res.ok) return (await res.json()).records || [];
+          if (res.status === 401 && (await tryRefreshTokenSafe())) return loadChatHistory(conversationType, sessionId);
+        } catch (_) {}
+        return [];
+      }
+
+      // 動態插入極簡會話UI（不改動既有 HTML）
+      document.addEventListener('DOMContentLoaded', () => {
+        const inject = (pageId, type) => {
+          const page = document.getElementById(pageId);
+          if (!page || page.querySelector('.session-mini')) return;
+          const box = document.createElement('div');
+          box.className = 'session-mini';
+          box.style.cssText = 'margin:12px 0 8px;padding:8px;border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc;display:flex;gap:8px;flex-wrap:wrap;';
+          box.innerHTML = `
+            <button id="${pageId}-new" style="padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;background:white;cursor:pointer;">🆕 新會話</button>
+            <button id="${pageId}-list" style="padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;background:white;cursor:pointer;">📋 會話列表</button>
+            <button id="${pageId}-load" style="padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;background:white;cursor:pointer;">🔄 載入本會話</button>
+          `;
+          const container = page.querySelector('.page') || page; // 保守插入
+          container.insertBefore(box, container.firstChild);
+          document.getElementById(`${pageId}-new`).onclick = () => {
+            localStorage.removeItem(`session_${type}`);
+            showToast('已建立新會話');
+          };
+          document.getElementById(`${pageId}-list`).onclick = async () => {
+            const list = await getSessionList(type);
+            alert(list.length ? list.map(s => `${s.session_id}  (${s.count||0})`).join('\n') : '尚無會話');
+          };
+          document.getElementById(`${pageId}-load`).onclick = async () => {
+            const sid = getCurrentSessionId(type);
+            const records = await loadChatHistory(type, sid);
+            showToast(`已載入 ${records.length} 筆歷史（僅提取，不覆寫當前畫面）`);
+          };
+        };
+        inject('mode2', 'ai_advisor');
+        inject('mode3', 'ip_planning');
+      });
 
       function checkAndUpdateResults(aiText) {
         console.log('=== 開始解析AI回應 ===');
