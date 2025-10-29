@@ -8446,6 +8446,17 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         if (targetPage) {
           targetPage.classList.add('active');
           console.log('Switched to page:', pageId);
+          // 進入創作者資料庫時，載入使用者資料（腳本、選題、帳號定位、記憶/統計）
+          if (pageId === 'userDB') {
+            try {
+              if (typeof loadMyScripts === 'function') loadMyScripts();
+              if (typeof loadTopicHistory === 'function') loadTopicHistory();
+              if (typeof loadPositioningRecords === 'function') loadPositioningRecords();
+              if (typeof loadUserHistory === 'function') loadUserHistory();
+            } catch (e) {
+              console.warn('載入創作者資料庫資料時發生錯誤', e);
+            }
+          }
         } else {
           console.error('Page not found:', pageId);
         }
@@ -11920,7 +11931,11 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             console.log('腳本列表數據:', data);
             displayScripts(data.scripts || []);
           } else if (response.status === 401) {
-            console.log('腳本載入失敗: 認證錯誤');
+            console.log('腳本載入失敗: 認證錯誤，嘗試刷新後重試');
+            if (typeof tryRefreshTokenSafe === 'function') {
+              const ok = await tryRefreshTokenSafe();
+              if (ok) return loadMyScripts();
+            }
             document.getElementById('generationsList').innerHTML = '<div class="loading-text">請先登入</div>';
           } else if (response.status === 404) {
             console.log('腳本載入失敗: API不存在');
@@ -11983,6 +11998,10 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             const data = await response.json();
             displayTopicHistory(data.generations || []);
           } else if (response.status === 401) {
+            if (typeof tryRefreshTokenSafe === 'function') {
+              const ok = await tryRefreshTokenSafe();
+              if (ok) return loadTopicHistory();
+            }
             document.getElementById('generationsList').innerHTML = '<div class="loading-text">請先登入</div>';
           } else {
             const errorData = await response.json();
