@@ -13848,14 +13848,16 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               conversation_type: conversationType,
               session_id: sessionId,
               message_role: role,
-              message_content: content,
-              metadata: null
+              message_content: content
             })
           });
-          if (res.status === 401) {
-            // 嘗試刷新再重送一次（不影響其他邏輯）
-            const ok = await tryRefreshTokenSafe();
-            if (ok) return recordConversationMessage(conversationType, role, content);
+          if (!res.ok && res.status !== 422) {
+            // 不處理 422，其他錯誤嘗試刷新
+            if (res.status === 401) {
+              const ok = await tryRefreshTokenSafe();
+              if (ok) return recordConversationMessage(conversationType, role, content);
+            }
+            console.warn('記憶儲存失敗:', res.status);
           }
         } catch (_) { /* 靜默失敗，不影響使用者體驗 */ }
       }
