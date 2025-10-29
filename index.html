@@ -8992,21 +8992,27 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       
       // 檢查登入狀態
       function checkLoginStatus() {
-        ipPlanningToken = localStorage.getItem('ipPlanningToken');
-        ipPlanningUser = JSON.parse(localStorage.getItem('ipPlanningUser') || 'null');
-        
-        // 無論是否登入，都先顯示首頁
-        showMainApp();
-        
-        // 根據登入狀態更新 UI
-        if (ipPlanningToken && ipPlanningUser) {
-          // 更新訂閱狀態
-          document.body.dataset.subscribed = ipPlanningUser.is_subscribed ? 'true' : 'false';
-          updateUserInfo();
-        } else {
-          // 未登入時顯示登入按鈕
-          document.body.dataset.subscribed = 'false';
-          showLoginButton();
+        try {
+          ipPlanningToken = localStorage.getItem('ipPlanningToken');
+          ipPlanningUser = JSON.parse(localStorage.getItem('ipPlanningUser') || 'null');
+          
+          // 無論是否登入，都先顯示首頁
+          showMainApp();
+          
+          // 根據登入狀態更新 UI
+          if (ipPlanningToken && ipPlanningUser) {
+            // 更新訂閱狀態
+            document.body.dataset.subscribed = ipPlanningUser.is_subscribed ? 'true' : 'false';
+            updateUserInfo();
+          } else {
+            // 未登入時顯示登入按鈕
+            document.body.dataset.subscribed = 'false';
+            showLoginButton();
+          }
+        } catch (error) {
+          console.error('checkLoginStatus 錯誤:', error);
+          // 發生錯誤時，至少顯示首頁
+          showMainApp();
         }
       }
 
@@ -9143,67 +9149,43 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           console.log('沒有有效的認證資訊，跳過訂閱狀態檢查');
         }
       }
-              // 處理各種可能的返回類型
-              const isSubscribed = userInfo.is_subscribed === true || 
-                                  userInfo.is_subscribed === 1 || 
-                                  userInfo.is_subscribed === 'true' ||
-                                  userInfo.is_subscribed === '1' ||
-                                  userInfo.is_subscribed === undefined;
-              
-              if (isSubscribed) {
-                document.body.dataset.subscribed = 'true';
-                localStorage.setItem('subscriptionStatus', 'active');
-                console.log('設為已訂閱，訂閱狀態:', userInfo.is_subscribed);
-              } else {
-                document.body.dataset.subscribed = 'false';
-                localStorage.setItem('subscriptionStatus', 'inactive');
-                console.log('設為未訂閱，訂閱狀態:', userInfo.is_subscribed);
-              }
-            } else {
-              // API 失敗或 404 等，預設已訂閱（現有註冊用戶默認已訂閱）
-              console.log('後端 API 失敗，預設已訂閱');
-              document.body.dataset.subscribed = 'true';
-              localStorage.setItem('subscriptionStatus', 'active');
-            }
-          } catch (error) {
-            console.error('Error checking subscription status:', error);
-            // 發生錯誤，暫時設為已訂閱
-            console.log('訂閱檢查失敗，暫時設為已訂閱');
-            document.body.dataset.subscribed = 'true';
-            localStorage.setItem('subscriptionStatus', 'active');
-          }
-        } else {
-          // 未登入，從本地存儲檢查訂閱狀態
-          const subscriptionStatus = localStorage.getItem('subscriptionStatus');
-          
-          if (subscriptionStatus === 'active') {
-            document.body.dataset.subscribed = 'true';
-          } else {
-            document.body.dataset.subscribed = 'false';
-          }
-        }
-        
-        console.log('當前訂閱狀態:', document.body.dataset.subscribed);
-        console.log('登入狀態:', ipPlanningToken && ipPlanningUser ? '已登入' : '未登入');
-        
-        // 更新鎖定浮層
-        updateSubscriptionLock();
-      }
       
-      // 設置語言
-      function setLanguage(lang) {
-        // 更新語言按鈕狀態
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-        
-        // 這裡可以添加語言切換邏輯
-        console.log('Language set to:', lang);
-      }
+      // 發生錯誤，暫時設為已訂閱
+      console.log('訂閱檢查失敗，暫時設為已訂閱');
+      document.body.dataset.subscribed = 'true';
+      localStorage.setItem('subscriptionStatus', 'active');
+    } else {
+      // 未登入，從本地存儲檢查訂閱狀態
+      const subscriptionStatus = localStorage.getItem('subscriptionStatus');
       
-      // 調試函數：檢查AI顧問模式元素狀態
-      function debugAIConsultantElements() {
+      if (subscriptionStatus === 'active') {
+        document.body.dataset.subscribed = 'true';
+      } else {
+        document.body.dataset.subscribed = 'false';
+      }
+    }
+    
+    console.log('當前訂閱狀態:', document.body.dataset.subscribed);
+    console.log('登入狀態:', ipPlanningToken && ipPlanningUser ? '已登入' : '未登入');
+    
+    // 更新鎖定浮層
+    updateSubscriptionLock();
+  }
+  
+  // 設置語言
+  function setLanguage(lang) {
+    // 更新語言按鈕狀態
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // 這裡可以添加語言切換邏輯
+    console.log('Language set to:', lang);
+  }
+  
+  // 調試函數：檢查AI顧問模式元素狀態
+  function debugAIConsultantElements() {
         console.log('=== 調試AI顧問模式元素 ===');
         
         const quickButtons = document.querySelector('.quick-buttons');
