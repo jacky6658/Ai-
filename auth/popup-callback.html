@@ -30,6 +30,9 @@
 <script>
 (function () {
   console.log('DEBUG: popup-callback.html executing');
+  console.log('DEBUG: window.opener exists:', !!window.opener);
+  console.log('DEBUG: window.opener type:', typeof window.opener);
+  console.log('DEBUG: Current URL:', window.location.href);
   
   // 從 URL 參數或 hash 獲取 token
   var token =
@@ -47,72 +50,129 @@
   var picture = new URLSearchParams(location.search).get('picture') || 
                 new URLSearchParams(location.hash.slice(1)).get('picture');
 
-  console.log('DEBUG: Extracted data:', { token: token ? 'present' : 'missing', user_id, email, name, picture });
+  console.log('DEBUG: Extracted data:', { 
+    token: token ? 'present (' + token.substring(0, 20) + '...)' : 'missing', 
+    user_id, 
+    email, 
+    name, 
+    picture 
+  });
 
   if (token) {
-    try {
-      if (window.opener) {
+    // 準備訊息對象
+    var message = {
+      type: 'GOOGLE_AUTH_SUCCESS',
+      ipPlanningToken: token,
+      accessToken: token,
+      user: {
+        id: user_id,
+        user_id: user_id,
+        email: email || '',
+        name: name || '',
+        picture: picture || ''
+      }
+    };
+    
+    console.log('DEBUG: Prepared message:', JSON.stringify(message, null, 2));
+    
+    // 嘗試發送 postMessage
+    var postMessageSuccess = false;
+    
+    // 只檢查 window.opener 是否存在，不檢查 closed（避免 COOP 錯誤）
+    if (window.opener) {
+      try {
         console.log('DEBUG: window.opener exists, sending postMessage');
-        var message = {
-          type: 'GOOGLE_AUTH_SUCCESS',
-          ipPlanningToken: token,
-          accessToken: token,
-          user: {
-            id: user_id,
-            user_id: user_id,
-            email: email || '',
-            name: name || '',
-            picture: picture || ''
-          }
-        };
+        console.log('DEBUG: Message target origin: * (all origins)');
         
-        // 發送多次確保接收
+        // 發送多次確保接收（立即發送）
         window.opener.postMessage(message, '*');
-        console.log('DEBUG: First postMessage sent');
+        console.log('DEBUG: ✅ First postMessage sent successfully');
+        postMessageSuccess = true;
         
+        // 延遲發送以確保接收
         setTimeout(function() {
           try {
-            window.opener.postMessage(message, '*');
-            console.log('DEBUG: Second postMessage sent');
+            if (window.opener) {
+              window.opener.postMessage(message, '*');
+              console.log('DEBUG: ✅ Second postMessage sent (100ms delay)');
+            }
           } catch (e) {
-            console.warn('DEBUG: Second postMessage failed:', e);
+            console.warn('DEBUG: ❌ Second postMessage failed:', e);
           }
         }, 100);
         
         setTimeout(function() {
           try {
-            window.opener.postMessage(message, '*');
-            console.log('DEBUG: Third postMessage sent');
+            if (window.opener) {
+              window.opener.postMessage(message, '*');
+              console.log('DEBUG: ✅ Third postMessage sent (500ms delay)');
+            }
           } catch (e) {
-            console.warn('DEBUG: Third postMessage failed:', e);
+            console.warn('DEBUG: ❌ Third postMessage failed:', e);
           }
         }, 500);
-      } else {
-        console.warn('DEBUG: No window.opener');
-      }
-    } catch (err) {
-      console.error('DEBUG: Error sending postMessage:', err);
-      try {
-        window.opener?.postMessage(
-          { type: 'GOOGLE_AUTH_ERROR', error: String(err) },
-          '*'
-        );
-      } catch (e) {
-        console.error('DEBUG: Failed to send error message:', e);
-      }
-    } finally {
-      // 延遲關閉，確保訊息已發送
-      setTimeout(function() {
+        
+        setTimeout(function() {
+          try {
+            if (window.opener) {
+              window.opener.postMessage(message, '*');
+              console.log('DEBUG: ✅ Fourth postMessage sent (1000ms delay)');
+            }
+          } catch (e) {
+            console.warn('DEBUG: ❌ Fourth postMessage failed:', e);
+          }
+        }, 1000);
+        
+        // 再發送一次（2秒後）
+        setTimeout(function() {
+          try {
+            if (window.opener) {
+              window.opener.postMessage(message, '*');
+              console.log('DEBUG: ✅ Fifth postMessage sent (2000ms delay)');
+            }
+          } catch (e) {
+            console.warn('DEBUG: ❌ Fifth postMessage failed:', e);
+          }
+        }, 2000);
+        
+      } catch (err) {
+        console.error('DEBUG: ❌ Error sending postMessage:', err);
+        console.error('DEBUG: Error stack:', err.stack);
+        
+        // 嘗試發送錯誤訊息
         try {
-          window.close();
-          console.log('DEBUG: Popup closed');
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: 'GOOGLE_AUTH_ERROR', error: String(err) },
+              '*'
+            );
+          }
         } catch (e) {
-          console.warn('DEBUG: Unable to close window:', e);
+          console.error('DEBUG: Failed to send error message:', e);
         }
-      }, 1000);
+      }
+    } else {
+      console.warn('DEBUG: ⚠️ window.opener is missing');
+      console.warn('DEBUG: window.opener:', window.opener);
+      console.warn('DEBUG: This might mean the popup was not opened from main window');
     }
+    
+    // 延遲關閉，確保訊息已發送
+    setTimeout(function() {
+      try {
+        if (postMessageSuccess) {
+          console.log('DEBUG: Closing popup window after postMessage');
+          window.close();
+        } else {
+          console.warn('DEBUG: Keeping popup open because postMessage may have failed');
+          document.querySelector('.container').innerHTML = '<h3>⚠️ 請手動關閉此視窗</h3><p>認證資訊已保存</p>';
+        }
+      } catch (e) {
+        console.warn('DEBUG: Unable to close window:', e);
+      }
+    }, 1500);
   } else {
-    console.warn('DEBUG: No token found in URL');
+    console.warn('DEBUG: ⚠️ No token found in URL');
     document.querySelector('.container').innerHTML = '<h3>⚠️ 登入完成，但未找到認證資訊</h3><p>請關閉此視窗</p>';
   }
 })();

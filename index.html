@@ -8977,8 +8977,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               const localIsSubscribed = ipPlanningUser.is_subscribed !== false; // 預設為已訂閱
               
               if (localSubscriptionStatus === 'active' || localIsSubscribed) {
-                document.body.dataset.subscribed = 'true';
-                localStorage.setItem('subscriptionStatus', 'active');
+              document.body.dataset.subscribed = 'true';
+              localStorage.setItem('subscriptionStatus', 'active');
               } else {
                 document.body.dataset.subscribed = 'false';
                 localStorage.setItem('subscriptionStatus', 'inactive');
@@ -8991,8 +8991,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             const localIsSubscribed = ipPlanningUser && ipPlanningUser.is_subscribed !== false;
             
             if (localSubscriptionStatus === 'active' || localIsSubscribed) {
-              document.body.dataset.subscribed = 'true';
-              localStorage.setItem('subscriptionStatus', 'active');
+            document.body.dataset.subscribed = 'true';
+            localStorage.setItem('subscriptionStatus', 'active');
             } else {
               document.body.dataset.subscribed = 'false';
               localStorage.setItem('subscriptionStatus', 'inactive');
@@ -10746,15 +10746,15 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               'Content-Type': 'application/json'
             }
           });
-          
+        
           if (response.ok) {
             // 從本地儲存中移除
-            const localScripts = getLocalScripts();
-            const updatedScripts = localScripts.filter(script => script.id != scriptId);
-            localStorage.setItem('user_scripts', JSON.stringify(updatedScripts));
-            
-            // 重新載入腳本列表
-            loadMyScriptsForUserDB();
+        const localScripts = getLocalScripts();
+        const updatedScripts = localScripts.filter(script => script.id != scriptId);
+        localStorage.setItem('user_scripts', JSON.stringify(updatedScripts));
+        
+        // 重新載入腳本列表
+        loadMyScriptsForUserDB();
             showToast('腳本已刪除', 3000);
           } else {
             throw new Error('刪除失敗');
@@ -12860,11 +12860,11 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             return;
           }
           
-          // 桌面版：使用彈跳視窗
+            // 桌面版：使用彈跳視窗
           console.log('DEBUG: Desktop detected, preparing popup login');
-          
-          // 顯示彈跳視窗覆蓋層
-          showPopupOverlay('正在開啟 Google 登入視窗...');
+            
+            // 顯示彈跳視窗覆蓋層
+            showPopupOverlay('正在開啟 Google 登入視窗...');
           
           // 先註冊監聽器，再開彈窗（確保訊息不會遺漏）
           let popup = null;
@@ -12872,34 +12872,49 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           
           // 定義認證訊息處理函數
           const authMessageHandler = function(event) {
-            console.log('DEBUG: Received message event:', {
+            // 先記錄所有收到的訊息（用於調試）
+            console.log('DEBUG: 📥 Received ANY message event:', {
               origin: event.origin,
+              source: event.source ? 'window' : 'null',
               data: event.data,
-              expectedOrigins: ['https://aivideobackend.zeabur.app', window.location.origin]
+              dataType: typeof event.data,
+              currentOrigin: window.location.origin
             });
             
             // 檢查訊息類型是否為認證相關
-            const isAuthMessage = event.data && (
+            const isAuthMessage = event.data && typeof event.data === 'object' && (
               event.data.type === 'GOOGLE_AUTH_SUCCESS' || 
               event.data.type === 'GOOGLE_AUTH_ERROR'
             );
             
             if (!isAuthMessage) {
-              console.log('DEBUG: Ignoring non-auth message:', event.data);
+              console.log('DEBUG: ⏭️ Ignoring non-auth message. Type:', event.data?.type, 'Data:', event.data);
               return;
             }
             
-            // 接受來自後端網域的訊息（更寬鬆的檢查，只檢查是否為認證訊息）
+            console.log('DEBUG: ✅ Auth message detected! Type:', event.data.type);
+            console.log('DEBUG: Message origin:', event.origin);
+            console.log('DEBUG: Current window origin:', window.location.origin);
+            console.log('DEBUG: Full message data:', JSON.stringify(event.data, null, 2));
+            
+            // 接受來自所有 origin 的認證訊息（因為使用 '*' targetOrigin）
+            // 但記錄 origin 以調試
             const allowedOrigins = [
               'https://aivideobackend.zeabur.app',
               'http://aivideobackend.zeabur.app',
+              'https://aivideonew.zeabur.app',
+              'http://aivideonew.zeabur.app',
               window.location.origin,
-              window.location.protocol + '//' + window.location.host
+              window.location.protocol + '//' + window.location.host,
+              'null'  // 某些情況下 origin 可能是 'null'
             ];
             
-            if (!allowedOrigins.includes(event.origin)) {
-              console.warn('DEBUG: Message from unexpected origin:', event.origin, 'but processing anyway since it is auth message');
-              // 即使是不同 origin，如果是認證訊息仍然處理（因為使用 '*' targetOrigin）
+            if (!allowedOrigins.includes(event.origin) && event.origin !== 'null') {
+              console.warn('DEBUG: ⚠️ Message from unexpected origin:', event.origin);
+              console.warn('DEBUG: Allowed origins:', allowedOrigins);
+              console.warn('DEBUG: But processing anyway since it is auth message with targetOrigin "*"');
+            } else {
+              console.log('DEBUG: ✅ Origin check passed:', event.origin);
             }
             
             // 清除逾時
@@ -13158,8 +13173,8 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         
         try {
           let response = await fetch('https://aivideobackend.zeabur.app/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${ipPlanningToken}` }
-          });
+          headers: { 'Authorization': `Bearer ${ipPlanningToken}` }
+        });
           
           // 如果收到 401，嘗試刷新 token 後重試
           if (response.status === 401) {
@@ -13176,23 +13191,23 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
               return;
             }
           }
+        
+        if (response.ok) {
+          const userData = await response.json();
+          ipPlanningUser = userData;
           
-          if (response.ok) {
-            const userData = await response.json();
-            ipPlanningUser = userData;
-            
-            // 為用戶生成隨機ID（如果沒有）
-            if (!ipPlanningUser.user_id) {
-              ipPlanningUser.user_id = generateUserId();
-              console.log('為用戶生成新ID:', ipPlanningUser.user_id);
-            }
-            
-            localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
-            updateAuthUI(true);
-            
-            // 立即更新個人資料顯示
-            updatePersonalInfo();
-          } else {
+          // 為用戶生成隨機ID（如果沒有）
+          if (!ipPlanningUser.user_id) {
+            ipPlanningUser.user_id = generateUserId();
+            console.log('為用戶生成新ID:', ipPlanningUser.user_id);
+          }
+          
+          localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
+          updateAuthUI(true);
+          
+          // 立即更新個人資料顯示
+          updatePersonalInfo();
+        } else {
             // 其他錯誤狀態，靜默處理
             console.warn('獲取用戶資訊失敗，使用本地儲存的資訊');
             return;
