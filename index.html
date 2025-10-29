@@ -9180,12 +9180,12 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         } else {
           console.log('沒有有效的認證資訊，跳過訂閱狀態檢查');
         }
+      } catch (error) {
+        // 發生錯誤，暫時設為已訂閱
+        console.log('訂閱檢查失敗，暫時設為已訂閱');
+        document.body.dataset.subscribed = 'true';
+        localStorage.setItem('subscriptionStatus', 'active');
       }
-      
-      // 發生錯誤，暫時設為已訂閱
-      console.log('訂閱檢查失敗，暫時設為已訂閱');
-      document.body.dataset.subscribed = 'true';
-      localStorage.setItem('subscriptionStatus', 'active');
     } else {
       // 未登入，從本地存儲檢查訂閱狀態
       const subscriptionStatus = localStorage.getItem('subscriptionStatus');
