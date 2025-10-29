@@ -13899,6 +13899,33 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         return [];
       }
 
+      // 將歷史訊息回灌到聊天區（不影響現有訊息樣式）
+      function renderHistoryToChat(records) {
+        const chat = document.getElementById('chatMessages');
+        if (!chat || !Array.isArray(records)) return;
+        chat.innerHTML = '';
+        const byTime = [...records].sort((a,b) => new Date(a.created_at||0) - new Date(b.created_at||0));
+        byTime.forEach(r => {
+          const role = r.message_role === 'assistant' ? 'assistant' : 'user';
+          // 優先使用 ChatGPT 風格訊息
+          if (typeof createChatGPTMessage === 'function') {
+            const node = createChatGPTMessage(role, r.message_content || '');
+            chat.appendChild(node);
+          } else {
+            // 後備樣式（AI 顧問樣式）
+            const div = document.createElement('div');
+            div.className = 'msg ' + (role === 'assistant' ? 'assistant' : 'user');
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            bubble.textContent = r.message_content || '';
+            div.appendChild(bubble);
+            chat.appendChild(div);
+          }
+        });
+        // 捲到最底
+        chat.scrollTop = chat.scrollHeight;
+      }
+
       // 動態插入極簡會話UI（不改動既有 HTML）
       document.addEventListener('DOMContentLoaded', () => {
         const inject = (pageId, type) => {
@@ -13920,12 +13947,21 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           };
           document.getElementById(`${pageId}-list`).onclick = async () => {
             const list = await getSessionList(type);
-            alert(list.length ? list.map(s => `${s.session_id}  (${s.count||0})`).join('\n') : '尚無會話');
+            if (!list.length) { alert('尚無會話'); return; }
+            const lines = list.map((s, i) => `${i+1}. ${s.session_id}  (${s.count||0})`).join('\n');
+            const pick = prompt(`選擇要載入的會話序號:\n${lines}\n\n輸入數字：`);
+            const idx = Number(pick) - 1;
+            if (!Number.isFinite(idx) || idx < 0 || idx >= list.length) return;
+            const chosen = list[idx]?.session_id;
+            const records = await loadChatHistory(type, chosen);
+            renderHistoryToChat(records);
+            showToast(`已載入 ${records.length} 筆歷史`);
           };
           document.getElementById(`${pageId}-load`).onclick = async () => {
             const sid = getCurrentSessionId(type);
             const records = await loadChatHistory(type, sid);
-            showToast(`已載入 ${records.length} 筆歷史（僅提取，不覆寫當前畫面）`);
+            renderHistoryToChat(records);
+            showToast(`已載入 ${records.length} 筆歷史`);
           };
         };
         inject('mode2', 'ai_advisor');
