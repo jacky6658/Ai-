@@ -8801,6 +8801,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       let ipPlanningToken = null;
       let isRefreshingToken = false; // 防止重複刷新
       let lastRefreshAttempt = 0; // 上次刷新嘗試的時間
+      let handleAuthMessage = null; // 認證訊息處理函數（在 login() 中動態創建）
       
       // 檢查登入狀態
       async function checkLoginStatus() {
@@ -12836,18 +12837,93 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
           // 更新覆蓋層訊息
           updatePopupMessage('請在彈跳視窗中完成 Google 登入...');
           
-          // 監聽彈跳視窗關閉
-          const checkClosed = setInterval(() => {
-            if (popup.closed) {
-              clearInterval(checkClosed);
-              hidePopupOverlay();
-              // 檢查是否有認證結果
-              checkAuthResult();
+          // 創建處理認證訊息的函數（帶有 popup 引用和 timeout）
+          let popupTimeout = null;
+          
+          const authMessageHandler = function(event) {
+            console.log('DEBUG: Received message from popup:', event.data);
+            
+            // 接受來自後端網域的訊息
+            if (event.origin !== 'https://aivideobackend.zeabur.app' && event.origin !== window.location.origin) {
+              console.log('DEBUG: Ignoring message from unknown origin:', event.origin);
+              return;
             }
-          }, 1000);
+            
+            // 清除逾時
+            if (popupTimeout) {
+              clearTimeout(popupTimeout);
+              popupTimeout = null;
+            }
+            
+            // 關閉彈跳視窗
+            try {
+              if (popup && !popup.closed) {
+                popup.close();
+              }
+            } catch (e) {
+              console.warn('DEBUG: Error closing popup:', e);
+            }
+            
+            // 移除事件監聽器
+            window.removeEventListener('message', authMessageHandler);
+            
+            if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+              console.log('DEBUG: Auth success message received');
+              // 認證成功，更新 UI
+              // 後端發送的是 accessToken，需要映射到 ipPlanningToken
+              ipPlanningToken = event.data.accessToken || event.data.ipPlanningToken;
+              ipPlanningUser = event.data.user;
+              
+              if (!ipPlanningUser) {
+                // 如果沒有 user 對象，嘗試從其他字段構建
+                ipPlanningUser = {
+                  user_id: event.data.user_id || event.data.user?.id,
+                  email: event.data.email || event.data.user?.email,
+                  name: event.data.name || event.data.user?.name,
+                  picture: event.data.picture || event.data.user?.picture
+                };
+              }
+              
+              // 保存到本地存儲
+              if (ipPlanningToken) {
+                localStorage.setItem('ipPlanningToken', ipPlanningToken);
+              }
+              if (ipPlanningUser) {
+                localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
+              }
+              
+              hidePopupOverlay();
+              updateAuthUI(true);
+              
+              // 顯示主應用程式
+              showMainApp();
+              
+              // 檢查並更新訂閱狀態
+              checkSubscriptionStatus();
+            } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+              console.log('DEBUG: Auth error message received:', event.data.error);
+              hidePopupOverlay();
+              showToast('認證失敗：' + (event.data.error || '未知錯誤'), 5000);
+            }
+          };
+          
+          // 設定逾時處理（90秒）
+          popupTimeout = setTimeout(() => {
+            console.warn('DEBUG: Popup timeout after 90 seconds');
+            try {
+              if (popup && !popup.closed) {
+                popup.close();
+              }
+            } catch (e) {
+              console.warn('DEBUG: Error closing popup:', e);
+            }
+            showPopupError('登入逾時，請重試', true);
+            window.removeEventListener('message', authMessageHandler);
+            popupTimeout = null;
+          }, 90000);
           
           // 監聽來自彈跳視窗的訊息
-          window.addEventListener('message', handleAuthMessage);
+          window.addEventListener('message', authMessageHandler);
           }
           
         } catch (error) {
@@ -12883,40 +12959,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         popupOverlay.style.display = 'none';
       }
       
-      function handleAuthMessage(event) {
-        console.log('DEBUG: Received message from popup:', event.data);
-        
-        // 接受來自後端網域的訊息
-        if (event.origin !== 'https://aivideobackend.zeabur.app' && event.origin !== window.location.origin) {
-          console.log('DEBUG: Ignoring message from unknown origin:', event.origin);
-          return;
-        }
-        
-        if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-          console.log('DEBUG: Auth success message received');
-          // 認證成功，更新 UI
-          ipPlanningToken = event.data.ipPlanningToken;
-          ipPlanningUser = event.data.user;
-          
-          // 保存到本地存儲
-          localStorage.setItem('ipPlanningToken', ipPlanningToken);
-          localStorage.setItem('ipPlanningUser', JSON.stringify(ipPlanningUser));
-          
-          hidePopupOverlay();
-          updateAuthUI(true);
-          
-          // 顯示主應用程式
-          showMainApp();
-          
-          // 移除事件監聽器
-          window.removeEventListener('message', handleAuthMessage);
-        } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-          console.log('DEBUG: Auth error message received:', event.data.error);
-          hidePopupOverlay();
-          showToast('認證失敗：' + event.data.error, 5000);
-          window.removeEventListener('message', handleAuthMessage);
-        }
-      }
+      // handleAuthMessage 現在在 login() 函數中動態創建，以便訪問 popup 和 timeout 引用
       
       async function checkAuthResult() {
         // 檢查本地存儲中是否有新的認證資訊
