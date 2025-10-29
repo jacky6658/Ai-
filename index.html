@@ -9715,15 +9715,17 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
       async function loadPersonalInfoForUserDB() {
         const content = document.querySelector('#db-personalInfo .section-content');
         
-        // 如果沒有用戶信息或缺少 created_at，重新從後端獲取
+        // 如果沒有用戶信息或缺少 created_at，嘗試從後端獲取（但不強制要求）
         if (ipPlanningToken && (!ipPlanningUser || !ipPlanningUser.created_at)) {
           try {
             await fetchUserInfo();
           } catch (error) {
-            console.error('載入用戶信息失敗:', error);
+            console.warn('載入用戶信息失敗，使用本地儲存的資訊:', error);
+            // 失敗時不阻止顯示，繼續使用本地資訊
           }
         }
         
+        // 如果有本地儲存的用戶資訊，直接使用（即使 API 失敗也能顯示）
         if (ipPlanningUser) {
           // 格式化日期顯示
           let registrationTime = '未知';
@@ -9746,14 +9748,15 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             }
           }
           
-          // 訂閱狀態
-          const subscriptionStatus = ipPlanningUser.is_subscribed ? 
+          // 訂閱狀態（預設為已訂閱，除非明確設為 false）
+          const isSubscribed = ipPlanningUser.is_subscribed !== false; // 預設為已訂閱
+          const subscriptionStatus = isSubscribed ? 
             '<span style="color: #10b981; font-weight: bold;">✅ 已訂閱</span>' : 
             '<span style="color: #ef4444; font-weight: bold;">❌ 未訂閱</span>';
           
           // 自動續費日期（下個月同一天）
           let renewalDate = '未知';
-          if (ipPlanningUser.created_at && ipPlanningUser.is_subscribed) {
+          if (ipPlanningUser.created_at && isSubscribed) {
             try {
               const createdDate = new Date(ipPlanningUser.created_at);
               const renewal = new Date(createdDate);
@@ -9793,7 +9796,7 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 <label>訂閱狀態：</label>
                 <span>${subscriptionStatus}</span>
               </div>
-              ${ipPlanningUser.is_subscribed ? `
+              ${isSubscribed ? `
               <div class="detail-item">
                 <label>下次續費日期：</label>
                 <span>${renewalDate}</span>
