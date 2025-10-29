@@ -1474,6 +1474,91 @@
         color: #6b7280;
       }
       
+      /* 會話管理樣式 */
+      .session-management {
+        margin-bottom: 16px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+      
+      .session-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      
+      .session-btn {
+        padding: 8px 12px;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .session-btn:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+      }
+      
+      .session-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #ffffff;
+      }
+      
+      .session-item {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      
+      .session-item:hover {
+        background: #f8fafc;
+      }
+      
+      .session-item:last-child {
+        border-bottom: none;
+      }
+      
+      .session-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      
+      .session-id {
+        font-size: 12px;
+        color: #6b7280;
+        font-family: monospace;
+      }
+      
+      .session-time {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      
+      .session-preview {
+        font-size: 14px;
+        color: #374151;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .session-count {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 4px;
+      }
+      
       /* 優化輸入框樣式 */
       #messageInput {
         flex: 1;
@@ -7833,6 +7918,18 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                 <button class="quick-btn" data-text="什麼是腳本選題">什麼是腳本選題</button>
               </div>
               
+              <!-- 會話管理區域 -->
+              <div class="session-management" id="sessionManagement" style="display: none;">
+                <div class="session-controls">
+                  <button onclick="showSessionList()" class="session-btn">📋 會話列表</button>
+                  <button onclick="startNewSession()" class="session-btn">🆕 新會話</button>
+                  <button onclick="loadChatHistory('ai_advisor')" class="session-btn">🔄 載入歷史</button>
+                </div>
+                <div class="session-list" id="sessionList" style="display: none;">
+                  <!-- 會話列表將在這裡動態載入 -->
+                </div>
+              </div>
+              
               <!-- 輸入區域 -->
               <div class="input-row">
                 <textarea id="messageInput" class="chat-input" placeholder="向AI顧問提問..." rows="1"></textarea>
@@ -8521,6 +8618,20 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
             // 立即刷新左側頭像/名稱與個資內容
             updateDbUserInfo();
             showDbSection('personalInfo');
+          }
+          
+          // 顯示會話管理（對話模式）
+          if (pageId === 'mode2' || pageId === 'mode3') {
+            const sessionManagement = document.getElementById('sessionManagement');
+            if (sessionManagement) {
+              sessionManagement.style.display = 'block';
+            }
+          } else {
+            // 隱藏會話管理（非對話模式）
+            const sessionManagement = document.getElementById('sessionManagement');
+            if (sessionManagement) {
+              sessionManagement.style.display = 'none';
+            }
           }
         } else {
           console.error('Page not found:', pageId);
@@ -10160,6 +10271,220 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         content.innerHTML = '<div class="loading-text">還沒有儲存的腳本，請先使用一鍵生成功能創建腳本</div>';
       }
       
+      // 長期記憶管理函數
+      async function saveToLongTermMemory(conversationType, sessionId, messageRole, messageContent, metadata = null) {
+        if (!ipPlanningToken || !ipPlanningUser || !ipPlanningUser.user_id) {
+          console.log('無法儲存長期記憶：未登入');
+          return;
+        }
+        
+        try {
+          const response = await fetch('https://aivideobackend.zeabur.app/api/memory/long-term', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${ipPlanningToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              conversation_type: conversationType,
+              session_id: sessionId,
+              message_role: messageRole,
+              message_content: messageContent,
+              metadata: metadata
+            })
+          });
+          
+          if (response.ok) {
+            console.log('長期記憶已儲存:', conversationType, sessionId);
+          } else {
+            console.error('儲存長期記憶失敗:', response.status);
+          }
+        } catch (error) {
+          console.error('儲存長期記憶錯誤:', error);
+        }
+      }
+      
+      async function getLongTermMemory(conversationType = null, sessionId = null, limit = 50) {
+        if (!ipPlanningToken || !ipPlanningUser || !ipPlanningUser.user_id) {
+          console.log('無法獲取長期記憶：未登入');
+          return [];
+        }
+        
+        try {
+          let url = 'https://aivideobackend.zeabur.app/api/memory/long-term?limit=' + limit;
+          if (conversationType) url += '&conversation_type=' + encodeURIComponent(conversationType);
+          if (sessionId) url += '&session_id=' + encodeURIComponent(sessionId);
+          
+          const response = await fetch(url, {
+            headers: {
+              'Authorization': `Bearer ${ipPlanningToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            return data.memories || [];
+          } else {
+            console.error('獲取長期記憶失敗:', response.status);
+            return [];
+          }
+        } catch (error) {
+          console.error('獲取長期記憶錯誤:', error);
+          return [];
+        }
+      }
+      
+      // 會話管理函數
+      function getCurrentSessionId() {
+        // 如果沒有會話ID，生成一個新的
+        if (!window.currentSessionId) {
+          window.currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        return window.currentSessionId;
+      }
+      
+      function startNewSession() {
+        window.currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        console.log('開始新會話:', window.currentSessionId);
+        return window.currentSessionId;
+      }
+      
+      // 載入對話歷史
+      async function loadChatHistory(conversationType = 'ai_advisor', sessionId = null) {
+        if (!ipPlanningToken || !ipPlanningUser || !ipPlanningUser.user_id) {
+          console.log('無法載入對話歷史：未登入');
+          return;
+        }
+        
+        try {
+          const memories = await getLongTermMemory(conversationType, sessionId, 100);
+          const chatMessages = document.getElementById('chatMessages');
+          
+          if (!chatMessages) {
+            console.log('找不到聊天訊息容器');
+            return;
+          }
+          
+          // 清空現有訊息
+          chatMessages.innerHTML = '';
+          
+          // 按時間排序並顯示歷史訊息
+          const sortedMemories = memories.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+          
+          for (const memory of sortedMemories) {
+            const message = createMessage(memory.message_role, memory.message_content);
+            chatMessages.appendChild(message);
+          }
+          
+          // 滾動到底部
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+          console.log(`載入了 ${sortedMemories.length} 條歷史訊息`);
+        } catch (error) {
+          console.error('載入對話歷史失敗:', error);
+        }
+      }
+      
+      // 獲取會話列表
+      async function getSessionList(conversationType = 'ai_advisor') {
+        if (!ipPlanningToken || !ipPlanningUser || !ipPlanningUser.user_id) {
+          console.log('無法獲取會話列表：未登入');
+          return [];
+        }
+        
+        try {
+          const memories = await getLongTermMemory(conversationType, null, 1000);
+          
+          // 按會話ID分組
+          const sessionMap = new Map();
+          for (const memory of memories) {
+            if (!sessionMap.has(memory.session_id)) {
+              sessionMap.set(memory.session_id, {
+                session_id: memory.session_id,
+                last_message: memory.message_content,
+                last_time: memory.created_at,
+                message_count: 0
+              });
+            }
+            sessionMap.get(memory.session_id).message_count++;
+            if (new Date(memory.created_at) > new Date(sessionMap.get(memory.session_id).last_time)) {
+              sessionMap.get(memory.session_id).last_message = memory.message_content;
+              sessionMap.get(memory.session_id).last_time = memory.created_at;
+            }
+          }
+          
+          // 轉換為陣列並按時間排序
+          const sessions = Array.from(sessionMap.values()).sort((a, b) => new Date(b.last_time) - new Date(a.last_time));
+          return sessions;
+        } catch (error) {
+          console.error('獲取會話列表失敗:', error);
+          return [];
+        }
+      }
+      
+      // 顯示會話列表
+      async function showSessionList() {
+        const sessionList = document.getElementById('sessionList');
+        const sessionManagement = document.getElementById('sessionManagement');
+        
+        if (!sessionList || !sessionManagement) return;
+        
+        // 顯示會話管理區域
+        sessionManagement.style.display = 'block';
+        
+        // 載入會話列表
+        const sessions = await getSessionList('ai_advisor');
+        
+        if (sessions.length === 0) {
+          sessionList.innerHTML = '<div style="padding: 12px; text-align: center; color: #6b7280;">暫無會話記錄</div>';
+        } else {
+          sessionList.innerHTML = sessions.map(session => `
+            <div class="session-item" onclick="loadSessionHistory('${session.session_id}')">
+              <div class="session-item-header">
+                <span class="session-id">${session.session_id.substring(0, 12)}...</span>
+                <span class="session-time">${formatDateTime(session.last_time)}</span>
+              </div>
+              <div class="session-preview">${session.last_message ? session.last_message.substring(0, 50) + '...' : '無訊息'}</div>
+              <div class="session-count">${session.message_count} 條訊息</div>
+            </div>
+          `).join('');
+        }
+        
+        // 切換會話列表顯示
+        sessionList.style.display = sessionList.style.display === 'none' ? 'block' : 'none';
+      }
+      
+      // 載入特定會話的歷史
+      async function loadSessionHistory(sessionId) {
+        window.currentSessionId = sessionId;
+        await loadChatHistory('ai_advisor', sessionId);
+        
+        // 隱藏會話列表
+        const sessionList = document.getElementById('sessionList');
+        if (sessionList) {
+          sessionList.style.display = 'none';
+        }
+      }
+      
+      // 格式化時間顯示
+      function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+          return date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+        } else if (diffDays === 1) {
+          return '昨天 ' + date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+        } else if (diffDays < 7) {
+          return `${diffDays}天前`;
+        } else {
+          return date.toLocaleDateString('zh-TW');
+        }
+      }
+      
       // ===== ChatGPT 風格功能函數 =====
       
       // 初始化 Markdown 渲染器
@@ -10295,6 +10620,13 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         const userMessage = createChatGPTMessage('user', message);
         chatMessages.appendChild(userMessage);
         
+        // 儲存用戶訊息到長期記憶
+        await saveToLongTermMemory('ip_planning', getCurrentSessionId(), 'user', message, {
+          positioning_type: safeSettingsApplied ? safeAppliedSettings.positioning : null,
+          target_audience: safeSettingsApplied ? safeAppliedSettings.audience : null,
+          content_style: safeStyleInstruction
+        });
+        
         // 添加載入動畫
         const typingIndicator = createTypingIndicator();
         chatMessages.appendChild(typingIndicator);
@@ -10368,6 +10700,13 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                   // 檢查是否需要顯示結果區塊
                   if (fullContent) {
                     checkIfScriptRequest(fullContent);
+                    
+                    // 儲存AI回應到長期記憶
+                    await saveToLongTermMemory('ip_planning', getCurrentSessionId(), 'assistant', fullContent, {
+                      positioning_type: safeSettingsApplied ? safeAppliedSettings.positioning : null,
+                      target_audience: safeSettingsApplied ? safeAppliedSettings.audience : null,
+                      content_style: safeStyleInstruction
+                    });
                   }
                   return;
                 }
@@ -10552,6 +10891,15 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         const userMessage = createMessage('user', message);
         chatMessages.appendChild(userMessage);
         
+        // 儲存用戶訊息到長期記憶
+        await saveToLongTermMemory('ai_advisor', getCurrentSessionId(), 'user', message, {
+          platform: safeSettingsApplied ? safeAppliedSettings.platform : null,
+          topic: safeSettingsApplied ? safeAppliedSettings.topic : null,
+          duration: safeSettingsApplied ? safeAppliedSettings.duration : null,
+          style: safeStyleInstruction,
+          profile: safeSettingsApplied ? safeAppliedSettings.positioning : null
+        });
+        
         // 隱藏快速按鈕
         if (quickButtons) {
           quickButtons.style.display = 'none';
@@ -10632,6 +10980,15 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
                   // 檢查是否需要顯示結果區塊
                   if (fullContent) {
                     checkIfScriptRequest(fullContent);
+                    
+                    // 儲存AI回應到長期記憶
+                    await saveToLongTermMemory('ai_advisor', getCurrentSessionId(), 'assistant', fullContent, {
+                      platform: safeSettingsApplied ? safeAppliedSettings.platform : null,
+                      topic: safeSettingsApplied ? safeAppliedSettings.topic : null,
+                      duration: safeSettingsApplied ? safeAppliedSettings.duration : null,
+                      style: safeStyleInstruction,
+                      profile: safeSettingsApplied ? safeAppliedSettings.positioning : null
+                    });
                   }
                   break;
                 }
