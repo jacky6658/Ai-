@@ -93,6 +93,71 @@
       }
     </script>
     
+    <script>
+      // 全域 fetch 截聽器：自動帶 token，401 時自動 refresh 後重試一次
+      (function() {
+        const BACKEND_BASE = 'https://aivideobackend.zeabur.app';
+        const originalFetch = window.fetch.bind(window);
+
+        function getToken() {
+          return localStorage.getItem('ipPlanningToken') || '';
+        }
+
+        async function refreshTokenIfNeeded() {
+          try {
+            const res = await originalFetch(`${BACKEND_BASE}/api/auth/refresh`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: '{}'
+            });
+            if (!res.ok) return false;
+            const data = await res.json();
+            const newToken = data && data.access_token;
+            if (!newToken) return false;
+            localStorage.setItem('ipPlanningToken', newToken);
+            localStorage.setItem('ipPlanningTokenUpdated', Date.now().toString());
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+
+        window.fetch = async function(input, init) {
+          const initObj = init || {};
+          const url = typeof input === 'string' ? input : (input && input.url) || '';
+          const isBackendApi = (typeof url === 'string') && (url.startsWith(`${BACKEND_BASE}/api`) || url.startsWith('/api/'));
+          const isRefreshCall = (typeof url === 'string') && url.includes('/api/auth/refresh');
+
+          // 準備 headers，盡量不覆蓋呼叫端已設定的欄位
+          const mergedHeaders = new Headers(initObj.headers || (typeof input !== 'string' && input && input.headers) || {});
+          if (isBackendApi && !isRefreshCall) {
+            if (!mergedHeaders.has('Authorization')) {
+              const tk = getToken();
+              if (tk) mergedHeaders.set('Authorization', `Bearer ${tk}`);
+            }
+            if (!mergedHeaders.has('Content-Type') && (!initObj || !initObj.body || typeof initObj.body === 'object')) {
+              mergedHeaders.set('Content-Type', 'application/json');
+            }
+          }
+
+          const firstResponse = await originalFetch(input, { ...initObj, headers: mergedHeaders });
+          if (isBackendApi && firstResponse.status === 401 && !isRefreshCall) {
+            const ok = await refreshTokenIfNeeded();
+            if (ok) {
+              const retryHeaders = new Headers(initObj.headers || (typeof input !== 'string' && input && input.headers) || {});
+              const tk2 = getToken();
+              if (tk2) retryHeaders.set('Authorization', `Bearer ${tk2}`);
+              if (!retryHeaders.has('Content-Type') && (!initObj || !initObj.body || typeof initObj.body === 'object')) {
+                retryHeaders.set('Content-Type', 'application/json');
+              }
+              return originalFetch(input, { ...initObj, headers: retryHeaders });
+            }
+          }
+          return firstResponse;
+        };
+      })();
+    </script>
+    
     <style>
       :root { 
         color-scheme: light; 
