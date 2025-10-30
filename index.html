@@ -16383,4 +16383,29 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
 
   </body>
 </html>
+<script>
+  (function(){
+    function goToPricing(plan){
+      var base = 'subscription.html';
+      var url = plan ? (base + '?plan=' + encodeURIComponent(plan)) : base;
+      window.location.href = url;
+    }
+    function goLogin(){
+      if (typeof startGoogleLogin === 'function') { startGoogleLogin(); return; }
+      if (typeof login === 'function') { login(); return; }
+      window.location.href = 'https://aivideobackend.zeabur.app/api/auth/google';
+    }
+    document.addEventListener('click', function(e){
+      var t = e.target;
+      if (!t) return;
+      var txt = (t.innerText||'').trim();
+      if (txt.includes('立即啟動') && txt.includes('AI')){ e.preventDefault(); goToPricing(); }
+      if (txt === '登入解鎖你的專屬 AI 智能體'){ e.preventDefault(); goToPricing(); }
+      if (txt === '立即訂閱'){ e.preventDefault(); goToPricing(); }
+      if (txt.includes('已訂閱') && txt.includes('登入使用')){ e.preventDefault(); goLogin(); }
+    }, true);
+    window.goToPricing = goToPricing;
+    window.goLogin = goLogin;
+  })();
+</script>
 </html>
