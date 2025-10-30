@@ -1,5 +1,113 @@
 <!doctype html>
 <html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>ReelMind 訂閱方案</title>
+    <style>
+      body { font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial; margin:0; background:#f8fafc; color:#0f172a; }
+      .container { max-width: 920px; margin: 0 auto; padding: 24px; }
+      .hero { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-top: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+      .plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
+      .plan { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:16px; }
+      .plan h3 { margin: 0 0 6px 0; font-size: 18px; }
+      .price { font-size: 28px; font-weight: 700; margin: 8px 0 12px 0; }
+      .btn { display:inline-block; padding:10px 16px; background:#3b82f6; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+      .btn.secondary { background:#0ea5e9; }
+      .btn:disabled { opacity:.6; cursor:not-allowed; }
+      .features { margin: 8px 0 12px 0; color:#334155; font-size: 14px; }
+      .notice { margin-top: 10px; color:#64748b; font-size: 13px; }
+      @media (max-width: 768px) { .plans { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>加入 ReelMind 會員</h1>
+      <div class="hero">
+        <p>訂閱後即可無限使用「一鍵生成」「AI顧問」「IP 人設規劃」三大模式。</p>
+        <div class="plans">
+          <div class="plan" id="plan-monthly">
+            <h3>月方案</h3>
+            <div class="price">NT$ 3,980 / 月</div>
+            <div class="features">
+              - 三大模式無限次使用<br />
+              - 創作者資料庫完整功能<br />
+              - 基礎客服支援
+            </div>
+            <button class="btn" onclick="mockPurchase('monthly')">立即加入</button>
+          </div>
+          <div class="plan" id="plan-yearly">
+            <h3>年方案</h3>
+            <div class="price">NT$ 39,800 / 年</div>
+            <div class="features">
+              - 方案內容同上（年繳更划算）<br />
+              - 優先客服支援
+            </div>
+            <button class="btn secondary" onclick="mockPurchase('yearly')">立即加入</button>
+          </div>
+        </div>
+        <div class="notice">本頁為金流導購頁面。之後串接金流時，點擊「立即加入」改為導向金流，支付完成回調更新會員資格與到期日。</div>
+      </div>
+    </div>
+
+    <script>
+      (function initFromQuery(){
+        const params = new URLSearchParams(location.search);
+        const plan = params.get('plan');
+        if (plan === 'yearly') {
+          document.getElementById('plan-yearly').scrollIntoView({behavior:'smooth'});
+        } else if (plan === 'monthly') {
+          document.getElementById('plan-monthly').scrollIntoView({behavior:'smooth'});
+        }
+      })();
+
+      async function mockPurchase(plan) {
+        // TODO: 串接金流後改為導向第三方支付，支付成功再回到 callback
+        try {
+          const userStr = localStorage.getItem('ipPlanningUser');
+          if (!userStr) {
+            alert('請先登入後再訂閱');
+            return;
+          }
+          const user = JSON.parse(userStr);
+          // 通知後端（準備用回調端點）
+          try {
+            await fetch('https://aivideobackend.zeabur.app/api/payment/callback', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: user.user_id,
+                plan,
+                transaction_id: 'TEST-' + Date.now(),
+                amount: plan === 'yearly' ? 39800 : 3980,
+                paid_at: new Date().toISOString()
+              })
+            }).catch(() => {});
+          } catch (_) {}
+          user.is_subscribed = true;
+          // 設置到期日（月/年）供前端顯示（實際以後端為準）
+          const now = new Date();
+          if (plan === 'yearly') {
+            now.setFullYear(now.getFullYear() + 1);
+          } else {
+            now.setMonth(now.getMonth() + 1);
+          }
+          user.subscription = { plan, expires_at: now.toISOString() };
+          localStorage.setItem('ipPlanningUser', JSON.stringify(user));
+          localStorage.setItem('ipPlanningTokenUpdated', Date.now().toString());
+          alert('感謝加入！您的訂閱已啟用（測試模式）');
+          // 回首頁
+          window.location.href = '/';
+        } catch (e) {
+          console.warn('mockPurchase error:', e);
+        }
+      }
+    </script>
+  </body>
+</html>
+
+<!doctype html>
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />

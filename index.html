@@ -8825,6 +8825,59 @@ Hook：上班族午休 30 分鐘，三步做出高蛋白便當？
         // 控制訂閱鎖定浮層顯示
         updateSubscriptionLock();
       });
+
+      // ===== 訂閱封鎖與導購：未訂閱使用者禁止進入三大模式 =====
+      function isSubscribed() {
+        try {
+          const userStr = localStorage.getItem('ipPlanningUser');
+          if (!userStr) return false;
+          const user = JSON.parse(userStr);
+          // 後端/前端一率以 falsy 視為未訂閱
+          return !!(user && (user.is_subscribed === true || user.is_subscribed === 1 || user.is_subscribed === '1'));
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function showSubscriptionPaywall(plan) {
+        // 若傳入方案，將參數附在導購頁面
+        const planParam = plan ? `?plan=${encodeURIComponent(plan)}` : '';
+        // 顯示導購提示（輕量作法：提示 + 導向）
+        try { showToast('此功能需訂閱才能使用，將前往購買頁面', 3000); } catch (_) {}
+        setTimeout(() => {
+          window.location.href = `subscription.html${planParam}`;
+        }, 300);
+      }
+
+      // 包裝頁面切換，對三大模式進行封鎖
+      const originalSwitchPage = typeof switchPage === 'function' ? switchPage : null;
+      window.switchPage = function(page) {
+        // 三大模式代稱：mode1(一鍵生成)、mode2(AI顧問)、mode3(IP人設規劃)
+        const isModePage = page === 'mode1' || page === 'mode2' || page === 'mode3';
+        if (isModePage && !isSubscribed()) {
+          // 預設導到訂閱頁（不帶方案；如需可改 'monthly' 或 'yearly'）
+          return showSubscriptionPaywall();
+        }
+        // 其他頁面正常切換
+        if (originalSwitchPage) {
+          return originalSwitchPage(page);
+        }
+      };
+
+      // 在登入成功後與訂閱狀態載入時，同步本地 user.is_subscribed 欄位
+      function markUnsubscribedByDefault() {
+        try {
+          const userStr = localStorage.getItem('ipPlanningUser');
+          if (!userStr) return;
+          const user = JSON.parse(userStr);
+          if (!('is_subscribed' in user)) {
+            user.is_subscribed = false;
+            localStorage.setItem('ipPlanningUser', JSON.stringify(user));
+          }
+        } catch (_) {}
+      }
+      // 立即執行一次，確保目前瀏覽使用者為未訂閱預設（後端亦會預設未訂閱）
+      markUnsubscribedByDefault();
       
       // 控制訂閱鎖定浮層顯示
       function updateSubscriptionLock() {

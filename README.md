@@ -1,4 +1,5 @@
 # AIJob短影音智能體 - 前端
+# AIJob短影音智能體 - 前端
 
 ## 📌 專案整合報告（前端 ReelMindfrontnd）
 
@@ -1608,6 +1609,18 @@ ReelMindfrontnd-main/
 3. **環境變數**：後端需要設定固定的 `JWT_SECRET` 環境變數
 
 ---
+
+## 🧾 金流串接代辦（Frontend TODO）
+
+1. 「立即加入」改為導向金流頁（例如綠界/ECPay 或 TapPay）之 CheckOut URL。
+2. 於付款完成後，第三方會 redirect 回前端：
+   - 解析回傳參數（交易編號、金額、狀態、簽章）。
+   - 顯示「付款成功」頁，並呼叫後端 `/api/payment/callback`。
+3. `subscription.html`：
+   - 保留 `?plan=monthly|yearly` 參數，帶到金流端。
+   - 付款成功後本頁應讀取 `?status=success&transaction_id=...` 等參數顯示結果。
+4. 防呆：若 callback 成功但前端仍為未訂閱，顯示提示並引導重新整理或重新登入。
+5. GA/事件：加入「點擊立即加入」「付款成功」事件以利轉化追蹤。
 
 ### v2.1.0 (2025-10-28) - 创作者资料库完整升级
 
