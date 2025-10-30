@@ -1,4 +1,5 @@
 # AIJob短影音智能體 - 前端
+# AIJob短影音智能體 - 前端
 
 ## 📌 專案整合報告（前端 ReelMindfrontnd）
 
@@ -145,10 +146,16 @@
 ## 檔案結構
 
 ```
-fronted/
-├── index.html          # 主要應用程式檔案
-└── README.md          # 專案說明文件
+ReelMindfrontnd-main/
+├── index.html                    # 主要應用程式檔案
+├── auth/
+│   └── popup-callback.html      # OAuth callback 頁面（必須上傳）
+├── subscription.html            # 訂閱頁面
+├── 金流頁面.html                # 金流相關頁面
+└── README.md                    # 專案說明文件
 ```
+
+**重要**：部署時必須包含整個 `auth` 資料夾，因為後端會 redirect 到 `/auth/popup-callback.html`。
 
 ## 更新日誌
 
@@ -1497,6 +1504,111 @@ JSON 格式，包含 segments 陣列，每個 segment 包含：
 ---
 
 ## 更新記錄
+
+### v2.2.0 (2025-10-29) - OAuth 登入流程全面優化
+
+#### 🚀 新增功能
+- **專用 OAuth Callback 頁面**：新增 `/auth/popup-callback.html` 處理 OAuth 回調
+- **三層備用登入機制**：
+  1. postMessage（主要方式，適用於桌面版彈窗）
+  2. localStorage + storage 事件（主要備用，自動觸發）
+  3. localStorage + 定期輪詢（最終備用，每 500ms 檢查）
+- **手機版自動跳轉**：手機版登入成功後自動跳轉回首頁
+- **Favicon 支援**：添加 SVG favicon，解決 404 錯誤
+- **Highlight.js 修正**：使用正確的瀏覽器版本，解決 module is not defined 錯誤
+
+#### 🛠️ 技術修改
+**檔案：index.html**
+- 改進 `login()` 函數：在開彈窗前先註冊 `message` 和 `storage` 事件監聽器
+- 新增 `storageHandler` 函數：監聽 localStorage 更新事件
+- 新增定期檢查機制：每 500ms 檢查 localStorage 中的 token 更新
+- 改進逾時處理：在 90 秒逾時時也檢查 localStorage
+- 改進 `DOMContentLoaded`：檢查 `ipPlanningTokenUpdated` 標記，自動處理手機版登入
+- 移除所有 `popup.closed` 檢查，避免 Cross-Origin-Opener-Policy 錯誤
+- 添加 favicon：使用 SVG data URI 作為網站圖標
+- 更新 Highlight.js：從 `/lib/` 改為 `/build/` 路徑，使用瀏覽器 UMD 版本
+- 添加 Highlight.js 初始化：確保載入後正確初始化
+
+**新檔案：auth/popup-callback.html**
+- 處理 OAuth callback：從 URL 參數提取 token 和用戶資訊
+- 三層通信機制：
+  1. 優先使用 `postMessage`（如果 `window.opener` 存在）
+  2. 保存到 localStorage（必做，作為備用）
+  3. 手機版自動跳轉回首頁
+- 智能檢測：自動區分桌面版（彈窗）和手機版（整頁跳轉）
+- 多次發送機制：發送 5 次 postMessage（立即、100ms、500ms、1000ms、2000ms）確保接收
+- 詳細調試日誌：完整的 DEBUG 訊息便於問題診斷
+
+#### 🎯 登入流程改進
+
+**桌面版流程**：
+```
+用戶點擊登入
+→ 主視窗註冊 message 和 storage 監聽器
+→ 打開彈窗
+→ 用戶完成 Google 登入
+→ 後端 redirect 到 popup-callback.html
+→ popup-callback.html 保存 token 到 localStorage
+→ 嘗試 postMessage（如果 window.opener 存在）
+→ 主視窗接收 postMessage 或 storage 事件
+→ 自動更新登入狀態 ✅
+```
+
+**手機版流程**：
+```
+用戶點擊登入
+→ 直接跳轉到 Google 登入頁面
+→ 用戶完成 Google 登入
+→ 後端 redirect 到 popup-callback.html
+→ popup-callback.html 保存 token 到 localStorage
+→ 300ms 後自動跳轉回首頁
+→ 首頁檢測到 ipPlanningTokenUpdated 標記
+→ 自動更新登入狀態 ✅
+```
+
+#### 🔧 問題修復
+1. **Cross-Origin-Opener-Policy 錯誤**：
+   - 移除所有 `window.opener.closed` 和 `popup.closed` 檢查
+   - 改進錯誤處理，靜默處理 COOP 警告
+
+2. **手機版登入卡住**：
+   - 添加手機版檢測和自動跳轉邏輯
+   - 在首頁載入時檢查 localStorage 標記
+
+3. **Highlight.js 錯誤**：
+   - 改用瀏覽器 UMD 版本（`/build/` 路徑）
+   - 添加 `defer` 屬性和初始化邏輯
+
+4. **Favicon 404 錯誤**：
+   - 添加 SVG favicon，使用 data URI 內嵌
+
+#### 📝 檔案結構更新
+```
+ReelMindfrontnd-main/
+├── index.html                    # 主應用程式（已更新）
+├── auth/
+│   └── popup-callback.html      # OAuth callback 頁面（新增）
+├── subscription.html
+└── README.md                    # 專案說明文件
+```
+
+#### 🎯 測試結果
+所有功能已驗證正常：
+- ✅ **桌面版登入**：彈窗成功後主視窗自動更新
+- ✅ **手機版登入**：iOS Safari 自動跳轉並更新狀態
+- ✅ **postMessage 機制**：成功通信（如果 window.opener 存在）
+- ✅ **localStorage 備用**：在 postMessage 失敗時自動啟用
+- ✅ **定期檢查機制**：確保不會遺漏 token 更新
+- ✅ **COOP 錯誤修復**：不再出現 window.close 相關錯誤
+- ✅ **Highlight.js**：不再出現 module is not defined 錯誤
+- ✅ **Favicon**：不再出現 404 錯誤
+
+#### 📝 重要注意事項
+1. **Google OAuth 設定**：需要更新 `redirect_uri` 為 `https://aivideonew.zeabur.app/auth/popup-callback.html`
+2. **檔案上傳**：必須上傳整個 `auth` 資料夾到前端部署
+3. **環境變數**：後端需要設定固定的 `JWT_SECRET` 環境變數
+
+---
 
 ### v2.1.0 (2025-10-28) - 创作者资料库完整升级
 
