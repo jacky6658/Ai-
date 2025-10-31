@@ -45,6 +45,9 @@
     window.__TOKEN__ ||
     new URLSearchParams(location.search).get('token') ||
     new URLSearchParams(location.hash.slice(1)).get('token');
+  var refreshToken =
+    new URLSearchParams(location.search).get('refresh_token') ||
+    new URLSearchParams(location.hash.slice(1)).get('refresh_token');
   
   // 獲取用戶資訊
   var user_id = new URLSearchParams(location.search).get('user_id') || 
@@ -56,18 +59,25 @@
   var picture = new URLSearchParams(location.search).get('picture') || 
                 new URLSearchParams(location.hash.slice(1)).get('picture');
 
+  // 讀取主頁 origin（供 postMessage targetOrigin 使用）
+  var originParam = new URLSearchParams(location.search).get('origin') ||
+                    new URLSearchParams(location.hash.slice(1)).get('origin') ||
+                    window.location.origin;
+
   console.log('DEBUG: Extracted data:', { 
     token: token ? 'present (' + token.substring(0, 20) + '...)' : 'missing', 
     user_id, 
     email, 
     name, 
-    picture 
+    picture,
+    origin: originParam
   });
 
   if (token) {
     // 無論如何，先保存到 localStorage
     try {
       localStorage.setItem('ipPlanningToken', token);
+      if (refreshToken) localStorage.setItem('ipPlanningRefreshToken', refreshToken);
       if (user_id) localStorage.setItem('ipPlanningUser', JSON.stringify({
         user_id: user_id,
         email: email || '',
@@ -99,6 +109,7 @@
       type: 'GOOGLE_AUTH_SUCCESS',
       ipPlanningToken: token,
       accessToken: token,
+      refreshToken: refreshToken,
       user: {
         id: user_id,
         user_id: user_id,
@@ -110,7 +121,24 @@
     
     console.log('DEBUG: Prepared message:', JSON.stringify(message, null, 2));
     
-    // 桌面版（彈窗）處理：使用 postMessage 和 localStorage
+    // 桌面版（彈窗）處理：使用 postMessage、BroadcastChannel 與 localStorage
+    try {
+      var ch = new BroadcastChannel('auth');
+      ch.postMessage({ type: 'login-success', access_token: token, refresh_token: refreshToken, user: message.user });
+    } catch (e) { console.warn('DEBUG: BroadcastChannel unavailable:', e); }
+
+    // 依照規範：通知主視窗並嘗試立即關閉視窗
+    try { if (window.opener && window.opener !== window) { window.opener.postMessage({ type: 'googleAuthSuccess' }, '*'); } } catch(_) {}
+    try { window.close(); } catch(_) {}
+    // 500ms 後仍未關閉時顯示手動關閉按鈕（iOS/Safari 退路）
+    setTimeout(function(){
+      if (!window.closed) {
+        document.body.innerHTML = '<div style="margin:2rem;font-family:sans-serif;text-align:center">\
+          <p>已完成登入，可以關閉此視窗。</p>\
+          <button onclick="window.close()" style="padding:.6rem 1rem">關閉</button>\
+        </div>';
+      }
+    }, 500);
     // 方案1：嘗試使用 postMessage（如果 window.opener 存在）
     // 方案2：使用 localStorage + storage 事件作為備用
     
@@ -122,8 +150,8 @@
         console.log('DEBUG: window.opener exists, sending postMessage');
         console.log('DEBUG: Message target origin: * (all origins)');
         
-        // 發送多次確保接收（立即發送）
-        window.opener.postMessage(message, '*');
+        // 發送多次確保接收（立即發送），嚴格 target 為主頁 origin
+        window.opener.postMessage(message, originParam);
         console.log('DEBUG: ✅ First postMessage sent successfully');
         postMessageSuccess = true;
         
@@ -131,7 +159,7 @@
         setTimeout(function() {
           try {
             if (window.opener) {
-              window.opener.postMessage(message, '*');
+              window.opener.postMessage(message, originParam);
               console.log('DEBUG: ✅ Second postMessage sent (100ms delay)');
             }
           } catch (e) {
@@ -142,7 +170,7 @@
         setTimeout(function() {
           try {
             if (window.opener) {
-              window.opener.postMessage(message, '*');
+              window.opener.postMessage(message, originParam);
               console.log('DEBUG: ✅ Third postMessage sent (500ms delay)');
             }
           } catch (e) {
@@ -153,7 +181,7 @@
         setTimeout(function() {
           try {
             if (window.opener) {
-              window.opener.postMessage(message, '*');
+              window.opener.postMessage(message, originParam);
               console.log('DEBUG: ✅ Fourth postMessage sent (1000ms delay)');
             }
           } catch (e) {
@@ -165,7 +193,7 @@
         setTimeout(function() {
           try {
             if (window.opener) {
-              window.opener.postMessage(message, '*');
+              window.opener.postMessage(message, originParam);
               console.log('DEBUG: ✅ Fifth postMessage sent (2000ms delay)');
             }
           } catch (e) {
@@ -197,30 +225,8 @@
       postMessageSuccess = true;
     }
     
-    // 延遲關閉，確保訊息已發送
-    // 注意：如果 opener 丟失（因重定向），COOP 策略可能阻止 window.close()
-    // 但不影響功能，因為主視窗已通過 localStorage 接收 token
-    setTimeout(function() {
-      if (postMessageSuccess) {
-        console.log('DEBUG: Attempting to close popup window...');
-        try {
-          // 嘗試關閉窗口（可能因 COOP 失敗，但不影響功能）
-          window.close();
-          console.log('DEBUG: ✅ Popup close() called successfully');
-        } catch (e) {
-          // 靜默處理 COOP 錯誤（功能已正常完成）
-          if (e.message && e.message.includes('Cross-Origin-Opener-Policy')) {
-            console.log('DEBUG: ℹ️ Popup cannot self-close due to COOP (this is expected and harmless)');
-            document.querySelector('.container').innerHTML = '<h3>✅ 登入成功！</h3><p>認證資訊已保存，請手動關閉此視窗</p>';
-          } else {
-            console.warn('DEBUG: Unable to close window:', e.message || e);
-          }
-        }
-      } else {
-        console.warn('DEBUG: Keeping popup open because postMessage may have failed');
-        document.querySelector('.container').innerHTML = '<h3>⚠️ 請手動關閉此視窗</h3><p>認證資訊已保存</p>';
-      }
-    }, 1500);
+    // 由主頁負責關閉彈窗：此頁不再嘗試 window.close() 以避免 COOP 問題
+    document.querySelector('.container').innerHTML = '<h3>✅ 登入成功！</h3><p>您可以關閉此視窗，或等待系統自動處理。</p>';
   } else {
     console.warn('DEBUG: ⚠️ No token found in URL');
     document.querySelector('.container').innerHTML = '<h3>⚠️ 登入完成，但未找到認證資訊</h3><p>請關閉此視窗</p>';

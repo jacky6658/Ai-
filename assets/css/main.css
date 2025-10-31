@@ -1,0 +1,8 @@
+/* 全站允許文字選取與長按拷貝（覆蓋任何既有限制） */
+html, body, * {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+

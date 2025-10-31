@@ -21,6 +21,12 @@
     </style>
   </head>
   <body>
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <script defer src="/assets/js/config.js"></script>
+    <script defer src="/assets/js/auth.js"></script>
+    <script defer src="/assets/js/api.js"></script>
+    <script defer src="/assets/js/ui.js"></script>
+    <script defer src="/assets/js/bootstrap.js"></script>
     <div class="container">
       <h1>加入 ReelMind 會員</h1>
       <div class="hero">
@@ -251,12 +257,7 @@ a{text-decoration:none;color:inherit}
 
         <div class="row" style="margin-top:12px">
           <button class="btn blue" onclick="checkout()">前往付款</button>
-          <a class="btn ghost" href="#" onclick="(function(){
-            if (typeof startGoogleLogin === 'function') { startGoogleLogin(); return false; }
-            if (typeof login === 'function') { login(); return false; }
-            window.location.href = 'https://aivideobackend.zeabur.app/api/auth/google';
-            return false;
-          })();">已訂閱？登入使用</a>
+          <a class="btn ghost" href="/#login" onclick="(function(){ try{ window.location.href='/' + '#login'; }catch(_){ } return false; })();">已訂閱？登入使用</a>
         </div>
       </div>
     </section>
@@ -308,6 +309,16 @@ a{text-decoration:none;color:inherit}
   }
 
   function checkout(){
+    // 登入檢查：未登入先導回登入畫面
+    try {
+      var token = localStorage.getItem('ipPlanningToken') || '';
+      if (!token) {
+        alert('請先登入後再訂閱');
+        try { window.location.href = '/' + '#login'; } catch(_) {}
+        return;
+      }
+    } catch(_) {}
+
     // 這裡接你的金流導轉（ex: ECPay 產生訂單 → 導向付款頁）
     const plan = current;
     const payload = {
